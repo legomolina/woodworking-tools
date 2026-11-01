@@ -1,0 +1,11 @@
+#!/bin/sh
+
+export PATH="$HOME/.local/share/pnpm:$HOME/.npm-global/bin:$PATH"
+
+echo "Running linter before commit..."
+pnpm lint
+
+if [$? -ne 0]; then
+  echo "❌ El linting ha fallado. Corrige los errores antes de hacer commit."
+  exit 1;
+fi
