@@ -1,4 +1,58 @@
-You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
+# Woodworking Tools
+
+Client-side calculators and utilities for woodworkers. Each **Tool** solves one woodworking task and lives on its own page. There is no backend: everything runs in the browser and is deployed as a static site.
+
+Before working on anything domain-related, read `GLOSSARY.md` and use its terms exactly (in code, tests, issues and UI copy). Respect the decisions in `docs/adr/`.
+
+## Commands
+
+Use `pnpm`, never `npm` or `yarn`.
+
+- `pnpm lint` / `pnpm lint:fix`: Prettier + ESLint + Stylelint (check / auto-fix)
+- `pnpm typecheck`: type-check app and spec sources
+- `pnpm test:ci`: unit tests (Vitest), single run. Prefer running a single spec file while iterating.
+- `pnpm build`: production build
+
+## Architecture
+
+Organised by Tool, mirroring the domain language:
+
+```
+src/app/
+├── core/            # app shell: layout, navigation, app-wide providers
+├── shared/          # reusable UI and helpers used by more than one Tool
+└── tools/
+    └── <tool-name>/ # e.g. unit-converter, cut-optimizer
+        ├── <tool-name>.routes.ts   # lazy-loaded at /<tool-name>
+        ├── <tool-name>.page.ts     # routed page component
+        ├── *.calc.ts               # pure domain logic: no Angular, no DOM
+        └── components/             # small presentational components
+```
+
+- One Tool = one lazy route at `/<tool-name>` (kebab-case, matching the folder).
+- A Tool must NOT import from another Tool. Move shared code to `shared/` (or `core/` for app-shell concerns).
+- Domain logic lives in pure functions in `*.calc.ts` so it can be tested without Angular. Components only handle input, state and presentation.
+- Promote code to `shared/` only when a second Tool actually needs it.
+
+## Workflow
+
+Trunk-based development. Never commit directly to `main`.
+
+1. Branch from an up-to-date `main`: `feat/<short-name>`, `fix/<short-name>` or `chore/<short-name>`.
+2. Keep branches small and short-lived: one issue, one PR.
+3. Use Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`).
+4. Open a PR that links its issue (`Closes #<n>`). Every PR gets a preview deployment.
+5. PRs are squash-merged; the branch is deleted after merging.
+
+## Definition of Done
+
+A change is done only when all of these hold:
+
+- `pnpm lint`, `pnpm typecheck` and `pnpm test:ci` pass.
+- New or changed domain logic is covered by tests written test-first, asserting on behaviour through public interfaces, with expected values taken from the spec or worked examples (never recomputed the way the code does).
+- All user-facing text is translated: English source plus Spanish, with no missing keys (see `docs/adr/0001-runtime-i18n-with-transloco.md`).
+- The UI meets the accessibility requirements below.
+- Code, comments, docs, commits and PR descriptions are in English.
 
 ## TypeScript Best Practices
 
@@ -12,7 +66,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Must NOT set `standalone: true` inside Angular decorators. It's the default in Angular v20+.
 - Do NOT set `changeDetection: ChangeDetectionStrategy.OnPush` explicitly. `OnPush` is the default in Angular v22+.
 - Use signals for state management
-- Implement lazy loading for feature routes
+- Implement lazy loading for Tool routes
 - Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
 - Use `NgOptimizedImage` for all static images.
   - `NgOptimizedImage` does not work for inline base64 images.
@@ -57,3 +111,17 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use the `providedIn: 'root'` option for singleton services
 - Prefer the `@Service` decorator over `@Injectable({providedIn: 'root'})` for new singleton services (Angular v22+)
 - Use the `inject()` function instead of constructor injection
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues (legomolina/woodworking-tools) via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default canonical labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
