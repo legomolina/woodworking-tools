@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Hooks run in non-interactive shells (IDEs, agents) that don't load the user's
+# profile: if pnpm is not on PATH, try to load nvm.
+if ! command -v pnpm >/dev/null 2>&1; then
+  export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+  # shellcheck disable=SC1091
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+fi
+
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "❌ pnpm not found on PATH. Install it or enable nvm."
+  exit 1
+fi
+
+echo "Running linter before commit..."
+if ! pnpm lint; then
+  echo "❌ Linting failed. Fix the errors before committing."
+  exit 1
+fi

@@ -1,59 +1,46 @@
-# WoodworkingTools
+# Woodworking Tools
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.5.
+A collection of client-side calculators and utilities for woodworkers: unit conversion, board-foot calculation, cut-list optimization and more. Each tool lives on its own page (e.g. `/unit-converter`, `/cut-optimizer`).
 
-## Development server
+This is also a playground for **agentic software development**: most of the code is written by AI agents (Claude Code), with a human reviewing every change through pull requests.
 
-To start a local development server, run:
+## Stack
 
-```bash
-ng serve
-```
+- [Angular](https://angular.dev) 22 (standalone components, signals, zoneless)
+- [Vitest](https://vitest.dev) for unit tests
+- ESLint, Prettier and Stylelint
+- [pnpm](https://pnpm.io) as package manager
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Getting started
 
 ```bash
-ng generate component component-name
+pnpm install   # also configures the git hooks (see "prepare")
+pnpm start     # dev server at http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Scripts
 
-```bash
-ng generate --help
-```
+| Script           | Description                                        |
+| ---------------- | -------------------------------------------------- |
+| `pnpm start`     | Start the dev server                               |
+| `pnpm build`     | Production build into `dist/`                      |
+| `pnpm test`      | Unit tests in watch mode                           |
+| `pnpm test:ci`   | Unit tests, single run                             |
+| `pnpm typecheck` | Type-check app and spec sources                    |
+| `pnpm lint`      | Prettier check + ESLint + Stylelint                |
+| `pnpm lint:fix`  | Auto-fix formatting and lint issues where possible |
 
-## Building
+## Workflow
 
-To build the project run:
+Trunk-based development:
 
-```bash
-ng build
-```
+1. Create a short-lived branch from `main` (`feat/...`, `fix/...`, `chore/...`).
+2. Open a pull request. Every PR gets its own preview deployment.
+3. Iterate until CI is green and the preview has been verified.
+4. Squash-merge into `main`, which deploys to production. The branch is deleted automatically.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+A `pre-commit` hook (`.githooks/pre-commit`) runs `pnpm lint` and blocks commits that fail it.
 
-## Running unit tests
+## License
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+See [LICENSE](LICENSE).

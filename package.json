@@ -7,7 +7,17 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "test:ci": "ng test --watch=false",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.spec.json --noEmit",
+    "prepare": "git config core.hooksPath .githooks",
+    "lint": "pnpm prettier && pnpm eslint && pnpm stylelint",
+    "lint:fix": "pnpm prettier:fix && pnpm eslint:fix && pnpm stylelint:fix",
+    "prettier": "prettier -c .",
+    "prettier:fix": "prettier -w .",
+    "eslint": "eslint .",
+    "eslint:fix": "eslint --fix .",
+    "stylelint": "stylelint \"**/*.css\"",
+    "stylelint:fix": "stylelint --fix \"**/*.css\""
   },
   "private": true,
   "packageManager": "pnpm@12.16.1",
