@@ -45,6 +45,8 @@ src/
             └── components/             # small presentational components
 ```
 
+Test-only helpers shared by specs (never imported by app code) live in `src/testing/`.
+
 - One Tool = one lazy route at `/<tool-name>` (kebab-case, matching the folder).
 - A Tool must NOT import from another Tool, nor from `layout/`. Move shared code to `shared/` (or `core/` for services and providers).
 - Domain logic lives in pure functions in `*.calc.ts` so it can be tested without Angular. Components only handle input, state and presentation.

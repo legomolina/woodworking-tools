@@ -39,7 +39,7 @@ for (const { colorScheme, surface } of THEMES) {
         await expect(page.locator('body')).toHaveCSS('background-color', surface);
 
         const { violations, incomplete } = await new AxeBuilder({ page })
-          .withTags(WCAG_AA_TAGS)
+          .withTags([...WCAG_AA_TAGS])
           .analyze();
 
         // axe reports contrast it cannot compute (gradients, background images)

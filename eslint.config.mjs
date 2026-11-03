@@ -157,6 +157,8 @@ export default defineConfig(
       globals: vitest.environments.env.globals,
     },
     rules: {
+      // An un-awaited async assertion (e.g. `expectNoAxeViolations`) lets the test pass before it settles.
+      '@typescript-eslint/no-floating-promises': 'error',
       // `expectNoAxeViolations` rejects on any violation, so it counts as an assertion.
       'vitest/expect-expect': [
         'error',

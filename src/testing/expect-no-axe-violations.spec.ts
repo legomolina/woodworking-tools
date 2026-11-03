@@ -31,7 +31,7 @@ describe('expectNoAxeViolations', () => {
     await fixture.whenStable();
 
     await expect(expectNoAxeViolations(fixture.nativeElement as HTMLElement)).rejects.toThrow(
-      /label[\s\S]*#board-length/,
+      /^- label \(.*\n {4}at #board-length: <input id="board-length"/m,
     );
   });
 
