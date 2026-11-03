@@ -50,7 +50,7 @@ Trunk-based development. Never commit directly to `main`.
 2. Keep branches small and short-lived: one issue, one PR.
 3. Use Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`).
 4. Open a PR that links its issue (`Closes #<n>`). Every PR gets a preview deployment.
-5. CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, build and e2e on every PR. A PR merges only when CI is green; if it fails, read the failing job's log (`gh run view --log-failed`) and fix the cause.
+5. CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests and build, deploys the build to Cloudflare Pages (a preview per PR, production on `main`) and runs e2e against that deployment. A PR merges only when CI is green; if it fails, read the failing job's log (`gh run view --log-failed`) and fix the cause.
 6. PRs are squash-merged; the branch is deleted after merging.
 
 ## Definition of Done
