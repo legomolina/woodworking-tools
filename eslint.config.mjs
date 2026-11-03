@@ -157,7 +157,11 @@ export default defineConfig(
       globals: vitest.environments.env.globals,
     },
     rules: {
-      'vitest/expect-expect': 'error',
+      // `expectNoAxeViolations` rejects on any violation, so it counts as an assertion.
+      'vitest/expect-expect': [
+        'error',
+        { assertFunctionNames: ['expect', 'expectNoAxeViolations'] },
+      ],
       'vitest/valid-expect': 'error',
       'vitest/no-standalone-expect': 'error',
       'vitest/no-conditional-expect': 'error',

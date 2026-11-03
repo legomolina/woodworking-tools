@@ -18,6 +18,7 @@ Use `pnpm`, never `npm` or `yarn`.
 ## Testing
 
 - **Unit tests** (`src/**/*.spec.ts`, Vitest): domain logic in `*.calc.ts` and component behaviour.
+  Page-level tests call `await expectNoAxeViolations(fixture.nativeElement)` (`src/testing/`) for a fast axe check; colour contrast is left to e2e.
 - **Tooling tests** (`scripts/*.test.mjs`, `node:test`): the token generator, and every lint rule proven against code it must block and code it must allow.
 - **End-to-end tests** (`e2e/`, Playwright): user flows in a real browser. `e2e/accessibility.spec.ts` audits every route listed in `e2e/routes.ts` against WCAG 2.2 AA with axe, in the light and dark themes. When you add a page, add its route there.
 - Test-quality lint rules reject tests that cannot fail (no assertions, `expect(<literal>)`, conditional or skipped tests). Fix the test, never the rule.

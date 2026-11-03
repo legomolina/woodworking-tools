@@ -47,6 +47,7 @@
     "@types/node": "^26.6.6",
     "@vitest/eslint-plugin": "^1.6.28",
     "angular-eslint": "22.6.0",
+    "axe-core": "^4.14.0",
     "eslint": "^10.12.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-playwright": "^2.12.2",

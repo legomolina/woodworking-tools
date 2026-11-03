@@ -1,9 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { WCAG_AA_TAGS } from '../src/testing/wcag-aa-tags';
 import { appRoutes } from './routes';
-
-/** WCAG 2.2 level A and AA rules, as required by CLAUDE.md. */
-const WCAG_AA_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 /**
  * Both themes are first-class: every route is audited in each. `surface` is
