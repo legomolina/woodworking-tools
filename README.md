@@ -14,8 +14,9 @@ This is also a playground for **agentic software development**: most of the code
 ## Getting started
 
 ```bash
-pnpm install   # also configures the git hooks (see "prepare")
-pnpm start     # dev server at http://localhost:4200
+pnpm install                            # also configures the git hooks (see "prepare")
+pnpm exec playwright install chromium   # browser for end-to-end tests
+pnpm start                              # dev server at http://localhost:4200
 ```
 
 ## Scripts
@@ -26,7 +27,9 @@ pnpm start     # dev server at http://localhost:4200
 | `pnpm build`     | Production build into `dist/`                      |
 | `pnpm test`      | Unit tests in watch mode                           |
 | `pnpm test:ci`   | Unit tests, single run                             |
-| `pnpm typecheck` | Type-check app and spec sources                    |
+| `pnpm typecheck` | Type-check app, unit test and e2e sources          |
+| `pnpm e2e`       | End-to-end + accessibility tests (Playwright)      |
+| `pnpm e2e:ui`    | End-to-end tests in Playwright's interactive UI    |
 | `pnpm lint`      | Prettier check + ESLint + Stylelint                |
 | `pnpm lint:fix`  | Auto-fix formatting and lint issues where possible |
 

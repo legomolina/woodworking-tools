@@ -2,9 +2,28 @@ import eslint from '@eslint/js';
 import { defineConfig } from 'eslint/config';
 import { configs as angularConfig, processInlineTemplates } from 'angular-eslint';
 import prettierConfig from 'eslint-config-prettier';
+import playwright from 'eslint-plugin-playwright';
 import prettierPlugin from 'eslint-plugin-prettier';
 import unusedImports from 'eslint-plugin-unused-imports';
 import { configs as typescriptConfig } from 'typescript-eslint';
+import vitest from '@vitest/eslint-plugin';
+
+/**
+ * Guards against tests that cannot fail, such as `expect(true).toBe(true)`:
+ * `expect()` must receive the value under test, never a literal.
+ */
+const noTrivialExpect = [
+  'error',
+  {
+    selector: [
+      "CallExpression[callee.name='expect'] > Literal.arguments",
+      "CallExpression[callee.name='expect'] > TemplateLiteral.arguments",
+      "CallExpression[callee.name='expect'] > Identifier.arguments[name='undefined']",
+    ].join(', '),
+    message:
+      'expect() must receive the value under test, not a literal. Put the expected value in the matcher: expect(actual).toBe(expected).',
+  },
+];
 
 export default defineConfig(
   {
@@ -121,6 +140,41 @@ export default defineConfig(
       '@typescript-eslint/no-magic-numbers': 'off',
       '@angular-eslint/component-max-inline-declarations': 'off',
       '@typescript-eslint/class-methods-use-this': 'off',
+    },
+  },
+  {
+    // Unit tests (Vitest): every test must assert something meaningful and run.
+    files: ['src/**/*.spec.ts'],
+    extends: [vitest.configs.recommended],
+    languageOptions: {
+      globals: vitest.environments.env.globals,
+    },
+    rules: {
+      'vitest/expect-expect': 'error',
+      'vitest/valid-expect': 'error',
+      'vitest/no-standalone-expect': 'error',
+      'vitest/no-conditional-expect': 'error',
+      'vitest/no-conditional-in-test': 'error',
+      'vitest/no-disabled-tests': 'error',
+      'vitest/no-focused-tests': 'error',
+      'vitest/no-commented-out-tests': 'error',
+      'vitest/no-identical-title': 'error',
+      'no-restricted-syntax': noTrivialExpect,
+    },
+  },
+  {
+    // End-to-end tests (Playwright).
+    files: ['e2e/**/*.ts'],
+    extends: [playwright.configs['flat/recommended']],
+    rules: {
+      'playwright/expect-expect': 'error',
+      'playwright/no-skipped-test': 'error',
+      'playwright/no-focused-test': 'error',
+      'playwright/no-conditional-in-test': 'error',
+      'playwright/no-commented-out-tests': 'error',
+      'playwright/no-wait-for-timeout': 'error',
+      'playwright/no-force-option': 'error',
+      'no-restricted-syntax': noTrivialExpect,
     },
   },
   {

@@ -12,6 +12,14 @@ Use `pnpm`, never `npm` or `yarn`.
 - `pnpm typecheck`: type-check app and spec sources
 - `pnpm test:ci`: unit tests (Vitest), single run. Prefer running a single spec file while iterating.
 - `pnpm build`: production build
+- `pnpm e2e`: end-to-end tests (Playwright, desktop + mobile), including the accessibility audit. Starts the dev server itself; set `E2E_BASE_URL` to test a deployed URL instead.
+
+## Testing
+
+- **Unit tests** (`src/**/*.spec.ts`, Vitest): domain logic in `*.calc.ts` and component behaviour.
+- **End-to-end tests** (`e2e/`, Playwright): user flows in a real browser. `e2e/accessibility.spec.ts` audits every route listed in `e2e/routes.ts` against WCAG 2.2 AA with axe. When you add a page, add its route there.
+- Test-quality lint rules reject tests that cannot fail (no assertions, `expect(<literal>)`, conditional or skipped tests). Fix the test, never the rule.
+- To check UI work visually, use the Playwright MCP tools against the running dev server (`pnpm start`): open the page, take a snapshot or screenshot, and compare with what was asked.
 
 ## Architecture
 
@@ -49,6 +57,7 @@ Trunk-based development. Never commit directly to `main`.
 A change is done only when all of these hold:
 
 - `pnpm lint`, `pnpm typecheck` and `pnpm test:ci` pass.
+- For any UI change, `pnpm e2e` passes (including the accessibility audit).
 - New or changed domain logic is covered by tests written test-first, asserting on behaviour through public interfaces, with expected values taken from the spec or worked examples (never recomputed the way the code does).
 - All user-facing text is translated: English source plus Spanish, with no missing keys (see `docs/adr/0001-runtime-i18n-with-transloco.md`).
 - The UI meets the accessibility requirements below.
