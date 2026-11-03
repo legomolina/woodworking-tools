@@ -125,6 +125,18 @@ Claude Code hooks (`.claude/hooks/`) enforce part of this automatically: every e
 
 ## Agent skills
 
+### Review before a PR
+
+Run these before opening a PR, in parallel when both apply, and address their findings:
+
+- `test-reviewer` subagent: the PR adds or changes tests.
+- `a11y-auditor` subagent: the PR changes UI (needs `pnpm start` running).
+- `mattpocock-skills:code-review` skill: every PR (standards + spec fidelity).
+
+### Guardrails
+
+When you add, change or remove a rule, hook, check or agent, record it in `docs/agents/guardrail-log.md`.
+
 ### Issue tracker
 
 Issues are tracked in GitHub Issues (legomolina/woodworking-tools) via the `gh` CLI. See `docs/agents/issue-tracker.md`.
