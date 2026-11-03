@@ -50,21 +50,28 @@ export default defineConfig(
     rules: {
       '@angular-eslint/component-class-suffix': 'off',
       '@angular-eslint/directive-class-suffix': 'off',
+      // Every selector uses the `wt` prefix (docs/adr/0003-component-styling.md):
+      // `<wt-number-field>`, `button[wt-button]`, `[wtAutofocus]`.
       '@angular-eslint/directive-selector': [
         'error',
         {
           type: 'attribute',
-          prefix: 'app',
+          prefix: 'wt',
           style: 'camelCase',
         },
       ],
       '@angular-eslint/component-selector': [
         'error',
         {
-          type: 'element',
-          prefix: 'app',
+          type: ['element', 'attribute'],
+          prefix: 'wt',
           style: 'kebab-case',
         },
+      ],
+      // Templates and styles always live in their own files.
+      '@angular-eslint/component-max-inline-declarations': [
+        'error',
+        { template: 0, styles: 0, animations: 0 },
       ],
       '@angular-eslint/prefer-signals': 'warn',
       '@angular-eslint/no-experimental': 'off',

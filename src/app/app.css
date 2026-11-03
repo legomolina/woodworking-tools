@@ -1,0 +1,21 @@
+/* Placeholder layout until the app shell is built (issue #2). */
+main {
+  max-inline-size: var(--content-max);
+  margin-inline: auto;
+  padding-block: var(--space-8);
+  padding-inline: var(--space-4);
+}
+
+h1 {
+  margin-block-end: var(--space-4);
+}
+
+p {
+  color: var(--ink-muted);
+}
+
+@media (width >= 48rem) {
+  main {
+    padding-inline: var(--space-8);
+  }
+}

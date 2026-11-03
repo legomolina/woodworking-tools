@@ -1,0 +1,93 @@
+/* Generated from tokens.json by scripts/generate-tokens.mjs. Do not edit. */
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+  --control-height: 48px;
+  --focus-ring-width: 2px;
+  --content-max: 720px;
+  --font-sans: Barlow, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --text-display: 600 32px/38px var(--font-sans);
+  --text-display-letter-spacing: -0.01em;
+  --text-heading: 600 22px/28px var(--font-sans);
+  --text-title: 600 18px/24px var(--font-sans);
+  --text-body: 400 16px/24px var(--font-sans);
+  --text-label: 500 15px/20px var(--font-sans);
+  --text-caption: 400 14px/20px var(--font-sans);
+  --text-readout: 500 40px/44px var(--font-mono);
+  --text-readout-letter-spacing: -0.02em;
+  --text-readout-sm: 500 20px/28px var(--font-mono);
+  --text-value: 400 16px/24px var(--font-mono);
+  --surface: #f7f1e8;
+  --surface-raised: #fffbf5;
+  --surface-sunken: #efe5d6;
+  --line: #ddd0bd;
+  --line-strong: #857560;
+  --ink: #2a2017;
+  --ink-muted: #66574a;
+  --tape: #f5b700;
+  --on-tape: #2a2017;
+  --tape-ink: #855600;
+  --tape-soft: #fcefc7;
+  --walnut: #5c3b24;
+  --maple: #e6c897;
+  --danger: #b0291f;
+  --danger-soft: #fbe4e0;
+  --focus: #2a2017;
+  --link: var(--tape-ink);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --surface: #1b1713;
+    --surface-raised: #25201a;
+    --surface-sunken: #141110;
+    --line: #3a3229;
+    --line-strong: #8f806d;
+    --ink: #f3ebe0;
+    --ink-muted: #b8aa98;
+    --tape: #f7c032;
+    --on-tape: #2a2017;
+    --tape-ink: #f7c032;
+    --tape-soft: #3b2f12;
+    --walnut: #9a6a45;
+    --maple: #5f4a30;
+    --danger: #ff8f84;
+    --danger-soft: #3d1a16;
+    --focus: #f7c032;
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --surface: #1b1713;
+  --surface-raised: #25201a;
+  --surface-sunken: #141110;
+  --line: #3a3229;
+  --line-strong: #8f806d;
+  --ink: #f3ebe0;
+  --ink-muted: #b8aa98;
+  --tape: #f7c032;
+  --on-tape: #2a2017;
+  --tape-ink: #f7c032;
+  --tape-soft: #3b2f12;
+  --walnut: #9a6a45;
+  --maple: #5f4a30;
+  --danger: #ff8f84;
+  --danger-soft: #3d1a16;
+  --focus: #f7c032;
+
+  color-scheme: dark;
+}

@@ -8,16 +8,18 @@ Before working on anything domain-related, read `GLOSSARY.md` and use its terms 
 
 Use `pnpm`, never `npm` or `yarn`.
 
-- `pnpm lint` / `pnpm lint:fix`: Prettier + ESLint + Stylelint (check / auto-fix)
+- `pnpm lint` / `pnpm lint:fix`: generated-token check + Prettier + ESLint + Stylelint (check / auto-fix)
+- `pnpm tokens`: regenerate `src/styles/tokens.css` from the `tokens.json` snapshot
 - `pnpm typecheck`: type-check app and spec sources
-- `pnpm test:ci`: unit tests (Vitest), single run. Prefer running a single spec file while iterating.
+- `pnpm test:ci`: unit tests (Vitest), single run, then the tooling tests (`pnpm test:tooling`: token generator and lint rules, `node --test`). Prefer running a single spec file while iterating.
 - `pnpm build`: production build
 - `pnpm e2e`: end-to-end tests (Playwright, desktop + mobile), including the accessibility audit. Starts the dev server itself; set `E2E_BASE_URL` to test a deployed URL instead.
 
 ## Testing
 
 - **Unit tests** (`src/**/*.spec.ts`, Vitest): domain logic in `*.calc.ts` and component behaviour.
-- **End-to-end tests** (`e2e/`, Playwright): user flows in a real browser. `e2e/accessibility.spec.ts` audits every route listed in `e2e/routes.ts` against WCAG 2.2 AA with axe. When you add a page, add its route there.
+- **Tooling tests** (`scripts/*.test.mjs`, `node:test`): the token generator, and every lint rule proven against code it must block and code it must allow.
+- **End-to-end tests** (`e2e/`, Playwright): user flows in a real browser. `e2e/accessibility.spec.ts` audits every route listed in `e2e/routes.ts` against WCAG 2.2 AA with axe, in the light and dark themes. When you add a page, add its route there.
 - Test-quality lint rules reject tests that cannot fail (no assertions, `expect(<literal>)`, conditional or skipped tests). Fix the test, never the rule.
 - To check UI work visually, use the Playwright MCP tools against the running dev server (`pnpm start`): open the page, take a snapshot or screenshot, and compare with what was asked.
 
@@ -26,21 +28,26 @@ Use `pnpm`, never `npm` or `yarn`.
 Organised by Tool, mirroring the domain language:
 
 ```
-src/app/
-├── core/            # app shell: layout, navigation, app-wide providers
-├── shared/          # reusable UI and helpers used by more than one Tool
-└── tools/
-    └── <tool-name>/ # e.g. unit-converter, cut-optimizer
-        ├── <tool-name>.routes.ts   # lazy-loaded at /<tool-name>
-        ├── <tool-name>.page.ts     # routed page component
-        ├── *.calc.ts               # pure domain logic: no Angular, no DOM
-        └── components/             # small presentational components
+src/
+├── styles/          # global styles only: styles.css imports fonts, tokens, reset, base
+└── app/
+    ├── core/        # shared services and providers (settings store, Tool registry, i18n)
+    ├── layout/      # shell pieces (header, skip link, footer): eager, not a Tool
+    ├── shared/
+    │   ├── ui/      # wt-* components, directives and pipes (the design system)
+    │   └── <name>/  # pure domain modules shared by Tools, e.g. measurement/
+    └── tools/
+        └── <tool-name>/ # e.g. unit-converter, cut-optimizer
+            ├── <tool-name>.routes.ts   # lazy-loaded at /<tool-name>
+            ├── <tool-name>.page.ts     # routed page component
+            ├── *.calc.ts               # pure domain logic: no Angular, no DOM
+            └── components/             # small presentational components
 ```
 
 - One Tool = one lazy route at `/<tool-name>` (kebab-case, matching the folder).
-- A Tool must NOT import from another Tool. Move shared code to `shared/` (or `core/` for app-shell concerns).
+- A Tool must NOT import from another Tool, nor from `layout/`. Move shared code to `shared/` (or `core/` for services and providers).
 - Domain logic lives in pure functions in `*.calc.ts` so it can be tested without Angular. Components only handle input, state and presentation.
-- Promote code to `shared/` only when a second Tool actually needs it.
+- Promote code to `shared/` only when a second Tool actually needs it. Design system components (`wt-*`) are the exception: they live in `shared/ui/` from day one.
 
 ## Workflow
 
@@ -65,6 +72,18 @@ A change is done only when all of these hold:
 - Code, comments, docs, commits and PR descriptions are in English.
 
 Claude Code hooks (`.claude/hooks/`) enforce part of this automatically: every edited file is formatted and linted, and you cannot finish a turn while `pnpm lint`, `pnpm typecheck` or `pnpm test:ci` fail. When a hook reports a problem, fix the cause; never weaken a test, a lint rule or a hook to get past it.
+
+## Styling
+
+Full decisions in `docs/adr/0003-component-styling.md`; lint enforces most of them.
+
+- Every selector uses the `wt` prefix. A single native element is an attribute selector (`button[wt-button]`); composites and form fields are elements (`<wt-number-field>`). Every building block is a `@Component` with scoped styles, never a styling directive.
+- Reflect inputs that affect styling on the host under the same name (`host: { '[attr.variant]': 'variant()' }`) and style them with `:host([variant="primary"])`.
+- No `::ng-deep`, no `!important`, no BEM, no utility classes. At most one class per selector, kebab-case; prefer element selectors.
+- Logical properties only (`inline-size`, `margin-block-start`, `padding-inline`…).
+- Colours and typography only through tokens: `color: var(--ink)`, `font: var(--text-body)`. Never edit `src/styles/tokens.css`: it is generated from the `tokens.json` snapshot of the design system (`pnpm tokens`).
+- Global rules belong in `src/styles/` wrapped in `:where()`; everything else is styled by its component.
+- Fonts are self-hosted (`public/fonts/`); never load anything from another origin.
 
 ## TypeScript Best Practices
 
@@ -95,7 +114,7 @@ Claude Code hooks (`.claude/hooks/`) enforce part of this automatically: every e
 - Use `model()` for two-way bound properties with `[(prop)]` syntax instead of pairing `input()` with `output()`
 - Use `computed()` for derived state
 - Use `linkedSignal()` for state derived from multiple reactive sources that must stay synchronized
-- Prefer inline templates for small components
+- Templates and styles always live in their own files (`button.ts`, `button.html`, `button.css`), never inline
 - Prefer Signal Forms (`@angular/forms/signals`) for new forms. They are stable in Angular v22+ and provide signal-based state, type-safe field access, and schema-based validation
 - When not using Signal Forms, prefer Reactive forms instead of Template-driven ones
 - Do NOT use `ngClass`, use `class` bindings instead
