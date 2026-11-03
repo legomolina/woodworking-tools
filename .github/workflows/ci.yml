@@ -1,5 +1,7 @@
-# Runs the Definition of Done checks on every PR and on main.
-# Branch protection on main requires both jobs to pass.
+# Runs the Definition of Done checks on every PR and on main, deploys the build
+# to Cloudflare Pages (a preview per PR, production on main) and runs the e2e
+# suite against that deployment. Branch protection on main requires the checks
+# and e2e jobs to pass.
 name: CI
 
 on:
@@ -7,10 +9,11 @@ on:
   push:
     branches: [main]
 
-# A new push to the same PR cancels the run it supersedes.
+# A new push to the same PR cancels the run it supersedes; runs on main are
+# never cancelled, so a production deploy is never cut off halfway.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -35,11 +38,52 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test:ci
       - run: pnpm build
+      - name: Upload build
+        uses: actions/upload-artifact@v7
+        with:
+          name: site
+          path: dist/woodworking-tools/browser/
+          retention-days: 7
+
+  deploy:
+    name: Deploy to Cloudflare Pages
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Shows the deployment, with a link to it, on the PR and in the repo's
+    # Environments page.
+    environment:
+      name: ${{ github.event_name == 'push' && 'production' || 'preview' }}
+      url: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
+    outputs:
+      url: ${{ steps.deploy.outputs.deployment-url }}
+    steps:
+      # Only the build is needed: no checkout, so wrangler is installed in an
+      # empty folder and nothing but the build is uploaded.
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: deploy/site
+      - name: Deploy
+        id: deploy
+        uses: cloudflare/wrangler-action@v4.1.3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.151.2'
+          packageManager: npm
+          workingDirectory: deploy
+          command: pages deploy site --project-name=woodworking-tools --branch=${{ github.head_ref || github.ref_name }} --commit-hash=${{ github.event.pull_request.head.sha || github.sha }}
 
   e2e:
     name: E2E and accessibility
+    needs: deploy
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # Test the deployed site, exactly as users get it, instead of the dev server.
+      E2E_BASE_URL: ${{ needs.deploy.outputs.url }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6.1.0
