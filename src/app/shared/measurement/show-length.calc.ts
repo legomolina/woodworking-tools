@@ -1,3 +1,10 @@
+import {
+  INCHES_PER_FOOT,
+  isMetricUnit,
+  MILLIMETRES_PER_INCH,
+  MILLIMETRES_PER_METRIC_UNIT,
+  type MetricUnit,
+} from './length-units';
 import type { UnitSystem } from './unit-system';
 
 /** The units a length can be shown in. */
@@ -24,24 +31,9 @@ export interface ShownLength {
   readonly approximate: boolean;
 }
 
-type MetricUnit = 'mm' | 'cm' | 'm';
-
-interface MetricFormat {
-  readonly millimetresPerUnit: number;
-  readonly maximumDecimals: number;
-}
-
-const METRIC_FORMATS: Readonly<Record<MetricUnit, MetricFormat>> = {
-  mm: { millimetresPerUnit: 1, maximumDecimals: 1 },
-  cm: { millimetresPerUnit: 10, maximumDecimals: 2 },
-  m: { millimetresPerUnit: 1000, maximumDecimals: 3 },
-};
+const MAXIMUM_METRIC_DECIMALS: Readonly<Record<MetricUnit, number>> = { mm: 1, cm: 2, m: 3 };
 
 const DECIMAL_SEPARATORS: Readonly<Record<Language, string>> = { en: '.', es: ',' };
-
-const MILLIMETRES_PER_INCH = 25.4;
-
-const INCHES_PER_FOOT = 12;
 
 const DECIMAL_INCH_DECIMALS = 3;
 
@@ -55,10 +47,15 @@ const DECIMAL_BASE = 10;
 
 const APPROXIMATE_MARK = '≈ ';
 
-/** A non-negative value rounded to a whole number of steps, with the text that shows it. */
+/** A non-negative value rounded to a whole number of steps, and whether that changed it. */
 interface Rounded {
   readonly steps: number;
   readonly approximate: boolean;
+}
+
+/** A non-negative length as shown, before the sign and the approximate mark are added. */
+interface ShownMagnitude extends Rounded {
+  readonly text: string;
 }
 
 function isClose(a: number, b: number): boolean {
@@ -97,7 +94,10 @@ function formatFeetAndInches(steps: number, precision: ImperialPrecision): strin
   return inchSteps === 0 ? `${feet}'` : `${feet}' ${formatFractionalInches(inchSteps, precision)}`;
 }
 
-/** Shows a whole number of steps of `10^-decimals` as a decimal number, without trailing zeros. */
+/**
+ * Shows a whole number of steps of `10^-decimals` as a decimal number, without trailing zeros.
+ * There is deliberately no thousands separator: `2.440 mm` or `2,440 mm` would read back as 2.44 mm.
+ */
 function formatDecimal(steps: number, decimals: number, language: Language): string {
   const digits = String(steps).padStart(decimals + 1, '0');
   const whole = digits.slice(0, digits.length - decimals);
@@ -109,10 +109,11 @@ function showMagnitude(
   millimetres: number,
   unit: DisplayUnit,
   options: ShowLengthOptions,
-): Rounded & { readonly text: string } {
-  if (unit === 'mm' || unit === 'cm' || unit === 'm') {
-    const { millimetresPerUnit, maximumDecimals } = METRIC_FORMATS[unit];
-    const rounded = roundToSteps(millimetres / millimetresPerUnit, DECIMAL_BASE ** maximumDecimals);
+): ShownMagnitude {
+  if (isMetricUnit(unit)) {
+    const maximumDecimals = MAXIMUM_METRIC_DECIMALS[unit];
+    const inUnit = millimetres / MILLIMETRES_PER_METRIC_UNIT[unit];
+    const rounded = roundToSteps(inUnit, DECIMAL_BASE ** maximumDecimals);
     const value = formatDecimal(rounded.steps, maximumDecimals, options.language);
     return { ...rounded, text: `${value} ${unit}` };
   }
@@ -133,12 +134,17 @@ function showMagnitude(
 /**
  * Shows a length, given in millimetres, in the chosen unit. The text always carries its unit,
  * and is marked with `≈` when the shown value had to be rounded.
+ *
+ * @throws RangeError when `millimetres` is not a finite number.
  */
 export function showLength(
   millimetres: number,
   unit: DisplayUnit,
   options: ShowLengthOptions,
 ): ShownLength {
+  if (!Number.isFinite(millimetres)) {
+    throw new RangeError('Cannot show a length that is not a finite number of millimetres');
+  }
   const { steps, approximate, text } = showMagnitude(Math.abs(millimetres), unit, options);
   const sign = millimetres < 0 && steps !== 0 ? '-' : '';
   return { text: (approximate ? APPROXIMATE_MARK : '') + sign + text, approximate };

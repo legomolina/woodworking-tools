@@ -1,9 +1,56 @@
-import { defaultDisplayUnit, showLength } from './show-length.calc';
+import { readLength } from './read-length.calc';
+import { defaultDisplayUnit, type ShownLength, showLength } from './show-length.calc';
 
-const exactly = (text: string): unknown => ({ text, approximate: false });
-const approximately = (text: string): unknown => ({ text, approximate: true });
+const exactly = (text: string): ShownLength => ({ text, approximate: false });
+const approximately = (text: string): ShownLength => ({ text, approximate: true });
+
+/** Millimetres for text the user typed, as the measurement module reads it. */
+function typed(text: string): number {
+  const read = readLength(text, 'metric');
+  if (!read.ok) {
+    throw new Error(`Test input ${JSON.stringify(text)} is not readable`);
+  }
+  return read.millimetres;
+}
 
 describe('showLength', () => {
+  describe('rounding', () => {
+    // Halfway values round up (away from zero), even when unit conversion adds floating-point noise.
+    it.each([
+      { millimetres: 14.45, unit: 'cm', expected: approximately('≈ 1.45 cm') },
+      { millimetres: 9.95, unit: 'cm', expected: approximately('≈ 1 cm') },
+      { millimetres: 0.05, unit: 'mm', expected: approximately('≈ 0.1 mm') },
+      { millimetres: -0.05, unit: 'mm', expected: approximately('≈ -0.1 mm') },
+      { millimetres: 1.0033, unit: 'decimal-inches', expected: approximately('≈ 0.04"') },
+      { millimetres: typed('3/32"'), unit: 'fractional-inches', expected: approximately('≈ 1/8"') },
+      {
+        millimetres: typed('1 31/32"'),
+        unit: 'fractional-inches',
+        expected: approximately('≈ 2"'),
+      },
+      // Rounding carries into the next whole unit.
+      { millimetres: 99.95, unit: 'mm', expected: approximately('≈ 100 mm') },
+      { millimetres: 999.96, unit: 'm', expected: approximately('≈ 1 m') },
+      { millimetres: typed('11.9999"'), unit: 'decimal-inches', expected: approximately('≈ 12"') },
+    ] as const)(
+      'shows $millimetres mm in $unit as $expected',
+      ({ millimetres, unit, expected }) => {
+        expect(showLength(millimetres, unit, { precision: 16, language: 'en' })).toEqual(expected);
+      },
+    );
+
+    it.each([
+      [Number.POSITIVE_INFINITY, 'fractional-inches'],
+      [Number.NEGATIVE_INFINITY, 'feet-and-inches'],
+      [Number.NaN, 'mm'],
+      [Number.NaN, 'decimal-inches'],
+    ] as const)('rejects %d mm in %s, which is not a length', (millimetres, unit) => {
+      expect(() => showLength(millimetres, unit, { precision: 16, language: 'en' })).toThrow(
+        'Cannot show a length that is not a finite number of millimetres',
+      );
+    });
+  });
+
   describe('metric units', () => {
     it.each([
       // Millimetres show up to 1 decimal.
