@@ -125,6 +125,8 @@ Claude Code hooks (`.claude/hooks/`) enforce part of this automatically: every e
 
 ## Agent skills
 
+If you are asked to use a skill, command or subagent you cannot find or load, stop and say so. Do not carry on with your own version of it.
+
 ### Review before a PR
 
 Run these before opening a PR, in parallel when both apply, and address their findings:
