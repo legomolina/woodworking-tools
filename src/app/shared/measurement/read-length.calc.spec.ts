@@ -1,7 +1,7 @@
 import { readLength } from './read-length.calc';
 
 /** Matches a successful read, tolerating floating-point noise from unit conversion. */
-function length(millimetres: number): unknown {
+function readAs(millimetres: number): unknown {
   const closeToExpected: unknown = expect.closeTo(millimetres, 9);
   return { ok: true, millimetres: closeToExpected };
 }
@@ -22,8 +22,8 @@ describe('readLength', () => {
       ['2 M', 2000],
       ['  89   mm  ', 89],
     ])('reads %j as %d mm under either Unit System', (text, millimetres) => {
-      expect(readLength(text, 'metric')).toEqual(length(millimetres));
-      expect(readLength(text, 'imperial')).toEqual(length(millimetres));
+      expect(readLength(text, 'metric')).toEqual(readAs(millimetres));
+      expect(readLength(text, 'imperial')).toEqual(readAs(millimetres));
     });
   });
 
@@ -41,10 +41,13 @@ describe('readLength', () => {
       ['3,5 in', 88.9],
       ['1"', 25.4],
       ['3 1/2 IN', 88.9],
+      // Typographic marks inserted by phone keyboards and word processors.
+      ['3 1/2”', 88.9],
+      ['3 1/2″', 88.9],
       ['  3   1/2  "  ', 88.9],
     ])('reads %j as %d mm under either Unit System', (text, millimetres) => {
-      expect(readLength(text, 'metric')).toEqual(length(millimetres));
-      expect(readLength(text, 'imperial')).toEqual(length(millimetres));
+      expect(readLength(text, 'metric')).toEqual(readAs(millimetres));
+      expect(readLength(text, 'imperial')).toEqual(readAs(millimetres));
     });
   });
 
@@ -61,10 +64,16 @@ describe('readLength', () => {
       [`6'-4 1/4"`, 1936.75],
       [`6' 3.5"`, 1917.7],
       ['6 FT 4 IN', 1930.4],
+      ['6ft 4"', 1930.4],
+      [`6' 4in`, 1930.4],
+      [`1.5'`, 457.2],
+      ['6,5 ft', 1981.2],
+      ['6’ 4 1/4”', 1936.75],
+      ['6′ 4 1/4″', 1936.75],
       [`  6 '  4  1/4  "  `, 1936.75],
     ])('reads %j as %d mm under either Unit System', (text, millimetres) => {
-      expect(readLength(text, 'metric')).toEqual(length(millimetres));
-      expect(readLength(text, 'imperial')).toEqual(length(millimetres));
+      expect(readLength(text, 'metric')).toEqual(readAs(millimetres));
+      expect(readLength(text, 'imperial')).toEqual(readAs(millimetres));
     });
   });
 
@@ -77,7 +86,7 @@ describe('readLength', () => {
       ['- 3-1/2', 'imperial', -88.9],
       [`-6' 4 1/4"`, 'metric', -1936.75],
     ] as const)('reads %j under %s as %d mm', (text, unitSystem, millimetres) => {
-      expect(readLength(text, unitSystem)).toEqual(length(millimetres));
+      expect(readLength(text, unitSystem)).toEqual(readAs(millimetres));
     });
   });
 
@@ -88,9 +97,10 @@ describe('readLength', () => {
       ['3,5', 88.9],
       ['3 1/2', 88.9],
       ['1/2', 12.7],
+      // Zero is readable: range validation is the caller's job.
       ['0', 0],
     ])('reads %j under Imperial as inches (%d mm)', (text, millimetres) => {
-      expect(readLength(text, 'imperial')).toEqual(length(millimetres));
+      expect(readLength(text, 'imperial')).toEqual(readAs(millimetres));
     });
 
     it.each([
@@ -100,7 +110,7 @@ describe('readLength', () => {
       ['12,5', 12.5],
       [' 89 ', 89],
     ])('reads %j under Metric as %d mm', (text, millimetres) => {
-      expect(readLength(text, 'metric')).toEqual(length(millimetres));
+      expect(readLength(text, 'metric')).toEqual(readAs(millimetres));
     });
   });
 

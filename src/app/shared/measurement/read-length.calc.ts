@@ -9,7 +9,9 @@ export type ReadLengthResult =
 const MILLIMETRES_PER_INCH = 25.4;
 const INCHES_PER_FOOT = 12;
 
-const MILLIMETRES_PER_METRIC_UNIT: Readonly<Record<string, number>> = {
+type MetricUnit = 'mm' | 'cm' | 'm';
+
+const MILLIMETRES_PER_METRIC_UNIT: Readonly<Record<MetricUnit, number>> = {
   mm: 1,
   cm: 10,
   m: 1000,
@@ -23,18 +25,25 @@ const FRACTIONAL = String.raw`(?:(?<whole>\d+)(?:\s*-\s*|\s+))?(?<numerator>\d+)
 
 const INCHES = String.raw`(?:${FRACTIONAL}|(?<decimal>${DECIMAL}))`;
 
+/** Inch markers, including the smart quote and double prime that phone keyboards insert. */
+const INCH_MARKER = String.raw`(?:["”″]|in)`;
+/** Foot markers, including the smart apostrophe and prime that phone keyboards insert. */
+const FOOT_MARKER = String.raw`(?:['’′]|ft)`;
+
 const METRIC_LENGTH = new RegExp(String.raw`^(?<value>${DECIMAL})\s*(?<unit>mm|cm|m)$`, 'u');
-const INCH_LENGTH = new RegExp(String.raw`^${INCHES}\s*(?:"|in)$`, 'u');
-/** Whole feet, optionally followed by inches whose marker may be omitted (`6'`, `6' 4 1/4"`, `6'-4"`). */
+const INCH_LENGTH = new RegExp(String.raw`^${INCHES}\s*${INCH_MARKER}$`, 'u');
+/** Feet, optionally followed by inches whose marker may be omitted (`6'`, `6' 4 1/4"`, `6'-4"`). */
 const FEET_AND_INCHES_LENGTH = new RegExp(
-  String.raw`^(?<feet>\d+)\s*(?:'|ft)(?:\s*-?\s*${INCHES}\s*(?:"|in)?)?$`,
+  String.raw`^(?<feet>${DECIMAL})\s*${FOOT_MARKER}(?:\s*-?\s*${INCHES}\s*${INCH_MARKER}?)?$`,
   'u',
 );
 const BARE_METRIC = new RegExp(String.raw`^(?<value>${DECIMAL})$`, 'u');
 const BARE_IMPERIAL = new RegExp(String.raw`^${INCHES}$`, 'u');
 
+/** Named groups captured by the patterns above; which keys are set depends on the pattern. */
 type Groups = Readonly<Record<string, string | undefined>>;
 
+const EMPTY: ReadLengthResult = { ok: false, error: 'empty' };
 const UNREADABLE: ReadLengthResult = { ok: false, error: 'unreadable' };
 
 function parseDecimal(value: string): number {
@@ -60,7 +69,7 @@ function fromInches(groups: Groups): ReadLengthResult {
 }
 
 function fromFeetAndInches(groups: Groups): ReadLengthResult {
-  const feetInMillimetres = Number(groups['feet']) * INCHES_PER_FOOT * MILLIMETRES_PER_INCH;
+  const feetInMillimetres = parseDecimal(groups['feet']!) * INCHES_PER_FOOT * MILLIMETRES_PER_INCH;
   const hasInches = groups['numerator'] !== undefined || groups['decimal'] !== undefined;
   if (!hasInches) {
     return { ok: true, millimetres: feetInMillimetres };
@@ -71,13 +80,17 @@ function fromFeetAndInches(groups: Groups): ReadLengthResult {
     : { ok: true, millimetres: feetInMillimetres + inchesInMillimetres };
 }
 
-function fromMetric(value: string, unit: string): ReadLengthResult {
-  return { ok: true, millimetres: parseDecimal(value) * (MILLIMETRES_PER_METRIC_UNIT[unit] ?? 1) };
+function isMetricUnit(unit: string): unit is MetricUnit {
+  return Object.hasOwn(MILLIMETRES_PER_METRIC_UNIT, unit);
+}
+
+function fromMetric(value: string, unit: MetricUnit): ReadLengthResult {
+  return { ok: true, millimetres: parseDecimal(value) * MILLIMETRES_PER_METRIC_UNIT[unit] };
 }
 
 function readUnsignedLength(normalised: string, unitSystem: UnitSystem): ReadLengthResult {
   const metric = METRIC_LENGTH.exec(normalised)?.groups;
-  if (metric !== undefined) {
+  if (metric !== undefined && isMetricUnit(metric['unit'])) {
     return fromMetric(metric['value'], metric['unit']);
   }
 
@@ -108,7 +121,7 @@ function readUnsignedLength(normalised: string, unitSystem: UnitSystem): ReadLen
 export function readLength(text: string, unitSystem: UnitSystem): ReadLengthResult {
   const normalised = text.trim().toLowerCase();
   if (normalised === '') {
-    return { ok: false, error: 'empty' };
+    return EMPTY;
   }
   if (!normalised.startsWith('-')) {
     return readUnsignedLength(normalised, unitSystem);
