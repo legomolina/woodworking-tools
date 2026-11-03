@@ -54,6 +54,8 @@ A change is done only when all of these hold:
 - The UI meets the accessibility requirements below.
 - Code, comments, docs, commits and PR descriptions are in English.
 
+Claude Code hooks (`.claude/hooks/`) enforce part of this automatically: every edited file is formatted and linted, and you cannot finish a turn while `pnpm lint`, `pnpm typecheck` or `pnpm test:ci` fail. When a hook reports a problem, fix the cause; never weaken a test, a lint rule or a hook to get past it.
+
 ## TypeScript Best Practices
 
 - Use strict type checking
