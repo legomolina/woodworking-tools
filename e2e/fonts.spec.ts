@@ -16,6 +16,8 @@ test('loads its fonts from /fonts/ and makes no external requests', async ({ pag
   });
 
   await page.goto('/');
+  // The page renders once its translations load; only then is there text to set.
+  await expect(page.getByRole('heading', { level: 1 })).not.toBeEmpty();
   await page.evaluate(async () => document.fonts.ready);
 
   // The body text (Barlow 400) and the h1 (Barlow 600) actually rendered in
