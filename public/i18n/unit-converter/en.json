@@ -1,3 +1,19 @@
 {
-  "intro": "Type a length and see it in every unit at once."
+  "intro": "Type a length and see it in every unit at once.",
+  "field": {
+    "label": "Length",
+    "hint": "For example 89, 3 1/2\" or 6' 4 1/4\". Without a unit, numbers use your preferred Unit System."
+  },
+  "errors": {
+    "unreadable": "That length can't be read. Try something like 89 mm, 3 1/2\" or 6' 4 1/4\".",
+    "negative": "A length can't be negative."
+  },
+  "units": {
+    "mm": "Millimetres",
+    "cm": "Centimetres",
+    "m": "Metres",
+    "fractionalInches": "Fractional inches",
+    "decimalInches": "Decimal inches",
+    "feetAndInches": "Feet and inches"
+  }
 }

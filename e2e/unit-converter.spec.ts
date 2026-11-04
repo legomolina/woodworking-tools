@@ -53,3 +53,16 @@ test.describe('the navigation', () => {
     });
   });
 });
+
+test('typing a length shows it in every unit, and a bad one shows a message', async ({ page }) => {
+  await page.goto('/unit-converter');
+  const field = page.getByLabel('Length');
+
+  await field.fill('3 1/2"');
+  await expect(page.getByText('88.9 mm')).toBeVisible();
+  await expect(page.getByText('≈ 0.089 m')).toBeVisible();
+
+  await field.fill('abc');
+  await expect(page.getByText("That length can't be read.", { exact: false })).toBeVisible();
+  await expect(page.getByText('88.9 mm')).toBeHidden();
+});

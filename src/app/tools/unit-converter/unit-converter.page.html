@@ -2,3 +2,33 @@
   <h1>{{ 'tools.unitConverter.name' | transloco }}</h1>
   <p>{{ 'unitConverter.intro' | transloco }}</p>
 </hgroup>
+
+<wt-text-field
+  name="length"
+  [label]="'unitConverter.field.label' | transloco"
+  [hint]="'unitConverter.field.hint' | transloco"
+  measurement
+  [(value)]="text"
+/>
+
+<div aria-live="polite">
+  @switch (error()) {
+    @case ('unreadable') {
+      <p>{{ 'unitConverter.errors.unreadable' | transloco }}</p>
+    }
+    @case ('negative') {
+      <p>{{ 'unitConverter.errors.negative' | transloco }}</p>
+    }
+  }
+</div>
+
+@let labels =
+  {
+    'mm': 'unitConverter.units.mm' | transloco,
+    'cm': 'unitConverter.units.cm' | transloco,
+    'm': 'unitConverter.units.m' | transloco,
+    'fractional-inches': 'unitConverter.units.fractionalInches' | transloco,
+    'decimal-inches': 'unitConverter.units.decimalInches' | transloco,
+    'feet-and-inches': 'unitConverter.units.feetAndInches' | transloco,
+  };
+<wt-result-list [results]="results(labels)" />
