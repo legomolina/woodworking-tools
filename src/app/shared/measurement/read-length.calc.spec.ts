@@ -46,6 +46,7 @@ describe('readLength', () => {
       ['3,5 in', 88.9],
       ['1"', 25.4],
       ['3 1/2 IN', 88.9],
+      ['100000"', 2540000],
       // Typographic marks inserted by phone keyboards and word processors.
       ['3 1/2”', 88.9],
       ['3 1/2″', 88.9],
@@ -171,13 +172,25 @@ describe('readLength', () => {
         ['N 1/2"', 'imperial', `${TOO_LARGE} 1/2"`],
         ['N/2"', 'metric', `${TOO_LARGE}/2"`],
         ['N/2"', 'imperial', `${TOO_LARGE}/2"`],
+        // Not an overflow but NaN (Infinity / Infinity): still not a length.
+        ['N/N"', 'metric', `${TOO_LARGE}/${TOO_LARGE}"`],
         ['N/N"', 'imperial', `${TOO_LARGE}/${TOO_LARGE}"`],
+        // Finite as typed, but too large once converted to millimetres.
+        ['10^307"', 'metric', `1${'0'.repeat(307)}"`],
+        ['10^307"', 'imperial', `1${'0'.repeat(307)}"`],
+        ['10^306 ft', 'metric', `1${'0'.repeat(306)} ft`],
+        ['10^306 ft', 'imperial', `1${'0'.repeat(306)} ft`],
+        // Feet and inches each finite in millimetres, but not their sum.
+        [`5×10^305' 5×10^306"`, 'metric', `5${'0'.repeat(305)}' 5${'0'.repeat(306)}"`],
+        [`5×10^305' 5×10^306"`, 'imperial', `5${'0'.repeat(305)}' 5${'0'.repeat(306)}"`],
         ['N ft', 'metric', `${TOO_LARGE} ft`],
         ['N ft', 'imperial', `${TOO_LARGE} ft`],
         [`N' 4"`, 'metric', `${TOO_LARGE}' 4"`],
         [`N' 4"`, 'imperial', `${TOO_LARGE}' 4"`],
         [`6' N"`, 'metric', `6' ${TOO_LARGE}"`],
         [`6' N"`, 'imperial', `6' ${TOO_LARGE}"`],
+        [`N' 4 1/2"`, 'metric', `${TOO_LARGE}' 4 1/2"`],
+        [`N' 4 1/2"`, 'imperial', `${TOO_LARGE}' 4 1/2"`],
         ['N', 'metric', TOO_LARGE],
         ['N', 'imperial', TOO_LARGE],
         ['N 1/2', 'imperial', `${TOO_LARGE} 1/2`],
@@ -186,6 +199,17 @@ describe('readLength', () => {
       ] as const)('returns unreadable for %s under %s', (_label, unitSystem, text) => {
         expect(readLength(text, unitSystem)).toEqual({ ok: false, error: 'unreadable' });
       });
+
+      // Only lengths that do not fit are rejected, not merely huge ones.
+      it.each(['metric', 'imperial'] as const)(
+        'reads 10^305 m (10^308 mm) under %s',
+        (unitSystem) => {
+          expect(readLength(`1${'0'.repeat(305)} m`, unitSystem)).toEqual({
+            ok: true,
+            millimetres: 1e308,
+          });
+        },
+      );
     });
   });
 });

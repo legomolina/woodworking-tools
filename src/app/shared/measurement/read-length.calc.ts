@@ -106,7 +106,7 @@ function readUnsignedValue(normalised: string, unitSystem: UnitSystem): ReadLeng
 }
 
 /** Reads an unsigned length, rejecting values too large to hold as a finite number. */
-function readUnsignedLength(normalised: string, unitSystem: UnitSystem): ReadLengthResult {
+function readFiniteUnsignedLength(normalised: string, unitSystem: UnitSystem): ReadLengthResult {
   const result = readUnsignedValue(normalised, unitSystem);
   return result.ok && !Number.isFinite(result.millimetres) ? UNREADABLE : result;
 }
@@ -122,9 +122,9 @@ export function readLength(text: string, unitSystem: UnitSystem): ReadLengthResu
     return EMPTY;
   }
   if (!normalised.startsWith('-')) {
-    return readUnsignedLength(normalised, unitSystem);
+    return readFiniteUnsignedLength(normalised, unitSystem);
   }
 
-  const magnitude = readUnsignedLength(normalised.slice(1).trimStart(), unitSystem);
+  const magnitude = readFiniteUnsignedLength(normalised.slice(1).trimStart(), unitSystem);
   return magnitude.ok ? { ok: true, millimetres: -magnitude.millimetres } : UNREADABLE;
 }
