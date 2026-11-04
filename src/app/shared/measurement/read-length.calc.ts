@@ -80,7 +80,7 @@ function fromMetric(value: string, unit: MetricUnit): ReadLengthResult {
   return { ok: true, millimetres: parseDecimal(value) * MILLIMETRES_PER_METRIC_UNIT[unit] };
 }
 
-function readUnsignedLength(normalised: string, unitSystem: UnitSystem): ReadLengthResult {
+function readUnsignedValue(normalised: string, unitSystem: UnitSystem): ReadLengthResult {
   const metric = METRIC_LENGTH.exec(normalised)?.groups;
   if (metric !== undefined && isMetricUnit(metric['unit'])) {
     return fromMetric(metric['value'], metric['unit']);
@@ -103,6 +103,12 @@ function readUnsignedLength(normalised: string, unitSystem: UnitSystem): ReadLen
 
   const bare = BARE_IMPERIAL.exec(normalised)?.groups;
   return bare === undefined ? UNREADABLE : fromInches(bare);
+}
+
+/** Reads an unsigned length, rejecting values too large to hold as a finite number. */
+function readUnsignedLength(normalised: string, unitSystem: UnitSystem): ReadLengthResult {
+  const result = readUnsignedValue(normalised, unitSystem);
+  return result.ok && !Number.isFinite(result.millimetres) ? UNREADABLE : result;
 }
 
 /**
