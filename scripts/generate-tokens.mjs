@@ -28,19 +28,19 @@ function cssValue(value) {
 }
 
 /**
- * A colour token's value per theme. A plain string is the first theme's value.
- * A theme without a value inherits the first theme's, so it gets no
+ * A colour token's value per theme. A plain string is the light (first)
+ * theme's value. Dark without a value inherits light's, so it gets no
  * declaration of its own.
  */
-function themeValues(token, firstThemeId) {
-  return typeof token.value === 'string' ? { [firstThemeId]: token.value } : token.value;
+function themeValues(token) {
+  return typeof token.value === 'string' ? { light: token.value } : token.value;
 }
 
 /** The colour declarations of one theme, then its `color-scheme` after an empty line. */
-function themeDeclarations(colorTokens, themeId, firstThemeId) {
+function themeDeclarations(colorTokens, themeId) {
   return [
     ...colorTokens
-      .map((token) => [token.name, themeValues(token, firstThemeId)[themeId]])
+      .map((token) => [token.name, themeValues(token)[themeId]])
       .filter(([, value]) => value !== undefined)
       .map(([name, value]) => `--${name}: ${cssValue(value)};`),
     '',
@@ -84,14 +84,14 @@ function typeDeclarations(type) {
 
 /**
  * Turns a design-system tokens object (the shape of tokens.json) into the
- * contents of tokens.css.
+ * contents of tokens.css. The snapshot has two colour themes, `light` (first)
+ * and `dark`, which map onto the theme structure in docs/adr/0003.
  */
 export function generateTokensCss(tokens) {
   const colorTokens = tokens.color.tokens;
-  const firstThemeId = tokens.color.themes[0].id;
   const shared = [...sizeDeclarations(tokens), ...typeDeclarations(tokens.type)];
-  const light = themeDeclarations(colorTokens, 'light', firstThemeId);
-  const dark = themeDeclarations(colorTokens, 'dark', firstThemeId);
+  const light = themeDeclarations(colorTokens, 'light');
+  const dark = themeDeclarations(colorTokens, 'dark');
 
   const sections = [
     block(':root', [...shared, ...light]),

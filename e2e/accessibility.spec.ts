@@ -5,10 +5,16 @@ import { appRoutes } from './routes';
 /** WCAG 2.2 level A and AA rules, as required by CLAUDE.md. */
 const WCAG_AA_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
-/** Both themes are first-class: every route is audited in each. */
-const COLOR_SCHEMES = ['light', 'dark'] as const;
+/**
+ * Both themes are first-class: every route is audited in each. `surface` is
+ * the theme's page background from src/styles/tokens.json, as computed RGB.
+ */
+const THEMES = [
+  { colorScheme: 'light', surface: 'rgb(247, 241, 232)' }, // #f7f1e8
+  { colorScheme: 'dark', surface: 'rgb(27, 23, 19)' }, // #1b1713
+] as const;
 
-for (const colorScheme of COLOR_SCHEMES) {
+for (const { colorScheme, surface } of THEMES) {
   test.describe(`${colorScheme} theme`, () => {
     test.use({ colorScheme });
 
@@ -27,11 +33,12 @@ for (const colorScheme of COLOR_SCHEMES) {
         // (e.g. a mistyped path) would otherwise pass every accessibility rule.
         await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
 
-        // Proves the theme under test is the one applied (tokens.css sets it), so a
-        // broken dark theme cannot pass as a second light run.
+        // Proves the theme under test is the one applied, both its scheme and its
+        // palette, so a broken dark theme cannot pass as a second light run.
         expect(
           await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme),
         ).toBe(colorScheme);
+        await expect(page.locator('body')).toHaveCSS('background-color', surface);
 
         const { violations, incomplete } = await new AxeBuilder({ page })
           .withTags(WCAG_AA_TAGS)

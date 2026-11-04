@@ -77,11 +77,11 @@ Claude Code hooks (`.claude/hooks/`) enforce part of this automatically: every e
 
 Full decisions in `docs/adr/0003-component-styling.md`; lint enforces most of them.
 
-- Every selector uses the `wt` prefix. A single native element is an attribute selector (`button[wt-button]`); composites and form fields are elements (`<wt-number-field>`). Every building block is a `@Component` with scoped styles, never a styling directive.
+- Every component and directive selector uses the `wt` prefix. A single native element is an attribute selector (`button[wt-button]`); composites and form fields are elements (`<wt-number-field>`). Every building block is a `@Component` with scoped styles, never a styling directive.
 - Reflect inputs that affect styling on the host under the same name (`host: { '[attr.variant]': 'variant()' }`) and style them with `:host([variant="primary"])`.
 - No `::ng-deep`, no `!important`, no BEM, no utility classes. At most one class per selector, kebab-case; prefer element selectors.
 - Logical properties only (`inline-size`, `margin-block-start`, `padding-inline`…).
-- Colours and typography only through tokens: `color: var(--ink)`, `font: var(--text-body)`. Never edit `src/styles/tokens.css`: it is generated from the `tokens.json` snapshot of the design system (`pnpm tokens`).
+- Colours and typography only through tokens: `color: var(--ink)`, `font: var(--text-body)`. Set type with the `font` shorthand tokens (`--text-*`); there are no size-only tokens, so `font-size` only takes `inherit`. Never edit `src/styles/tokens.css`: it is generated from the `tokens.json` snapshot of the design system (`pnpm tokens`).
 - Global rules belong in `src/styles/` wrapped in `:where()`; everything else is styled by its component.
 - Fonts are self-hosted (`public/fonts/`); never load anything from another origin.
 

@@ -97,6 +97,14 @@ describe('stylelint: colours only through tokens', () => {
     );
   });
 
+  it('blocks literal colours in the other global stylesheets', async () => {
+    await assertBlocked(
+      'color-no-hex',
+      ':where(body) {\n  color: #2a2017;\n}\n',
+      'src/styles/base.css',
+    );
+  });
+
   it('allows literal colours in the generated tokens.css', async () => {
     await assertAllowed(':root {\n  --ink: #2a2017;\n}\n', 'src/styles/tokens.css');
   });
@@ -128,6 +136,15 @@ describe('stylelint: @font-face', () => {
 
   it('blocks @font-face outside fonts.css', async () => {
     await assertBlocked('at-rule-disallowed-list', fontFace);
+  });
+
+  it('blocks @font-face and literal font families in the other global stylesheets', async () => {
+    await assertBlocked('at-rule-disallowed-list', fontFace, 'src/styles/base.css');
+    await assertBlocked(
+      'declaration-property-value-allowed-list',
+      ':where(body) {\n  font-family: Barlow;\n}\n',
+      'src/styles/base.css',
+    );
   });
 
   it('allows @font-face in fonts.css', async () => {
@@ -169,5 +186,29 @@ describe('stylelint: no external URLs', () => {
   it('allows local files', async () => {
     await assertAllowed("@import url('tokens.css');\n", 'src/styles/styles.css');
     await assertAllowed("p {\n  background-image: url('/images/grain.png');\n}\n");
+  });
+});
+
+describe('stylelint: global rules have zero specificity', () => {
+  it('blocks reset.css and base.css rules not wrapped in :where()', async () => {
+    await assertBlocked(
+      'selector-max-specificity',
+      'body {\n  margin: 0;\n}\n',
+      'src/styles/reset.css',
+    );
+    await assertBlocked(
+      'selector-max-specificity',
+      ':focus-visible {\n  outline-offset: 2px;\n}\n',
+      'src/styles/base.css',
+    );
+  });
+
+  it('allows :where() in reset.css and base.css, and specific selectors in components', async () => {
+    await assertAllowed(':where(body) {\n  margin: 0;\n}\n', 'src/styles/reset.css');
+    await assertAllowed(
+      ':where(:focus-visible) {\n  outline-offset: 2px;\n}\n',
+      'src/styles/base.css',
+    );
+    await assertAllowed('.card h3 {\n  margin: 0;\n}\n');
   });
 });

@@ -7,7 +7,7 @@ Every UI building block is an Angular `@Component` with emulated (scoped) styles
 - A single native element that needs nothing around it is an **attribute selector** on that element: `button[wt-button]`, `a[wt-button]`. Composites and form fields are **element selectors**. A form field owns its native control and implements Signal Forms' custom control interface (`<wt-number-field>`, `<wt-select-field>`), wiring label, hint, error ids and `aria-describedby` itself.
 - Selects stay native, enhanced with `appearance: base-select`. A custom listbox needs its own issue and a real need.
 - Inputs that affect styling are reflected on the host under the same name (`host: { '[attr.variant]': 'variant()' }`) and styled with `:host([variant="primary"])`, so static values, bindings and defaults all match.
-- Templates and styles always live in separate files (`button.ts`, `button.html`, `button.css`). Only a component with no HTML omits the `.html`.
+- Templates and styles always live in separate files (`button.ts`, `button.html`, `button.css`). Angular components always have a template, so even one that only projects its content (`button[wt-button]`) has a `.html` holding `<ng-content />`: the lint rule allows no inline template at all.
 - No `wt-*` component is built ahead of need: the first ticket that uses one builds it in `shared/ui/`.
 
 ## CSS
@@ -15,13 +15,13 @@ Every UI building block is an Angular `@Component` with emulated (scoped) styles
 - Emulated encapsulation; no `::ng-deep`, no `!important`, no BEM, no utility classes.
 - At most one class per selector; element selectors preferred inside components. Class names are kebab-case.
 - Logical properties only (`inline-size`, `margin-block-start`, `padding-inline`…).
-- Colours and typography only through tokens (`var(--…)`). Literal values live only in the generated `tokens.css`; `@font-face` only in `fonts.css`. No external URLs.
+- Colours and typography only through tokens (`var(--…)`). Literal colour and typography values live only in the generated `tokens.css`; `@font-face` only in `fonts.css`. No external URLs.
 - Global styles live in `src/styles/`. `angular.json` lists only `styles.css`, which imports `fonts.css`, `tokens.css`, `reset.css` and `base.css`, in that order. Every rule in `reset.css` and `base.css` is wrapped in `:where()` (zero specificity), so component styles always win. `base.css` sets the body font and colours, heading styles, link colour and the global `:focus-visible` ring.
 
 ## Tokens and theme
 
 - **Source of truth, for now: the design system artifact.** The repo keeps a snapshot of its tokens at `src/styles/tokens.json`, and `scripts/generate-tokens.mjs` (`pnpm tokens`) generates `src/styles/tokens.css` from it. `pnpm lint` fails when `tokens.css` is out of date with the snapshot (`pnpm tokens:check`). To update: refresh the snapshot from the artifact, then regenerate. Once the design is stable we will flip to code as the source and record that here.
-- Colours become `--<name>`; aliases (`{tape-ink}`) become `var(--tape-ink)`. Spacing, radius and size tokens become `--<name>`. Font families become `--font-<family>`, and each text style becomes a `font` shorthand `--text-<style>` (plus `--text-<style>-letter-spacing` when it sets one), used as `font: var(--text-body)`.
+- Colours become `--<name>`; aliases (`{tape-ink}`) become `var(--tape-ink)`. Spacing, radius and size tokens become `--<name>`. Font families become `--font-<family>`, and each text style becomes a `font` shorthand `--text-<style>` (plus `--text-<style>-letter-spacing` when it sets one), used as `font: var(--text-body)`. There are no size-only tokens: a component sets type with a `--text-*` shorthand, and `font-size` only takes `inherit` (or a future token).
 - The theme follows `prefers-color-scheme` only, but `tokens.css` is ready for a forced theme: light on `:root`, dark inside `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) }` and again on `:root[data-theme="dark"]`. Each theme also sets `color-scheme`. Nothing sets `data-theme` yet.
 
 ## Fonts
@@ -31,7 +31,7 @@ Self-hosted in `public/fonts/`, with no Google Fonts or other external requests:
 ## Enforcement
 
 - ESLint: `@angular-eslint/component-selector` (element and attribute, kebab-case) and `directive-selector` require `wt`; `component-max-inline-declarations` forbids inline templates and styles.
-- Stylelint: class pattern, `selector-max-class: 1`, no `::ng-deep`, no `!important`, logical properties (`stylelint-plugin-logical-css`, which the repo already used; it covers what `stylelint-use-logical` would), token-only colours / `font` / `font-family` / `font-size`, `@font-face` only in `fonts.css`, no external URLs in `url()` or `@import` (a local plugin, `stylelint/no-external-import.mjs`, because the built-in URL rules skip `@import`).
+- Stylelint: class pattern, `selector-max-class: 1`, no `::ng-deep`, no `!important`, logical properties (`stylelint-plugin-logical-css`, which the repo already used; it covers what `stylelint-use-logical` would), token-only colours / `font` / `font-family` / `font-size`, `@font-face` only in `fonts.css`, `:where()` (zero specificity) for every rule in `reset.css` and `base.css`, no external URLs in `url()` or `@import` (a local plugin, `stylelint/no-external-import.mjs`, because the built-in URL rules skip `@import`).
 - Each rule is tested against code it must block and code it must allow (`scripts/*-rules.test.mjs`, run by `pnpm test:ci`).
 
 ## Considered Options

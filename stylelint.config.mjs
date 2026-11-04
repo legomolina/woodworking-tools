@@ -49,6 +49,13 @@ export default {
   },
   overrides: [
     {
+      // Global rules must never beat component styles: wrap them in :where().
+      files: ['src/styles/reset.css', 'src/styles/base.css'],
+      rules: {
+        'selector-max-specificity': '0,0,0',
+      },
+    },
+    {
       files: ['src/styles/fonts.css'],
       rules: {
         'at-rule-disallowed-list': null,

@@ -28,6 +28,12 @@ test('loads its fonts from /fonts/ and makes no external requests', async ({ pag
   expect(loadedFaces).toEqual(expect.arrayContaining(['Barlow 400', 'Barlow 600']));
 
   expect(fontRequests).toContain('/fonts/barlow/barlow-latin-400-normal.woff2');
+  // The body font is preloaded, so the first paint can use it.
+  await expect(
+    page.locator(
+      'link[rel="preload"][as="font"][href="/fonts/barlow/barlow-latin-400-normal.woff2"]',
+    ),
+  ).toHaveCount(1);
   expect(fontRequests.filter((path) => !path.startsWith('/fonts/'))).toEqual([]);
   expect(externalRequests).toEqual([]);
 });
