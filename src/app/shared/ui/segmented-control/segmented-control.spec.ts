@@ -87,7 +87,9 @@ describe('SegmentedControl', () => {
     ]);
   });
 
-  it('groups its radio buttons under its name, so arrow keys move between them', async () => {
+  // jsdom has no arrow-key navigation between radio buttons, so this checks the shared
+  // name the browser groups them by.
+  it("gives every radio button the group's name", async () => {
     const { root } = await render();
 
     expect(radio(root, 'Metric').name).toBe('unit-system');
@@ -130,6 +132,12 @@ describe('SegmentedControl', () => {
 
     expect(group(root).hasAttribute('aria-describedby')).toBe(false);
     expect(root.querySelector('p')).toBeNull();
+  });
+
+  it('has no description when its hint is empty', async () => {
+    const { root } = await render('');
+
+    expect(group(root).hasAttribute('aria-describedby')).toBe(false);
   });
 
   it('has no axe violations', async () => {

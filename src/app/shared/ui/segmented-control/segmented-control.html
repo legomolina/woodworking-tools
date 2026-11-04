@@ -2,7 +2,7 @@
 <div
   role="radiogroup"
   [attr.aria-labelledby]="labelId()"
-  [attr.aria-describedby]="hint() === undefined ? null : hintId()"
+  [attr.aria-describedby]="hint() ? hintId() : null"
 >
   @for (option of options(); track option.value) {
     <label>

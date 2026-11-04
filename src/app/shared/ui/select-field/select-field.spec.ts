@@ -63,6 +63,7 @@ describe('SelectField', () => {
   it('labels its select and lists the options, with the bound value selected', async () => {
     const { select } = await render();
 
+    expect(select.id).toBe('precision');
     expect([...select.labels].map((label) => label.textContent.trim())).toEqual([
       'Imperial precision',
     ]);
@@ -72,12 +73,6 @@ describe('SelectField', () => {
       '1/32 in',
     ]);
     expect(selectedLabel(select)).toBe('1/16 in');
-  });
-
-  it('uses its name as the select id', async () => {
-    const { select } = await render();
-
-    expect(select.id).toBe('precision');
   });
 
   it('sets the bound value when the user picks an option', async () => {
@@ -110,6 +105,12 @@ describe('SelectField', () => {
 
     expect(select.hasAttribute('aria-describedby')).toBe(false);
     expect(root.querySelector('p')).toBeNull();
+  });
+
+  it('has no description when its hint is empty', async () => {
+    const { select } = await render({ hint: '' });
+
+    expect(select.hasAttribute('aria-describedby')).toBe(false);
   });
 
   it('marks the select as a measurement when asked, so it uses the mono face', async () => {
