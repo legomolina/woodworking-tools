@@ -7,6 +7,10 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** The #17 agent ran `git push -u origin feat/app-shell 2>&1 | tail -2 && gh pr create --base main …` and was refused twice. It retried the same command, then reported it had no permission to push.
+  - **Root cause:** The deny rule `Bash(git push * main*)` is matched against the whole command line, so its `*` reached `--base main` in the chained `gh pr create`.
+  - **Guardrail:** `CLAUDE.md` › Workflow: run `git push` on its own, never chained, and `gh pr create` separately (no `--base main`, it is the default). The deny rule stays broad on purpose: a narrower pattern could let a real push to `main` through.
+- **2026-11-04**
   - **What happened:** The settings store (#32) exposed read-only signals and validated every write in a method, although nothing asked for that shape. It was the agent's choice, forced by the issue's rules (only 8/16/32/64; language synced with Transloco), so the next store could just as well expose a `WritableSignal`.
   - **Root cause:** A good pattern that lived only in one agent's judgement, not in the instructions.
   - **Guardrail:** `CLAUDE.md` › State Management: stores expose read-only signals, write through intent-named methods that enforce their rules, and never duplicate state another service owns. Instruction only; add a lint rule if a store ever breaks it.
