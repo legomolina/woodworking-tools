@@ -53,3 +53,7 @@ Thumbs.db
 /blob-report/
 /playwright/.cache/
 /.playwright-mcp/
+
+# Stryker (mutation testing)
+.stryker-tmp/
+reports/
