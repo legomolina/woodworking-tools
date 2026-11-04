@@ -51,7 +51,9 @@ test.describe('on a narrow screen', () => {
 
   test('the Menu stays open when the page it was opened on finishes loading', async ({ page }) => {
     // Hold back the home page's lazy-loaded script so the first navigation is still running
-    // when the Menu opens, as on a slow connection.
+    // when the Menu opens, as on a slow connection. Chunk names change with every build, so the
+    // script is found by the home page's component selector. If it stops matching, nothing is
+    // held, the page is there before the Menu opens and the heading check below goes red.
     let releaseHomePage = (): void => undefined;
     const homePageHeld = new Promise<void>((resolve) => {
       releaseHomePage = resolve;
