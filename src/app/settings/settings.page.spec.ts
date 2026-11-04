@@ -74,12 +74,17 @@ function select(page: HTMLElement, label: string): HTMLSelectElement {
   return control;
 }
 
+/** Picks the option of `control` whose text reads `label`, as a user would. */
 async function choose(
   fixture: ComponentFixture<App>,
   control: HTMLSelectElement,
-  value: string,
+  label: string,
 ): Promise<void> {
-  control.value = value;
+  const option = [...control.options].find((candidate) => candidate.textContent.trim() === label);
+  if (!option) {
+    throw new Error(`No option "${label}".`);
+  }
+  control.value = option.value;
   control.dispatchEvent(new Event('change'));
   await fixture.whenStable();
 }
@@ -100,6 +105,15 @@ function sections(page: HTMLElement): { heading: string; labels: string[] }[] {
   }));
 }
 
+/** The text field of the test Tool's settings section. */
+function testSetting(page: HTMLElement): HTMLInputElement {
+  const field = page.querySelector<HTMLInputElement>('#test-setting');
+  if (!field) {
+    throw new Error('The test Tool section has no field.');
+  }
+  return field;
+}
+
 describe('the settings page', () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -114,18 +128,21 @@ describe('the settings page', () => {
 
   it("shows the store's Unit System and changes it when the user picks another", async () => {
     const { page, fixture } = await openSettings();
-    expect(radios(page, 'Unit System')).toEqual([
-      ['Metric', true],
-      ['Imperial', false],
-    ]);
-
-    radio(page, 'Imperial').click();
+    const store = TestBed.inject(SettingsStore);
+    store.setUnitSystem('imperial');
     await fixture.whenStable();
-
-    expect(TestBed.inject(SettingsStore).unitSystem()).toBe('imperial');
     expect(radios(page, 'Unit System')).toEqual([
       ['Metric', false],
       ['Imperial', true],
+    ]);
+
+    radio(page, 'Metric').click();
+    await fixture.whenStable();
+
+    expect(store.unitSystem()).toBe('metric');
+    expect(radios(page, 'Unit System')).toEqual([
+      ['Metric', true],
+      ['Imperial', false],
     ]);
   });
 
@@ -138,11 +155,14 @@ describe('the settings page', () => {
       '1/32 in',
       '1/64 in',
     ]);
-    expect(precision.selectedOptions.item(0)?.textContent.trim()).toBe('1/16 in');
+    const store = TestBed.inject(SettingsStore);
+    store.setImperialPrecision(64);
+    await fixture.whenStable();
+    expect(precision.selectedOptions.item(0)?.textContent.trim()).toBe('1/64 in');
 
-    await choose(fixture, precision, '32');
+    await choose(fixture, precision, '1/32 in');
 
-    expect(TestBed.inject(SettingsStore).imperialPrecision()).toBe(32);
+    expect(store.imperialPrecision()).toBe(32);
   });
 
   it('switches the language, translating the visible text in place', async () => {
@@ -153,7 +173,7 @@ describe('the settings page', () => {
       'Español',
     ]);
 
-    await choose(fixture, language, 'es');
+    await choose(fixture, language, 'Español');
 
     expect(TestBed.inject(SettingsStore).language()).toBe('es');
     expect(page.querySelector('main h1')?.textContent.trim()).toBe('Ajustes');
@@ -191,19 +211,27 @@ describe('the settings page', () => {
 
   it('keeps what the user typed in a Tool section when the language changes', async () => {
     const { page, fixture } = await openSettings(toolsWithSettings());
-    const field = page.querySelector<HTMLInputElement>('#test-setting');
-    expect(field).not.toBeNull();
-    field!.value = '3.2';
+    testSetting(page).value = '3.2';
 
-    await choose(fixture, select(page, 'Language'), 'es');
+    await choose(fixture, select(page, 'Language'), 'Español');
 
     expect(page.querySelector('main h1')?.textContent.trim()).toBe('Ajustes');
-    expect(page.querySelector<HTMLInputElement>('#test-setting')?.value).toBe('3.2');
+    expect(testSetting(page).value).toBe('3.2');
   });
 
   it('has no WCAG AA violations', async () => {
     const { page } = await openSettings(toolsWithSettings());
 
     await expectNoAxeViolations(page);
+  });
+
+  it('still shows the other sections when one Tool section fails to load', async () => {
+    const tools = [
+      testTool({ loadSettingsSection: async () => Promise.reject(new Error('Offline')) }),
+      otherTool({ loadSettingsSection: async () => Promise.resolve(TestToolSettings) }),
+    ];
+    const { page } = await openSettings(tools);
+
+    expect(sections(page).map(({ heading }) => heading)).toEqual(['General', 'Other Tool']);
   });
 });

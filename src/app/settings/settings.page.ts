@@ -2,7 +2,7 @@ import { NgComponentOutlet } from '@angular/common';
 import type { Type } from '@angular/core';
 import { Component, computed, inject, resource } from '@angular/core';
 import { TranslocoPipe, translateSignal } from '@jsverse/transloco';
-import { isLang, LANG_NAMES, LANGS } from '../core/i18n/langs';
+import { isLang, LANGUAGE_OPTIONS } from '../core/i18n/langs';
 import { SettingsStore } from '../core/settings/settings-store';
 import type { ToolEntry } from '../core/tool-registry/tool-entry';
 import { TOOL_REGISTRY } from '../core/tool-registry/tool-registry';
@@ -11,7 +11,7 @@ import type { UnitSystem } from '../shared/measurement/unit-system';
 import type { SegmentedOption } from '../shared/ui/segmented-control/segmented-control';
 import { SegmentedControl } from '../shared/ui/segmented-control/segmented-control';
 import type { SelectOption } from '../shared/ui/select/select';
-import { Select } from '../shared/ui/select/select';
+import { SelectField } from '../shared/ui/select-field/select-field';
 
 /** A Tool's settings section, once loaded. */
 interface ToolSection {
@@ -37,10 +37,10 @@ async function loadToolSections(tools: readonly ToolEntry[]): Promise<ToolSectio
   );
 }
 
-/** The settings surface: the app-wide settings, then a section per Tool that has its own. */
+/** The settings page: the app-wide settings, then a section per Tool that has its own. */
 @Component({
   selector: 'wt-settings-page',
-  imports: [NgComponentOutlet, SegmentedControl, Select, TranslocoPipe],
+  imports: [NgComponentOutlet, SegmentedControl, SelectField, TranslocoPipe],
   templateUrl: './settings.page.html',
   styleUrl: './settings.page.css',
 })
@@ -72,12 +72,7 @@ export default class SettingsPage {
 
   protected readonly imperialPrecision = computed(() => String(this.settings.imperialPrecision()));
 
-  /** Each language named in itself, so a reader finds theirs whatever the page's language. */
-  protected readonly languages: readonly SelectOption[] = LANGS.map((lang) => ({
-    value: lang,
-    label: LANG_NAMES[lang],
-    lang,
-  }));
+  protected readonly languages = LANGUAGE_OPTIONS;
 
   protected readonly language = this.settings.language;
 

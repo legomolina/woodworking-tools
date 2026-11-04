@@ -18,11 +18,12 @@ export function testTool(overrides: Partial<ToolEntry> = {}): ToolEntry {
 }
 
 /** A second test-only Tool, for tests that need more than one. */
-export function otherTool(): ToolEntry {
+export function otherTool(overrides: Partial<ToolEntry> = {}): ToolEntry {
   return testTool({
     path: 'other-tool',
     nameKey: 'tools.otherTool.name',
     descriptionKey: 'tools.otherTool.description',
+    ...overrides,
   });
 }
 

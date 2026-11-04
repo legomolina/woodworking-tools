@@ -1,0 +1,12 @@
+<label [for]="name()">{{ label() }}</label>
+<select
+  wt-select
+  [id]="name()"
+  [measurement]="measurement()"
+  [attr.aria-describedby]="hint() === undefined ? null : hintId()"
+  [options]="options()"
+  [(value)]="value"
+></select>
+@if (hint(); as hint) {
+  <p [id]="hintId()">{{ hint }}</p>
+}

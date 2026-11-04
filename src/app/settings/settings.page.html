@@ -13,30 +13,23 @@
     [value]="unitSystem()"
     (valueChange)="chooseUnitSystem($event)"
   />
-  <div>
-    <label for="imperial-precision">{{ 'settings.imperialPrecision.label' | transloco }}</label>
-    <select
-      wt-select
-      id="imperial-precision"
-      measurement
-      aria-describedby="imperial-precision-hint"
-      [options]="precisions()"
-      [value]="imperialPrecision()"
-      (valueChange)="chooseImperialPrecision($event)"
-    ></select>
-    <p id="imperial-precision-hint">{{ 'settings.imperialPrecision.hint' | transloco }}</p>
-  </div>
-  <div>
-    <!-- The footer's language picker is #language. -->
-    <label for="settings-language">{{ 'settings.language' | transloco }}</label>
-    <select
-      wt-select
-      id="settings-language"
-      [options]="languages"
-      [value]="language()"
-      (valueChange)="chooseLanguage($event)"
-    ></select>
-  </div>
+  <wt-select-field
+    name="imperial-precision"
+    measurement
+    [label]="'settings.imperialPrecision.label' | transloco"
+    [hint]="'settings.imperialPrecision.hint' | transloco"
+    [options]="precisions()"
+    [value]="imperialPrecision()"
+    (valueChange)="chooseImperialPrecision($event)"
+  />
+  <!-- The footer's language picker is #language. -->
+  <wt-select-field
+    name="settings-language"
+    [label]="'settings.language' | transloco"
+    [options]="languages"
+    [value]="language()"
+    (valueChange)="chooseLanguage($event)"
+  />
 </section>
 
 @for (section of toolSections.value(); track section.tool.path) {
