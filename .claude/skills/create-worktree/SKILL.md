@@ -18,6 +18,6 @@ Issue: `$ARGUMENTS`. Without a number, ask for one. Run this in the main checkou
 
 ## Session title
 
-When this session runs in an IDE that offers a session-title tool (PhpStorm Air's `air_set_session_title`, a deferred tool), call it so parallel sessions can be told apart. It errors outside an Air session; then carry on without a title.
+When this session runs in an IDE that offers a session-title tool (the JetBrains Air plugin's `air_set_session_title`, a deferred tool), call it so parallel sessions can be told apart. It errors outside an Air session; then carry on without a title.
 
 Done when the worktree exists with dependencies installed, and the user has the folder and the command.

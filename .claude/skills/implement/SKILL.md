@@ -15,7 +15,7 @@ Other sessions run in parallel worktrees, so this one owns the port **4200 + iss
 - `E2E_PORT=<port> pnpm e2e`;
 - its URL for the Playwright MCP tools and the `a11y-auditor`.
 
-Set the session title to `#<n> <issue title>` when the IDE offers a session-title tool (PhpStorm Air's `air_set_session_title`, a deferred tool), so parallel sessions can be told apart. It errors outside an Air session; then carry on without a title.
+Set the session title to `#<n> <issue title>` when the IDE offers a session-title tool (the JetBrains Air plugin's `air_set_session_title`, a deferred tool), so parallel sessions can be told apart. It errors outside an Air session; then carry on without a title.
 
 Before starting, confirm the worktree is on the issue's branch, not `main`, and rebase it onto `origin/main` if it is behind.
 

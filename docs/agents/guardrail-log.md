@@ -8,7 +8,7 @@ Add new entries at the top, in the same shape: a date, then **What happened**, *
 
 - **2026-11-05**
   - **What happened:** Some parallel sessions had a title in the IDE and others did not, so the owner could not tell the worktree sessions apart.
-  - **Root cause:** Nothing asked agents to set a title; the IDE's session-title tool is deferred and only works in sessions opened from PhpStorm Air.
+  - **Root cause:** Nothing asked agents to set a title; the IDE's session-title tool is deferred and only works in sessions opened from the JetBrains Air plugin.
   - **Guardrail:** `/create-worktree` sets `Setup #<n>` and `/implement` sets `#<n> <issue title>` when the tool is available.
 - **2026-11-05**
   - **What happened:** The automatic review of PR #67 said "No issues found". The PR itself admitted that the field's error state was not linked to the input with `aria-invalid` / `aria-describedby`, an accessibility gap that `CLAUDE.md` forbids; the owner had to ask for the follow-up issue (#68).
