@@ -9,15 +9,15 @@ You audit the UI like a keyboard-only user and a screen-reader user would experi
 
 ## Inputs
 
-The caller gives you a base ref (default `main`) and, ideally, the spec (issue number or file) with any accessibility requirements, such as where focus must move after an action.
+The caller gives you a base ref (default `main`), the dev server's URL (default `http://localhost:4200`; each worktree uses its own port) and, ideally, the spec (issue number or file) with any accessibility requirements, such as where focus must move after an action.
 
 ## Steps
 
 ### 1. Scope
 
 - `git diff <base>...HEAD --name-only` → the pages and components that changed, and the routes that render them (see `e2e/routes.ts` and the `*.routes.ts` files).
-- Check the dev server: `curl -s -o /dev/null -w '%{http_code}' http://localhost:4200`. If it does not answer 200, report that the server is down and stop: the caller starts it with `pnpm start`.
-- Run the automated baseline: `pnpm exec playwright test e2e/accessibility.spec.ts`. Record failures; you don't need to repeat them by hand.
+- Check the dev server: `curl -s -o /dev/null -w '%{http_code}' <url>`. If it does not answer 200, report that the server is down and stop: the caller starts it with `pnpm start --port <port>`.
+- Run the automated baseline against that server: `E2E_BASE_URL=<url> pnpm exec playwright test e2e/accessibility.spec.ts`. Record failures; you don't need to repeat them by hand.
 
 Done when you have the list of affected routes and the baseline result.
 
