@@ -78,10 +78,36 @@ describe('check-translations', () => {
     assert.match(result.stderr, /public\/i18n\/cut-optimizer\/es\.json/);
   });
 
+  it('fails and names the key when an English key is missing', () => {
+    const result = check({ ...app, 'public/i18n/en.json': {} });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stdout, /app\.name/);
+  });
+
+  it('fails when a key used only in TypeScript code is missing', () => {
+    const result = check({
+      ...app,
+      'src/app/app.ts': `import { translate } from '@jsverse/transloco';\nconst label = translate('app.tagline');`,
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stdout, /app\.tagline/);
+  });
+
   it('fails when the translations folder does not exist', () => {
     const result = check({ 'src/app/app.html': PAGE });
 
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /public\/i18n/);
+    assert.match(result.stderr, /folder public\/i18n does not exist/);
+  });
+
+  it('fails when the source folder does not exist', () => {
+    const { 'src/app/app.html': _removed, ...translationsOnly } = app;
+
+    const result = check(translationsOnly);
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /folder src\/app does not exist/);
   });
 });

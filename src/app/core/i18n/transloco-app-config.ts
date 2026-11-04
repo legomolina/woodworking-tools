@@ -1,7 +1,7 @@
-import type { Lang } from './langs';
-import { LANGS, SOURCE_LANG } from './langs';
 import type { TranslocoConfig } from '@jsverse/transloco';
 import { translocoConfig } from '@jsverse/transloco';
+import type { Lang } from './langs';
+import { LANGS, SOURCE_LANG } from './langs';
 
 /** Transloco settings shared by the app and by specs (`src/testing/`). */
 export function translocoAppConfig(activeLang: Lang): TranslocoConfig {

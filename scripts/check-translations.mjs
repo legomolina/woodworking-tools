@@ -12,6 +12,7 @@ import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+// Keep in step with LANGS in src/app/core/i18n/langs.ts.
 const LANGS = ['en', 'es'];
 const INPUT = 'src/app';
 const TRANSLATIONS = 'public/i18n';
