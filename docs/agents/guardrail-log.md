@@ -7,6 +7,14 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** `/implement` did two different jobs under one name, depending on the folder it ran in. In the main checkout it set up a worktree; inside one, it implemented the issue. The owner read it as a worktree helper. Its implementation steps also duplicated those that `@claude` follows on GitHub (`.github/claude/implement-issue.md`).
+  - **Root cause:** One skill with two phases. Two copies of the same workflow, which would drift apart.
+  - **Guardrail:**
+    - `/create-worktree <n>` only sets up the worktree (`setup-worktree.sh`).
+    - `/implement <n>` only implements, and stops when run outside a worktree.
+    - The steps live once, in `docs/agents/implement-issue.md`, with a **Locally** and an **On GitHub** branch where they differ (browser checks, `a11y-auditor`, who opens the PR, watching CI).
+    - `claude.yml` and the `/implement` skill both point at it.
+- **2026-11-04**
   - **What happened:** On #49, `@claude` used the `tdd` skill only because the comment asked for it. It skipped `test-reviewer` and `code-review`, which nothing asked for. Every request had to spell out the whole workflow.
   - **Root cause:** The action's `prompt` input replaces the owner's comment, so it cannot hold standing instructions. The local `/implement` skill is user-invoked and creates worktrees, so it does not fit a runner.
   - **Guardrail:**

@@ -66,7 +66,7 @@ jobs:
           # (.claude/settings.json), plus mutation testing, and git and gh to
           # branch, commit and push.
           claude_args: >-
-            --append-system-prompt "When asked to implement an issue, follow .github/claude/implement-issue.md."
+            --append-system-prompt "When asked to implement an issue, follow docs/agents/implement-issue.md, taking its On GitHub branch at each step."
             --allowedTools
             "Bash(pnpm lint)" "Bash(pnpm lint:fix)" "Bash(pnpm typecheck)"
             "Bash(pnpm test:ci)" "Bash(pnpm test:ci *)" "Bash(pnpm build)"
