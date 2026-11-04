@@ -17,12 +17,27 @@ export function testTool(overrides: Partial<ToolEntry> = {}): ToolEntry {
   };
 }
 
-/** The test Tool's name and description, merged into the app-wide files by `translocoTesting()`. */
+/** A second test-only Tool, for tests that need more than one. */
+export function otherTool(): ToolEntry {
+  return testTool({
+    path: 'other-tool',
+    nameKey: 'tools.otherTool.name',
+    descriptionKey: 'tools.otherTool.description',
+  });
+}
+
+/** The test Tools' names and description, merged into the app-wide files by `translocoTesting()`. */
 export const TEST_TOOL_TRANSLATIONS: Readonly<Record<Lang, Translation>> = {
-  en: { tools: { testTool: { name: 'Test Tool', description: 'A Tool for tests.' } } },
+  en: {
+    tools: {
+      testTool: { name: 'Test Tool', description: 'A Tool for tests.' },
+      otherTool: { name: 'Other Tool', description: 'Another Tool for tests.' },
+    },
+  },
   es: {
     tools: {
       testTool: { name: 'Herramienta de prueba', description: 'Una herramienta para pruebas.' },
+      otherTool: { name: 'Otra herramienta', description: 'Otra herramienta para pruebas.' },
     },
   },
 };

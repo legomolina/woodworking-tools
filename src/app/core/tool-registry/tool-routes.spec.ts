@@ -1,22 +1,9 @@
-import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import type { ToolEntry } from './tool-entry';
+import { testTool as testEntry } from '../../../testing/test-tool/test-tool';
+import { TestToolPage } from '../../../testing/test-tool/test-tool.page';
 import { toolRoutes } from './tool-routes';
-
-@Component({ selector: 'wt-test-tool-page', template: '<h1>Test Tool</h1>' })
-class TestToolPage {}
-
-function testEntry(overrides: Partial<ToolEntry> = {}): ToolEntry {
-  return {
-    path: 'test-tool',
-    nameKey: 'tools.testTool.name',
-    descriptionKey: 'tools.testTool.description',
-    loadRoutes: async () => Promise.resolve([{ path: '', component: TestToolPage }]),
-    ...overrides,
-  };
-}
 
 describe('toolRoutes', () => {
   it('serves a registered Tool at /<path>', async () => {

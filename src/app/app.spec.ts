@@ -2,7 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { expectNoAxeViolations } from '../testing/expect-no-axe-violations';
-import { testTool } from '../testing/test-tool/test-tool';
+import type { ToolEntry } from './core/tool-registry/tool-entry';
+import { otherTool, testTool } from '../testing/test-tool/test-tool';
 import { translocoTesting } from '../testing/transloco-testing';
 import { App } from './app';
 import { appRoutes } from './app.routes';
@@ -13,9 +14,11 @@ async function navigate(fixture: ComponentFixture<App>, url: string): Promise<vo
   await fixture.whenStable();
 }
 
-/** The whole app (shell and routes) with only the test Tool registered. */
-async function setUp(url: string): Promise<{ page: HTMLElement; fixture: ComponentFixture<App> }> {
-  const tools = [testTool()];
+/** The whole app (shell and routes) with only test Tools registered. */
+async function setUp(
+  url: string,
+  tools: readonly ToolEntry[] = [testTool(), otherTool()],
+): Promise<{ page: HTMLElement; fixture: ComponentFixture<App> }> {
   TestBed.configureTestingModule({
     imports: [translocoTesting()],
     providers: [provideRouter(appRoutes(tools)), { provide: TOOL_REGISTRY, useValue: tools }],
@@ -37,7 +40,20 @@ describe('the app shell', () => {
           name: card.querySelector('h2')?.textContent.trim(),
           description: card.querySelector('p')?.textContent.trim(),
         })),
-      ).toEqual([{ href: '/test-tool', name: 'Test Tool', description: 'A Tool for tests.' }]);
+      ).toEqual([
+        { href: '/test-tool', name: 'Test Tool', description: 'A Tool for tests.' },
+        { href: '/other-tool', name: 'Other Tool', description: 'Another Tool for tests.' },
+      ]);
+    });
+
+    it('says the Tools are on their way while none is registered', async () => {
+      const { page } = await setUp('/', []);
+
+      expect(page.querySelector('main ul, header nav')).toBeNull();
+      expect([...page.querySelectorAll('main p')].map((p) => p.textContent.trim())).toEqual([
+        'Quick, exact answers for the workshop: convert measurements and plan your cuts.',
+        'The first Tools are on their way.',
+      ]);
     });
   });
 
@@ -61,7 +77,10 @@ describe('the app shell', () => {
     const links = [...page.querySelectorAll('header nav a')];
     expect(
       links.map((link) => [link.textContent.trim(), link.getAttribute('aria-current')]),
-    ).toEqual([['Test Tool', 'page']]);
+    ).toEqual([
+      ['Test Tool', 'page'],
+      ['Other Tool', null],
+    ]);
   });
 
   it('links to the settings from the header', async () => {
@@ -83,7 +102,7 @@ describe('the app shell', () => {
     expect(menu?.getAttribute('popover')).toBe('auto');
     expect(
       [...(menu?.querySelectorAll('a') ?? [])].map((link) => link.getAttribute('href')),
-    ).toEqual(['/test-tool', '/settings']);
+    ).toEqual(['/test-tool', '/other-tool', '/settings']);
   });
 
   it('moves focus to the main content with the skip link, without leaving the page', async () => {
@@ -98,9 +117,19 @@ describe('the app shell', () => {
     expect(TestBed.inject(Router).url).toBe('/test-tool');
   });
 
+  it('moves focus to the main content after moving to another page, so the reader starts there', async () => {
+    const { page, fixture } = await setUp('/no-such-page');
+    expect(document.activeElement).not.toBe(page.querySelector('main'));
+
+    await navigate(fixture, '/');
+
+    expect(document.activeElement).toBe(page.querySelector('main'));
+  });
+
   it("switches the page's language from the footer", async () => {
     const { page, fixture } = await setUp('/');
     const select = page.querySelector<HTMLSelectElement>('footer select');
+    expect(select?.value).toBe('en');
 
     select!.value = 'es';
     select!.dispatchEvent(new Event('change'));

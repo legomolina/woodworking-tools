@@ -1,5 +1,6 @@
 import type { ElementRef } from '@angular/core';
-import { Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { filter } from 'rxjs';
@@ -28,22 +29,39 @@ export class SiteHeader {
 
   private readonly menu = viewChild.required<ElementRef<HTMLElement>>('menu');
 
+  private readonly menuButton = viewChild.required<ElementRef<HTMLElement>>('menuButton');
+
   constructor() {
     // A link in the Menu changes the page without reloading it: close the Menu then.
-    const subscription = inject(Router)
-      .events.pipe(filter((event) => event instanceof NavigationEnd))
+    inject(Router)
+      .events.pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
       .subscribe(() => {
-        const menu = this.menu().nativeElement;
-        if (menu.matches(':popover-open')) {
-          menu.hidePopover();
-        }
+        this.closeMenu();
       });
-    inject(DestroyRef).onDestroy(() => {
-      subscription.unsubscribe();
-    });
+  }
+
+  /** Close the Menu when focus moves on past it, so it never covers what has focus (WCAG 2.4.11). */
+  protected focusLeft(event: FocusEvent): void {
+    const next = event.relatedTarget;
+    const stillInMenu =
+      next instanceof Node &&
+      (this.menu().nativeElement.contains(next) || this.menuButton().nativeElement === next);
+    if (!stillInMenu) {
+      this.closeMenu();
+    }
   }
 
   protected menuToggled(event: ToggleEvent): void {
     this.menuOpen.set(event.newState === 'open');
+  }
+
+  private closeMenu(): void {
+    const menu = this.menu().nativeElement;
+    if (menu.matches(':popover-open')) {
+      menu.hidePopover();
+    }
   }
 }

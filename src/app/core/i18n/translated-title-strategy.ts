@@ -1,4 +1,5 @@
-import { DestroyRef, inject, Service } from '@angular/core';
+import { inject, Service } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import type { RouterStateSnapshot } from '@angular/router';
 import { TitleStrategy } from '@angular/router';
@@ -23,15 +24,11 @@ export class TranslatedTitleStrategy extends TitleStrategy {
   constructor() {
     super();
     // Emits once the active language's file is loaded, and again on every switch.
-    const subscription = combineLatest([
-      this.pageKey,
-      this.transloco.selectTranslation(),
-    ]).subscribe(([pageKey]) => {
-      this.title.setTitle(this.translatedTitle(pageKey));
-    });
-    inject(DestroyRef).onDestroy(() => {
-      subscription.unsubscribe();
-    });
+    combineLatest([this.pageKey, this.transloco.selectTranslation()])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([pageKey]) => {
+        this.title.setTitle(this.translatedTitle(pageKey));
+      });
   }
 
   override updateTitle(snapshot: RouterStateSnapshot): void {

@@ -35,6 +35,8 @@ src/
 └── app/
     ├── core/        # shared services and providers (settings store, Tool registry, i18n)
     ├── layout/      # shell pieces (header, skip link, footer): eager, not a Tool
+    ├── home/        # the home page (lists the Tool registry), not a Tool
+    ├── not-found/   # the page for any unknown address, not a Tool
     ├── shared/
     │   ├── ui/      # wt-* components, directives and pipes (the design system)
     │   └── <name>/  # pure domain modules shared by Tools, e.g. measurement/
