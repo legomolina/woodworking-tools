@@ -5,9 +5,13 @@ const BROWSER_LOCALES = [
   {
     locale: 'es-MX',
     lang: 'es',
-    intro: 'Calculadoras y utilidades para carpinteros. Próximamente.',
+    intro: 'Respuestas rápidas y exactas para el taller: convierte medidas y planifica tus cortes.',
   },
-  { locale: 'fr-FR', lang: 'en', intro: 'Calculators and utilities for woodworkers. Coming soon.' },
+  {
+    locale: 'fr-FR',
+    lang: 'en',
+    intro: 'Quick, exact answers for the workshop: convert measurements and plan your cuts.',
+  },
 ] as const;
 
 for (const { locale, lang, intro } of BROWSER_LOCALES) {
@@ -22,3 +26,23 @@ for (const { locale, lang, intro } of BROWSER_LOCALES) {
     });
   });
 }
+
+test.describe('switching the language in the footer', () => {
+  test.use({ locale: 'en-US' });
+
+  test('translates the page and its title without a reload', async ({ page }) => {
+    await page.goto('/no-such-page');
+    await expect(page).toHaveTitle('Page not found – Woodworking Tools');
+    // A reload would reset this marker.
+    await page.evaluate(() => {
+      document.body.dataset['sameDocument'] = 'yes';
+    });
+
+    await page.getByLabel('Language').selectOption('es');
+
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Página no encontrada');
+    await expect(page).toHaveTitle('Página no encontrada – Woodworking Tools');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+    await expect(page.locator('body')).toHaveAttribute('data-same-document', 'yes');
+  });
+});

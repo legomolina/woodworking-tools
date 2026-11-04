@@ -6,7 +6,7 @@ import type { ImperialPrecision } from '../../shared/measurement/show-length.cal
 import { IMPERIAL_PRECISIONS } from '../../shared/measurement/show-length.calc';
 import type { UnitSystem } from '../../shared/measurement/unit-system';
 import type { Lang } from '../i18n/langs';
-import { LANGS } from '../i18n/langs';
+import { isLang } from '../i18n/langs';
 
 /** Lengths are shown to the nearest 1/16" until the user picks another precision. */
 const DEFAULT_PRECISION: ImperialPrecision = 16;
@@ -14,10 +14,6 @@ const DEFAULT_PRECISION: ImperialPrecision = 16;
 /** Imperial for a US English browser (`en-US`), Metric for every other locale. */
 function defaultUnitSystem(browserLocale: string | undefined): UnitSystem {
   return browserLocale?.toLowerCase() === 'en-us' ? 'imperial' : 'metric';
-}
-
-function isLang(lang: string): lang is Lang {
-  return (LANGS as readonly string[]).includes(lang);
 }
 
 /**

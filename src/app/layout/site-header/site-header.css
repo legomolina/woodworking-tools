@@ -1,0 +1,174 @@
+:host {
+  display: block;
+}
+
+header {
+  anchor-name: --site-header;
+
+  display: flex;
+  gap: var(--space-2) var(--space-8);
+  align-items: center;
+  justify-content: space-between;
+
+  padding-block: var(--space-3);
+  padding-inline: var(--space-8);
+  border-block-end: 1px solid var(--line);
+
+  background-color: var(--surface-raised);
+}
+
+header > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-8);
+  align-items: center;
+
+  min-inline-size: 0;
+}
+
+/* The brand: the name next to a strip of tape. */
+header > div > a {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+
+  min-block-size: 44px;
+
+  font: var(--text-title);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+span {
+  flex: none;
+
+  inline-size: var(--space-4);
+  block-size: var(--space-6);
+  border-radius: var(--radius-sm);
+
+  background-color: var(--tape);
+}
+
+ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+
+  padding: 0;
+
+  list-style: none;
+}
+
+svg {
+  flex: none;
+
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2;
+}
+
+circle {
+  fill: var(--surface-raised);
+}
+
+button {
+  cursor: pointer;
+
+  display: none;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: center;
+
+  min-block-size: 44px;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+
+  font: var(--text-label);
+  color: var(--ink);
+
+  background-color: var(--surface-raised);
+}
+
+button:hover {
+  background-color: var(--surface-sunken);
+}
+
+/* The Menu: a panel under the header, in the top layer. */
+[popover] {
+  position: fixed;
+  inset-block-start: anchor(bottom);
+  inset-inline: 0;
+  position-anchor: --site-header;
+
+  overflow-block: auto;
+
+  inline-size: auto;
+  max-block-size: calc(100dvb - anchor-size(height));
+  margin: 0;
+  padding-block: var(--space-2) var(--space-4);
+  padding-inline: var(--space-4);
+  border: 0;
+  border-block-end: 1px solid var(--line-strong);
+
+  color: var(--ink);
+
+  background-color: var(--surface-raised);
+}
+
+[popover]:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+[popover] ul {
+  flex-direction: column;
+}
+
+[popover] a {
+  display: flex;
+  min-block-size: var(--control-height);
+  font: var(--text-body);
+  font-weight: 500;
+}
+
+[popover] a[aria-current='page'] {
+  font-weight: 600;
+}
+
+hr {
+  margin-block: var(--space-1);
+  border: 0;
+  border-block-start: 1px solid var(--line);
+}
+
+@media (width < 37.5rem) {
+  header {
+    padding-block: var(--space-2);
+    padding-inline: var(--space-4) var(--space-2);
+  }
+
+  nav,
+  header > a {
+    display: none;
+  }
+
+  button {
+    display: inline-flex;
+  }
+
+  [popover] nav {
+    display: block;
+  }
+}
+
+/* The Menu is only for narrow screens: never leave it open on a wide one. */
+@media (width >= 37.5rem) {
+  [popover]:popover-open {
+    display: none;
+  }
+}

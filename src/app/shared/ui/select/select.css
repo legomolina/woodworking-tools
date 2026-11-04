@@ -1,0 +1,67 @@
+:host {
+  min-block-size: var(--control-height);
+  padding-block: 0;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+
+  font: var(--text-body);
+  color: var(--ink);
+
+  background-color: var(--surface-sunken);
+}
+
+@supports (appearance: base-select) {
+  :host,
+  :host::picker(select) {
+    appearance: base-select;
+  }
+
+  :host {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  :host::picker-icon {
+    color: var(--ink-muted);
+  }
+
+  :host::picker(select) {
+    margin-block-start: var(--space-1);
+    padding-block: var(--space-1);
+    padding-inline: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-md);
+
+    color: var(--ink);
+
+    background-color: var(--surface-raised);
+  }
+
+  option {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+
+    min-block-size: 44px;
+    padding-block: 0;
+    padding-inline: var(--space-3);
+
+    font: inherit;
+  }
+
+  option:hover,
+  option:focus-visible {
+    background-color: var(--surface-sunken);
+  }
+
+  option:checked {
+    font-weight: 500;
+    background-color: var(--tape-soft);
+  }
+
+  option::checkmark {
+    color: var(--ink);
+  }
+}

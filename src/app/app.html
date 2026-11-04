@@ -1,7 +1,6 @@
-<!-- Placeholder until the app shell and home page are built (issue #2). -->
-<main>
-  <h1>{{ 'app.name' | transloco }}</h1>
-  <p>{{ 'placeholder.intro' | transloco }}</p>
+<wt-skip-link [target]="main" />
+<wt-site-header />
+<main #main id="main-content" tabindex="-1">
+  <router-outlet />
 </main>
-
-<router-outlet />
+<wt-site-footer />

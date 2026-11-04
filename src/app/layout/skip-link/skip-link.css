@@ -1,0 +1,34 @@
+a {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: var(--space-2);
+  inset-inline-start: var(--space-2);
+
+  display: inline-flex;
+  align-items: center;
+
+  min-block-size: 44px;
+  padding-inline: var(--space-4);
+  border-radius: var(--radius-md);
+
+  font: var(--text-label);
+  font-weight: 600;
+  color: var(--on-tape);
+  text-decoration: none;
+
+  background-color: var(--tape);
+}
+
+/* Off-screen until focused, but still reachable and announced. */
+a:not(:focus) {
+  overflow: hidden;
+
+  inline-size: 1px;
+  block-size: 1px;
+  min-block-size: 0;
+  padding: 0;
+
+  white-space: nowrap;
+
+  clip-path: inset(50%);
+}

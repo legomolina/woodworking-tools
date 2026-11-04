@@ -55,6 +55,12 @@ describe('toolRoutes', () => {
     expect(toolRoutes([testEntry({ path })])).toEqual([expect.objectContaining({ path })]);
   });
 
+  it("titles a Tool's route with the Tool's name key, so the page title names the Tool", () => {
+    expect(toolRoutes([testEntry()])).toEqual([
+      expect.objectContaining({ path: 'test-tool', title: 'tools.testTool.name' }),
+    ]);
+  });
+
   it('rejects two Tools at the same path', () => {
     expect(() => toolRoutes([testEntry(), testEntry()])).toThrow(
       'Two Tools are registered at the path "test-tool".',
