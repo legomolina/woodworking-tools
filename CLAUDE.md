@@ -142,6 +142,7 @@ Full decisions in `docs/adr/0003-component-styling.md`; lint enforces most of th
 - Use `computed()` for derived state
 - Keep state transformations pure and predictable
 - Do NOT use `mutate` on signals, use `update` or `set` instead
+- Stores (services that hold shared state, e.g. `core/settings/settings-store.ts`) expose read-only signals (`asReadonly()`, `computed()`, `toSignal()`) and change state only through methods named for the intent (`setImperialPrecision()`), which enforce the store's rules. Never expose a `WritableSignal`. State owned by another service (e.g. the language, owned by Transloco) is read from it and written through it, never copied into a second signal.
 
 ## Templates
 

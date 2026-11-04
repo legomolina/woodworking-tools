@@ -7,6 +7,10 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** The settings store (#32) exposed read-only signals and validated every write in a method, although nothing asked for that shape. It was the agent's choice, forced by the issue's rules (only 8/16/32/64; language synced with Transloco), so the next store could just as well expose a `WritableSignal`.
+  - **Root cause:** A good pattern that lived only in one agent's judgement, not in the instructions.
+  - **Guardrail:** `CLAUDE.md` › State Management: stores expose read-only signals, write through intent-named methods that enforce their rules, and never duplicate state another service owns. Instruction only; add a lint rule if a store ever breaks it.
+- **2026-11-04**
   - **What happened:** The e2e accessibility audit only covered routes someone remembered to add to `e2e/routes.ts`, so a Tool could reach the router and ship unaudited (test-reviewer finding in #2).
   - **Root cause:** The router and the e2e route list were two separate lists with nothing keeping them in step.
   - **Guardrail:** The Tool registry (`src/app/core/tool-registry/tools.ts`, #16) is the one place a Tool is declared: the router builds Tool routes from it (rejecting non-kebab-case or duplicate paths) and `e2e/routes.ts` derives each Tool page and its expected `h1` from it, failing if a Tool's name is untranslated. The audit also requires exactly one `h1` per page. `tools.spec.ts` checks every entry's name and description keys exist in every language, since `pnpm i18n:check` cannot see plain-string keys. Verified with temporary entries: a bad path and a missing key turn the registry spec red, and a new entry appears in `playwright test --list`.
