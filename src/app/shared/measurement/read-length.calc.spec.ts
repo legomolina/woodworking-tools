@@ -83,16 +83,67 @@ describe('readLength', () => {
     });
   });
 
-  describe('sign', () => {
-    // Sign validation is the caller's job, so negative lengths must be read, not rejected.
+  describe('negative lengths', () => {
+    // No woodworking length is negative: they are rejected with their own error kind.
     it.each([
-      ['-89', 'metric', -89],
-      ['-8,9 cm', 'imperial', -89],
-      ['-3 1/2"', 'metric', -88.9],
-      ['- 3-1/2', 'imperial', -88.9],
-      [`-6' 4 1/4"`, 'metric', -1936.75],
-    ] as const)('reads %j under %s as %d mm', (text, unitSystem, millimetres) => {
-      expect(readLength(text, unitSystem)).toEqual(readAs(millimetres));
+      '-5',
+      '-89 mm',
+      '-2 cm',
+      '-8,9 cm',
+      '-0.5 m',
+      '-0.0001 mm',
+      '-3 1/2"',
+      '-3-1/2"',
+      '-1/2 in',
+      '-3.5"',
+      '- 3 1/2"',
+      `-6' 4"`,
+      `-6' 4 1/4"`,
+      '-6 ft',
+      '  -6 ft 4 in  ',
+    ])('rejects %j as negative under either Unit System', (text) => {
+      expect(readLength(text, 'metric')).toEqual({ ok: false, error: 'negative' });
+      expect(readLength(text, 'imperial')).toEqual({ ok: false, error: 'negative' });
+    });
+
+    it('rejects a bare negative number as negative millimetres under Metric', () => {
+      expect(readLength('-5', 'metric')).toEqual({ ok: false, error: 'negative' });
+    });
+
+    it.each(['-5', '-3 1/2', '- 3-1/2', '-1/2'])(
+      'rejects the bare number %j as negative inches under Imperial',
+      (text) => {
+        expect(readLength(text, 'imperial')).toEqual({ ok: false, error: 'negative' });
+      },
+    );
+
+    it.each(['-', '-abc', '--5', '-5 apples', '-1/0"', `-${TOO_LARGE}`])(
+      'leaves %j unreadable: a sign in front of something that is not a length',
+      (text) => {
+        expect(readLength(text, 'metric')).toEqual({ ok: false, error: 'unreadable' });
+        expect(readLength(text, 'imperial')).toEqual({ ok: false, error: 'unreadable' });
+      },
+    );
+  });
+
+  describe('zero', () => {
+    it.each([
+      '0 mm',
+      '0 cm',
+      '0 m',
+      '0"',
+      '0 in',
+      '0/4"',
+      `0'`,
+      `0' 0"`,
+      '0 ft 0 in',
+      '-0',
+      '-0 mm',
+      '-0"',
+      `-0' 0"`,
+    ])('reads %j as 0 mm under either Unit System', (text) => {
+      expect(readLength(text, 'metric')).toEqual(readAs(0));
+      expect(readLength(text, 'imperial')).toEqual(readAs(0));
     });
   });
 
