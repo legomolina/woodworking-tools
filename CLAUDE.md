@@ -12,7 +12,7 @@ Use `pnpm`, never `npm` or `yarn`.
 - `pnpm tokens`: regenerate `src/styles/tokens.css` from the `tokens.json` snapshot
 - `pnpm i18n:check`: fails when a translation key used in `src/app` is missing from any language file (Transloco keys manager), or a language file is missing. Part of `pnpm lint`; run it on its own while adding user-facing text.
 - `pnpm typecheck`: type-check app and spec sources
-- `pnpm specs:check`: fails when a component in `src/app/shared/ui/` or `src/app/layout/` has no co-located `*.spec.ts`. Part of `pnpm lint`.
+- `pnpm specs:check`: fails when a component, directive or pipe in `src/app/shared/ui/` or `src/app/layout/` has no co-located `*.spec.ts` that imports it and has a `describe(` block. Part of `pnpm lint`.
 - `pnpm test:ci`: unit tests (Vitest), single run, then the tooling tests (`pnpm test:tooling`: token generator, translation check, component-spec check and lint rules, `node --test`). Prefer running a single spec file while iterating.
 - `pnpm build`: production build
 - `pnpm e2e`: end-to-end tests (Playwright, desktop + mobile), including the accessibility audit. Starts the dev server itself on `E2E_PORT` (default 4200); set `E2E_BASE_URL` to test a deployed URL instead.
@@ -21,7 +21,7 @@ Use `pnpm`, never `npm` or `yarn`.
 
 - **Unit tests** (`src/**/*.spec.ts`, Vitest): domain logic in `*.calc.ts` and component behaviour.
   Page-level tests call `await expectNoAxeViolations(fixture.nativeElement)` (`src/testing/`) for a fast axe check; colour contrast is left to e2e.
-  Every `wt-*` component and every `layout/` component has a co-located `*.spec.ts` (`pnpm specs:check`) that tests it through its public interface (inputs, DOM, keyboard and ARIA) and runs `expectNoAxeViolations`; `shared/ui/segmented-control/segmented-control.spec.ts` shows the pattern.
+  Every `wt-*` component, directive and pipe and every `layout/` component has a co-located `*.spec.ts` (`pnpm specs:check`) that tests it through its public interface (inputs, DOM, keyboard and ARIA) and runs `expectNoAxeViolations`; `shared/ui/segmented-control/segmented-control.spec.ts` shows the pattern.
 - **Tooling tests** (`scripts/*.test.mjs`, `node:test`): the token generator, the translation check, the component-spec check, and every lint rule proven against code it must block and code it must allow.
 - **End-to-end tests** (`e2e/`, Playwright): user flows in a real browser. `e2e/accessibility.spec.ts` audits every page in `e2e/routes.ts` against WCAG 2.2 AA with axe, in the light and dark themes, and checks each has exactly one `h1`. Tool pages come from the Tool registry automatically (each must show the Tool's name as its `h1`); add only pages outside the registry there.
 - Test-quality lint rules reject tests that cannot fail (no assertions, `expect(<literal>)`, conditional or skipped tests). Fix the test, never the rule.

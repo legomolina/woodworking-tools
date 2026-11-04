@@ -13,7 +13,21 @@ import { Component } from '@angular/core';
 @Component({ selector: 'wt-thing', templateUrl: './thing.html' })
 export class Thing {}
 `;
-const SPEC = `describe('Thing', () => {});`;
+const DIRECTIVE = `
+import { Directive } from '@angular/core';
+@Directive({ selector: '[wt-thing]' })
+export class Thing {}
+`;
+const PIPE = `
+import { Pipe } from '@angular/core';
+@Pipe({ name: 'wtThing' })
+export class Thing {}
+`;
+
+/** A spec that imports `./<name>` (in the given quote style) and describes it. */
+function spec(name, quote = "'") {
+  return `import { Thing } from ${quote}./${name}${quote};\ndescribe('Thing', () => {});`;
+}
 
 /** Runs the check in a temp project made of `{ relativePath: contents }`. */
 function check(files) {
@@ -36,9 +50,9 @@ describe('check-component-specs', () => {
     const result = check({
       ...folders,
       'src/app/shared/ui/button/button.ts': COMPONENT,
-      'src/app/shared/ui/button/button.spec.ts': SPEC,
+      'src/app/shared/ui/button/button.spec.ts': spec('button'),
       'src/app/layout/site-footer/site-footer.ts': COMPONENT,
-      'src/app/layout/site-footer/site-footer.spec.ts': SPEC,
+      'src/app/layout/site-footer/site-footer.spec.ts': spec('site-footer', '"'),
     });
 
     assert.equal(result.status, 0, result.stdout + result.stderr);
@@ -62,11 +76,88 @@ describe('check-component-specs', () => {
     const result = check({
       ...folders,
       'src/app/shared/ui/select/select.ts': COMPONENT,
-      'src/app/shared/ui/select/select-option.spec.ts': SPEC,
+      'src/app/shared/ui/select/select-option.spec.ts': spec('select-option'),
     });
 
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /src\/app\/shared\/ui\/select\/select\.ts/);
+  });
+
+  it("fails and names the file when a component's spec is empty", () => {
+    const result = check({
+      ...folders,
+      'src/app/shared/ui/button/button.ts': COMPONENT,
+      'src/app/shared/ui/button/button.spec.ts': '',
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /src\/app\/shared\/ui\/button\/button\.ts/);
+  });
+
+  it("fails when a component's spec has no describe block", () => {
+    const result = check({
+      ...folders,
+      'src/app/shared/ui/button/button.ts': COMPONENT,
+      'src/app/shared/ui/button/button.spec.ts': `import { Thing } from './button';`,
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /src\/app\/shared\/ui\/button\/button\.ts/);
+  });
+
+  it("fails when a component's spec never imports the component", () => {
+    const result = check({
+      ...folders,
+      'src/app/shared/ui/button/button.ts': COMPONENT,
+      'src/app/shared/ui/button/button.spec.ts': spec('button-group'),
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /src\/app\/shared\/ui\/button\/button\.ts/);
+  });
+
+  it('fails and names the file when a directive or a pipe has no spec', () => {
+    const result = check({
+      ...folders,
+      'src/app/shared/ui/tooltip/tooltip.ts': DIRECTIVE,
+      'src/app/shared/ui/fraction/fraction.pipe.ts': PIPE,
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /src\/app\/shared\/ui\/tooltip\/tooltip\.ts/);
+    assert.match(result.stderr, /src\/app\/shared\/ui\/fraction\/fraction\.pipe\.ts/);
+  });
+
+  it('passes when a directive and a pipe have their specs', () => {
+    const result = check({
+      ...folders,
+      'src/app/shared/ui/tooltip/tooltip.ts': DIRECTIVE,
+      'src/app/shared/ui/tooltip/tooltip.spec.ts': spec('tooltip'),
+      'src/app/shared/ui/fraction/fraction.pipe.ts': PIPE,
+      'src/app/shared/ui/fraction/fraction.pipe.spec.ts': spec('fraction.pipe'),
+    });
+
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+  });
+
+  it('fails for a component in a nested folder without a spec', () => {
+    const result = check({
+      ...folders,
+      'src/app/shared/ui/field/label/label.ts': COMPONENT,
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /src\/app\/shared\/ui\/field\/label\/label\.ts/);
+  });
+
+  it('passes for a component in a nested folder with its spec', () => {
+    const result = check({
+      ...folders,
+      'src/app/shared/ui/field/label/label.ts': COMPONENT,
+      'src/app/shared/ui/field/label/label.spec.ts': spec('label'),
+    });
+
+    assert.equal(result.status, 0, result.stdout + result.stderr);
   });
 
   it('ignores TypeScript files that declare no component', () => {
@@ -82,7 +173,7 @@ describe('check-component-specs', () => {
     const result = check({
       ...folders,
       'src/app/shared/ui/button/button.ts': COMPONENT,
-      'src/app/shared/ui/button/button.spec.ts': COMPONENT,
+      'src/app/shared/ui/button/button.spec.ts': `${spec('button')}\n${COMPONENT}`,
     });
 
     assert.equal(result.status, 0, result.stdout + result.stderr);
