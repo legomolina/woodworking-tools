@@ -1,0 +1,16 @@
+<dl aria-live="polite">
+  @for (result of results(); track $index) {
+    <div [attr.approximate]="result.approximate ? '' : null">
+      <dt>{{ result.label }}</dt>
+      <dd>{{ result.value }}</dd>
+      @if (action(); as actionTemplate) {
+        <dd>
+          <ng-container
+            [ngTemplateOutlet]="actionTemplate"
+            [ngTemplateOutletContext]="{ $implicit: result }"
+          />
+        </dd>
+      }
+    </div>
+  }
+</dl>
