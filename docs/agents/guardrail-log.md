@@ -7,6 +7,14 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** `/install-github-app` added two Claude workflows: a review of every PR, and `@claude` in issues and PRs. The defaults would start a job for anyone's comment or PR on this public repo, review again on every push, and run `@claude` without dependencies installed. Without dependencies, the project's hooks and checks could not run.
+  - **Root cause:** The installer's templates are generic. They know nothing about the repo's visibility, its Definition of Done or how the owner pays for usage (their subscription, through `CLAUDE_CODE_OAUTH_TOKEN`).
+  - **Guardrail:**
+    - Both workflows run only for the owner (`author_association == 'OWNER'`).
+    - The review runs once per PR (opened, ready or reopened, never on drafts) on Sonnet. It cancels a superseded run. For another review, comment `@claude`.
+    - `@claude` installs dependencies first, so `CLAUDE.md`, the hooks and `pnpm lint`/`typecheck`/`test:ci` apply as they do locally. Its allowed tools mirror `.claude/settings.json`, plus `git` and `gh`.
+    - Branch protection on `main` still requires a PR with CI green, whoever pushes.
+- **2026-11-04**
   - **What happened:** No component in `src/app/shared/ui/` or `src/app/layout/` had its own spec (`nav-link`, `select`, `site-header`, `site-footer`, `skip-link`); they were tested only through page specs and e2e, and no review flagged it (#42).
   - **Root cause:** `CLAUDE.md` asked for tests of "component behaviour" but never required a spec per component, so a missing one broke no rule.
   - **Guardrail:** `CLAUDE.md` › Testing: every `wt-*` and `layout/` component has a co-located `*.spec.ts`. `scripts/check-component-specs.mjs` (`pnpm specs:check`, part of `pnpm lint`) enforces it for every `@Component`, `@Directive` or `@Pipe` in `<name>.ts` under `shared/ui/` or `layout/`, at any depth. Each needs a `<name>.spec.ts` beside it that contains a `describe(` block and imports `./<name>`, so an empty spec, or one that never loads the file, fails. `scripts/check-component-specs.test.mjs` proves each rule against files it must block and files it must allow. The check proves a spec exists, not that its tests can fail: that stays with `test-reviewer`. The specs for `select`, `skip-link`, `site-footer`, `site-header` and `nav-link` were each run against a mutated component: Select's `(change)` handler removed, SkipLink's `preventDefault()` removed, SiteFooter's `isLang` guard removed, the header's `aria-expanded` binding removed and its Menu closing on `NavigationEnd`, and NavLink's `<ng-content />` emptied. Each mutation turned at least one test red.
