@@ -7,6 +7,12 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** Asked on #49 to implement the issue test-first with the `tdd` skill, `@claude` stopped with `Unknown skill: tdd` and changed nothing. That was the right call under `CLAUDE.md` › Agent skills.
+  - **Root cause:** `.claude/settings.json` enables the `mattpocock-skills` plugin, but the GitHub Action installs only the plugins its `plugins` input lists, and `claude.yml` listed none.
+  - **Guardrail:**
+    - `claude.yml` installs `mattpocock-skills@claude-plugins-official`, so `@claude` has the same skills as a local session.
+    - Separately, a repo setting now makes workflows from any external contributor's PR wait for the owner's approval (`approval_policy: all_external_contributors`), not only on their first PR.
+- **2026-11-04**
   - **What happened:** `/install-github-app` added two Claude workflows: a review of every PR, and `@claude` in issues and PRs. The defaults would start a job for anyone's comment or PR on this public repo, review again on every push, and run `@claude` without dependencies installed. Without dependencies, the project's hooks and checks could not run.
   - **Root cause:** The installer's templates are generic. They know nothing about the repo's visibility, its Definition of Done or how the owner pays for usage (their subscription, through `CLAUDE_CODE_OAUTH_TOKEN`).
   - **Guardrail:**
