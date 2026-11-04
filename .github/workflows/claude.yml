@@ -60,11 +60,15 @@ jobs:
           plugins: 'mattpocock-skills@claude-plugins-official'
           additional_permissions: |
             actions: read
-          # Same commands the project allows locally (.claude/settings.json),
-          # plus git and gh to branch, commit, push and open the PR.
+          # The standing steps for implementing an issue live in a reviewed
+          # file, so a comment can be as short as "implement this issue".
+          # Allowed tools: the commands the project allows locally
+          # (.claude/settings.json), plus mutation testing, and git and gh to
+          # branch, commit and push.
           claude_args: >-
+            --append-system-prompt "When asked to implement an issue, follow .github/claude/implement-issue.md."
             --allowedTools
             "Bash(pnpm lint)" "Bash(pnpm lint:fix)" "Bash(pnpm typecheck)"
             "Bash(pnpm test:ci)" "Bash(pnpm test:ci *)" "Bash(pnpm build)"
-            "Bash(pnpm i18n:check)" "Bash(pnpm exec ng test *)"
+            "Bash(pnpm i18n:check)" "Bash(pnpm exec ng test *)" "Bash(pnpm mutation)"
             "Bash(git *)" "Bash(gh issue *)" "Bash(gh pr *)" "Bash(gh run *)"
