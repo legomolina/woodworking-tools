@@ -36,9 +36,13 @@ jobs:
       actions: read # lets Claude read CI results on PRs
 
     steps:
+      # No persisted GITHUB_TOKEN (read-only): checkout v7 keeps it in an
+      # includeIf'd file the action cannot remove, so git would push with it
+      # (403) instead of the Claude GitHub App token the action sets up.
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: pnpm/action-setup@v6.1.0
       - uses: actions/setup-node@v7
         with:

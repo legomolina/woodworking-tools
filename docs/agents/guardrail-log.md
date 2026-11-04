@@ -7,6 +7,10 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** On #49, `@claude` implemented the issue but could not push its branch. The error was `403: Permission … denied to github-actions[bot]`, so the work was lost with the runner.
+  - **Root cause:** #55 moved the Claude workflows from `actions/checkout@v4` to `@v7`. Checkout v7 persists the read-only `GITHUB_TOKEN` in a credentials file included through `includeIf`. The action removes only the old-style local auth header, so git kept pushing with that token instead of the Claude GitHub App token.
+  - **Guardrail:** Both Claude workflows check out with `persist-credentials: false`, so the action's App token is the only git credential.
+- **2026-11-04**
   - **What happened:** Asked on #49 to implement the issue test-first with the `tdd` skill, `@claude` stopped with `Unknown skill: tdd` and changed nothing. That was the right call under `CLAUDE.md` › Agent skills.
   - **Root cause:** `.claude/settings.json` enables the `mattpocock-skills` plugin, but the GitHub Action installs only the plugins its `plugins` input lists, and `claude.yml` listed none.
   - **Guardrail:**

@@ -26,9 +26,13 @@ jobs:
       id-token: write
 
     steps:
+      # No persisted GITHUB_TOKEN (read-only): checkout v7 keeps it in an
+      # includeIf'd file the action cannot remove, so git would push with it
+      # (403) instead of the Claude GitHub App token the action sets up.
       - uses: actions/checkout@v7
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@v1
