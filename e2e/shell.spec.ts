@@ -80,7 +80,7 @@ test.describe('on a narrow screen', () => {
     test.describe(locale, () => {
       test.use({ locale });
 
-      for (const path of ['/', '/no-such-page']) {
+      for (const path of ['/', '/settings', '/no-such-page']) {
         test(`nothing scrolls sideways at ${path}`, async ({ page }) => {
           await page.goto(path);
           await expect(page.getByRole('heading', { level: 1 })).not.toBeEmpty();

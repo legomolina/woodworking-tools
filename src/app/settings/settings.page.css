@@ -1,0 +1,45 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+hgroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+hgroup p {
+  color: var(--ink-muted);
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+
+  padding: var(--space-6);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+
+  background-color: var(--surface-raised);
+}
+
+/* A field: label, control and hint, stacked. */
+section > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-inline-size: 20rem;
+}
+
+label {
+  font: var(--text-label);
+  color: var(--ink);
+}
+
+section > div p {
+  font: var(--text-caption);
+  color: var(--ink-muted);
+}

@@ -11,6 +11,11 @@
   background-color: var(--surface-sunken);
 }
 
+:host([measurement]) {
+  font: var(--text-value);
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
 @supports (appearance: base-select) {
   :host,
   :host::picker(select) {

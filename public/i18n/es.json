@@ -20,5 +20,22 @@
     "menu": "Menú",
     "privacy": "Funciona por completo en tu navegador. Nada de lo que escribes se envía a ningún sitio.",
     "language": "Idioma"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "intro": "Los cambios se aplican al momento y se mantienen hasta que recargues o cierres esta pestaña.",
+    "general": "General",
+    "unitSystem": {
+      "label": "Sistema de medida",
+      "hint": "Unidad para los números que escribas sin ella. Siempre puedes escribir cualquier unidad.",
+      "metric": "Métrico",
+      "imperial": "Imperial"
+    },
+    "imperialPrecision": {
+      "label": "Precisión imperial",
+      "hint": "Fracción más pequeña que se muestra en los resultados imperiales.",
+      "inch": "pulg."
+    },
+    "language": "Idioma"
   }
 }
