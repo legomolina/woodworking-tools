@@ -146,6 +146,8 @@ export function showLength(
     throw new RangeError('Cannot show a length that is not a finite number of millimetres');
   }
   const { steps, approximate, text } = showMagnitude(Math.abs(millimetres), unit, options);
+  // A length that rounds to zero shows no sign. (At 0 mm `steps` is 0, so `< 0` versus `<= 0`
+  // cannot change the result.)
   const sign = millimetres < 0 && steps !== 0 ? '-' : '';
   return { text: (approximate ? APPROXIMATE_MARK : '') + sign + text, approximate };
 }
