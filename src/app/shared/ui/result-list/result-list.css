@@ -1,0 +1,41 @@
+:host {
+  display: block;
+}
+
+dl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+
+  background-color: var(--tape-soft);
+}
+
+dt {
+  min-inline-size: 4ch;
+  font: var(--text-label);
+  color: var(--ink-muted);
+}
+
+dd:first-of-type {
+  margin: 0;
+
+  font: var(--text-value);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+div[approximate] dd {
+  font-style: italic;
+}
