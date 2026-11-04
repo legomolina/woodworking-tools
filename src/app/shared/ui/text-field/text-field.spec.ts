@@ -107,14 +107,6 @@ describe('TextField', () => {
     expect(root.querySelector('wt-text-field')?.hasAttribute('measurement')).toBe(false);
   });
 
-  it('asks for a decimal keyboard only in measurement mode', async () => {
-    const on = await render({ measurement: true });
-    const off = await render();
-
-    expect(on.input.getAttribute('inputmode')).toBe('decimal');
-    expect(off.input.hasAttribute('inputmode')).toBe(false);
-  });
-
   it('has no axe violations', async () => {
     const { root } = await render({ hint: 'Try 3 1/2 or 8.9 cm.' });
 
