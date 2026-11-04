@@ -7,6 +7,10 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** Text added in one language only would ship with raw keys in the other. The Transloco keys manager's `find` catches missing keys, but exits 0 when its folders do not exist and ignores a language file that is missing altogether, so a misconfigured check passes silently.
+  - **Root cause:** ADR 0001 requires every key in English and Spanish, with nothing enforcing it.
+  - **Guardrail:** `pnpm i18n:check` (`scripts/check-translations.mjs`) wraps the keys manager and also fails on missing folders or language files; `scripts/check-translations.test.mjs` proves it passes on complete files and fails on each gap. Runs locally; not yet in CI or the Stop hook.
+- **2026-11-04**
   - **What happened:** Three agents worked in parallel worktrees (#11, #13, #19). The two that logged guardrails (#24, #26) conflicted on the whole of this file, although each only added rows.
   - **Root cause:** The log was a Markdown table; Prettier re-pads every row when a new row is wider, so any two additions rewrite the same lines.
   - **Guardrail:** The log is a list of entries, so each addition only touches its own lines. The instructions above say to keep it that way.

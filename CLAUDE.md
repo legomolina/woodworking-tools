@@ -10,8 +10,9 @@ Use `pnpm`, never `npm` or `yarn`.
 
 - `pnpm lint` / `pnpm lint:fix`: generated-token check + Prettier + ESLint + Stylelint (check / auto-fix)
 - `pnpm tokens`: regenerate `src/styles/tokens.css` from the `tokens.json` snapshot
+- `pnpm i18n:check`: fails when a translation key used in `src/app` is missing from any language file (Transloco keys manager), or a language file is missing. Run it whenever you add or change user-facing text.
 - `pnpm typecheck`: type-check app and spec sources
-- `pnpm test:ci`: unit tests (Vitest), single run, then the tooling tests (`pnpm test:tooling`: token generator and lint rules, `node --test`). Prefer running a single spec file while iterating.
+- `pnpm test:ci`: unit tests (Vitest), single run, then the tooling tests (`pnpm test:tooling`: token generator, translation check and lint rules, `node --test`). Prefer running a single spec file while iterating.
 - `pnpm build`: production build
 - `pnpm e2e`: end-to-end tests (Playwright, desktop + mobile), including the accessibility audit. Starts the dev server itself; set `E2E_BASE_URL` to test a deployed URL instead.
 
@@ -19,7 +20,7 @@ Use `pnpm`, never `npm` or `yarn`.
 
 - **Unit tests** (`src/**/*.spec.ts`, Vitest): domain logic in `*.calc.ts` and component behaviour.
   Page-level tests call `await expectNoAxeViolations(fixture.nativeElement)` (`src/testing/`) for a fast axe check; colour contrast is left to e2e.
-- **Tooling tests** (`scripts/*.test.mjs`, `node:test`): the token generator, and every lint rule proven against code it must block and code it must allow.
+- **Tooling tests** (`scripts/*.test.mjs`, `node:test`): the token generator, the translation check, and every lint rule proven against code it must block and code it must allow.
 - **End-to-end tests** (`e2e/`, Playwright): user flows in a real browser. `e2e/accessibility.spec.ts` audits every route listed in `e2e/routes.ts` against WCAG 2.2 AA with axe, in the light and dark themes. When you add a page, add its route there.
 - Test-quality lint rules reject tests that cannot fail (no assertions, `expect(<literal>)`, conditional or skipped tests). Fix the test, never the rule.
 - To check UI work visually, use the Playwright MCP tools against the running dev server (`pnpm start`): open the page, take a snapshot or screenshot, and compare with what was asked.
@@ -70,11 +71,20 @@ A change is done only when all of these hold:
 - `pnpm lint`, `pnpm typecheck` and `pnpm test:ci` pass.
 - For any UI change, `pnpm e2e` passes (including the accessibility audit).
 - New or changed domain logic is covered by tests written test-first, asserting on behaviour through public interfaces, with expected values taken from the spec or worked examples (never recomputed the way the code does).
-- All user-facing text is translated: English source plus Spanish, with no missing keys (see `docs/adr/0001-runtime-i18n-with-transloco.md`).
+- All user-facing text is translated: English source plus Spanish, with no missing keys: `pnpm i18n:check` passes (see `docs/adr/0001-runtime-i18n-with-transloco.md`).
 - The UI meets the accessibility requirements below.
 - Code, comments, docs, commits and PR descriptions are in English.
 
 Claude Code hooks (`.claude/hooks/`) enforce part of this automatically: every edited file is formatted and linted, and you cannot finish a turn while `pnpm lint`, `pnpm typecheck` or `pnpm test:ci` fail. When a hook reports a problem, fix the cause; never weaken a test, a lint rule or a hook to get past it.
+
+## Translations
+
+Runtime i18n with Transloco (`docs/adr/0001-runtime-i18n-with-transloco.md`), set up in `core/i18n/`. English is the source language; every key exists in English and Spanish. Spanish copy uses the `_Spanish_` terms in `GLOSSARY.md`.
+
+- App-wide text lives in `public/i18n/en.json` and `public/i18n/es.json` (nested keys, e.g. `app.name`).
+- Each Tool has its own lazy-loaded scope: `public/i18n/<tool-name>/en.json` and `es.json`, registered on the Tool's route in `<tool-name>.routes.ts` with `providers: [provideTranslocoScope('<tool-name>')]`. In templates its keys are prefixed with the camelCased Tool name: `{{ 'cutOptimizer.title' | transloco }}`.
+- Specs import `translocoTesting()` from `src/testing/` (real translation files, English active); a Tool's spec passes its scope files keyed `'<tool-name>/<lang>'`.
+- Translation keys are string literals in templates or code, so `pnpm i18n:check` can find them.
 
 ## Styling
 
