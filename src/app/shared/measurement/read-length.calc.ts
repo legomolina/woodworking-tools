@@ -13,6 +13,9 @@ export type ReadLengthResult =
   | { readonly ok: true; readonly millimetres: number }
   | { readonly ok: false; readonly error: ReadLengthError };
 
+// The patterns carry the `u` flag as good practice. It changes nothing today: `\d` is ASCII-only
+// and `\s` is Unicode-aware with or without it, and every other character matched is in the BMP.
+
 /** A decimal number with `.` or `,` as the decimal separator. */
 const DECIMAL = String.raw`\d+(?:[.,]\d+)?`;
 
@@ -47,34 +50,28 @@ function parseDecimal(value: string): number {
   return Number(value.replace(',', '.'));
 }
 
-/** Millimetres for the groups captured by {@link INCHES}, or `undefined` for a zero denominator. */
-function inchesToMillimetres(groups: Groups): number | undefined {
+/**
+ * Millimetres for the groups captured by {@link INCHES}. A zero denominator gives `Infinity`
+ * (or `NaN` for `0/0`), which {@link readFiniteUnsignedLength} rejects like any overflow.
+ */
+function inchesToMillimetres(groups: Groups): number {
   if (groups['decimal'] !== undefined) {
     return parseDecimal(groups['decimal']) * MILLIMETRES_PER_INCH;
   }
-  const denominator = Number(groups['denominator']);
-  if (denominator === 0) {
-    return undefined;
-  }
-  const inches = Number(groups['whole'] ?? 0) + Number(groups['numerator']) / denominator;
+  const inches =
+    Number(groups['whole'] ?? 0) + Number(groups['numerator']) / Number(groups['denominator']);
   return inches * MILLIMETRES_PER_INCH;
 }
 
 function fromInches(groups: Groups): ReadLengthResult {
-  const millimetres = inchesToMillimetres(groups);
-  return millimetres === undefined ? UNREADABLE : { ok: true, millimetres };
+  return { ok: true, millimetres: inchesToMillimetres(groups) };
 }
 
 function fromFeetAndInches(groups: Groups): ReadLengthResult {
   const feetInMillimetres = parseDecimal(groups['feet']!) * INCHES_PER_FOOT * MILLIMETRES_PER_INCH;
   const hasInches = groups['numerator'] !== undefined || groups['decimal'] !== undefined;
-  if (!hasInches) {
-    return { ok: true, millimetres: feetInMillimetres };
-  }
-  const inchesInMillimetres = inchesToMillimetres(groups);
-  return inchesInMillimetres === undefined
-    ? UNREADABLE
-    : { ok: true, millimetres: feetInMillimetres + inchesInMillimetres };
+  const inchesInMillimetres = hasInches ? inchesToMillimetres(groups) : 0;
+  return { ok: true, millimetres: feetInMillimetres + inchesInMillimetres };
 }
 
 function fromMetric(value: string, unit: MetricUnit): ReadLengthResult {

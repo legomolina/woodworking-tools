@@ -51,6 +51,26 @@ describe('showLength', () => {
     });
   });
 
+  describe('tolerance for floating-point noise', () => {
+    // A length within one billionth (relative, and at least 1e-9 mm absolute) of a shown step is exact.
+    it.each([
+      // Exactly on the boundary, near zero.
+      { millimetres: 1e-9, unit: 'mm', expected: exactly('0 mm') },
+      // Well inside the boundary, for a value below 1 and for a larger one.
+      { millimetres: 0.5000000007, unit: 'mm', expected: exactly('0.5 mm') },
+      { millimetres: 10.0000000005, unit: 'mm', expected: exactly('10 mm') },
+      // Just outside the boundary.
+      { millimetres: 2e-9, unit: 'mm', expected: approximately('≈ 0 mm') },
+      { millimetres: 10.00000002, unit: 'mm', expected: approximately('≈ 10 mm') },
+      { millimetres: 0.5000000021, unit: 'mm', expected: approximately('≈ 0.5 mm') },
+    ] as const)(
+      'shows $millimetres mm in $unit as $expected',
+      ({ millimetres, unit, expected }) => {
+        expect(showLength(millimetres, unit, { precision: 16, language: 'en' })).toEqual(expected);
+      },
+    );
+  });
+
   describe('metric units', () => {
     it.each([
       // Millimetres show up to 1 decimal.
