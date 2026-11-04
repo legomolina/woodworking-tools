@@ -26,9 +26,18 @@ const noTrivialExpect = [
 ];
 
 export default defineConfig(
+  // Stryker's sandbox copies of the project and its HTML report.
+  { ignores: ['.stryker-tmp/**', 'reports/**'] },
   {
     files: ['src/**/*.ts'],
-    ignores: ['**/node_modules/**', '**/dist/**', '**/*.js', '**/*.d.ts'],
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/*.js',
+      '**/*.d.ts',
+      '.stryker-tmp/**',
+      'reports/**',
+    ],
     extends: [
       eslint.configs.recommended,
       ...typescriptConfig.all,

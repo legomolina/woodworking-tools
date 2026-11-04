@@ -1,0 +1,44 @@
+# Mutation testing (Stryker) on PRs that change the pure domain logic. It
+# fails when the mutation score drops below the `break` threshold in
+# stryker.config.mjs, meaning some behaviour is not pinned down by a test.
+# The HTML report, with every surviving mutant, is uploaded as an artifact.
+# Not a required check: branch protection cannot require a path-filtered job.
+name: Mutation testing
+
+on:
+  pull_request:
+    paths:
+      - 'src/**/*.calc.ts'
+      - 'src/**/*.calc.spec.ts'
+      - 'stryker.config.mjs'
+      - 'vitest.calc.config.mts'
+      - '.github/workflows/mutation.yml'
+
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  mutation:
+    name: Mutation testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm mutation
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutation-report
+          path: reports/mutation/
+          retention-days: 14

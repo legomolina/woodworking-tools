@@ -16,6 +16,7 @@ Use `pnpm`, never `npm` or `yarn`.
 - `pnpm test:ci`: unit tests (Vitest), single run, then the tooling tests (`pnpm test:tooling`: token generator, translation check, component-spec check and lint rules, `node --test`). Prefer running a single spec file while iterating.
 - `pnpm build`: production build
 - `pnpm e2e`: end-to-end tests (Playwright, desktop + mobile), including the accessibility audit. Starts the dev server itself on `E2E_PORT` (default 4200); set `E2E_BASE_URL` to test a deployed URL instead.
+- `pnpm mutation`: mutation testing (Stryker) of the pure domain logic in `*.calc.ts`, running its specs with plain Vitest (`vitest.calc.config.mts`). Fails below the `break` threshold in `stryker.config.mjs`; the HTML report in `reports/mutation/` shows every surviving mutant.
 
 ## Testing
 
@@ -23,6 +24,7 @@ Use `pnpm`, never `npm` or `yarn`.
   Page-level tests call `await expectNoAxeViolations(fixture.nativeElement)` (`src/testing/`) for a fast axe check; colour contrast is left to e2e.
   Every `wt-*` component, directive and pipe and every `layout/` component has a co-located `*.spec.ts` (`pnpm specs:check`) that tests it through its public interface (inputs, DOM, keyboard and ARIA) and runs `expectNoAxeViolations`; `shared/ui/segmented-control/segmented-control.spec.ts` shows the pattern.
 - **Tooling tests** (`scripts/*.test.mjs`, `node:test`): the token generator, the translation check, the component-spec check, and every lint rule proven against code it must block and code it must allow.
+- **Mutation tests** (`pnpm mutation`, Stryker): change `*.calc.ts` in small ways and check that a spec catches each change. A surviving mutant is a behaviour no test pins down: add the missing test, or, when the mutant cannot change behaviour (an equivalent mutant), leave it. CI runs it on PRs that touch `*.calc.ts`.
 - **End-to-end tests** (`e2e/`, Playwright): user flows in a real browser. `e2e/accessibility.spec.ts` audits every page in `e2e/routes.ts` against WCAG 2.2 AA with axe, in the light and dark themes, and checks each has exactly one `h1`. Tool pages come from the Tool registry automatically (each must show the Tool's name as its `h1`); add only pages outside the registry there.
 - Test-quality lint rules reject tests that cannot fail (no assertions, `expect(<literal>)`, conditional or skipped tests). Fix the test, never the rule.
 - To check UI work visually, use the Playwright MCP tools against the running dev server (`pnpm start`): open the page, take a snapshot or screenshot, and compare with what was asked.
@@ -76,6 +78,7 @@ A change is done only when all of these hold:
 - `pnpm lint`, `pnpm typecheck` and `pnpm test:ci` pass.
 - For any UI change, `pnpm e2e` passes (including the accessibility audit).
 - New or changed domain logic is covered by tests written test-first, asserting on behaviour through public interfaces, with expected values taken from the spec or worked examples (never recomputed the way the code does).
+- When `*.calc.ts` changes, `pnpm mutation` passes, and every new surviving mutant is either killed by a new test or recognised as equivalent.
 - All user-facing text is translated: English source plus Spanish, with no missing keys: `pnpm i18n:check` passes (see `docs/adr/0001-runtime-i18n-with-transloco.md`).
 - The UI meets the accessibility requirements below.
 - Code, comments, docs, commits and PR descriptions are in English.
