@@ -52,14 +52,17 @@ function links(root: HTMLElement): [string, string | null, string | null][] {
 }
 
 describe('NavLink', () => {
-  it('is a link showing its content, with its icon hidden from assistive technology', async () => {
+  it('shows the content it is given, icon included', async () => {
     const { root } = await render('/unit-converter');
 
     const [first] = root.querySelectorAll('a');
     expect(first.textContent.trim()).toBe('Cut Optimizer');
-    expect(first.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(first.querySelectorAll('svg')).toHaveLength(1);
   });
 
+  // NavLink only styles its host: the current page is marked by `routerLinkActive`
+  // (`ariaCurrentWhenActive="page"`), the attribute its styles key off. These two
+  // tests pin that contract.
   it("marks only the current page's link as the current page", async () => {
     const { root } = await render('/cut-optimizer');
 

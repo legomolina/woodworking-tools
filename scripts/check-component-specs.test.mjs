@@ -78,6 +78,16 @@ describe('check-component-specs', () => {
     assert.equal(result.status, 0, result.stdout + result.stderr);
   });
 
+  it('needs no spec for a spec that declares a test host component', () => {
+    const result = check({
+      ...folders,
+      'src/app/shared/ui/button/button.ts': COMPONENT,
+      'src/app/shared/ui/button/button.spec.ts': COMPONENT,
+    });
+
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+  });
+
   it('ignores components outside the design system and the layout', () => {
     const result = check({ ...folders, 'src/app/home/home.page.ts': COMPONENT });
 

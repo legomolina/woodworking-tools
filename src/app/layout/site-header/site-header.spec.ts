@@ -59,7 +59,7 @@ function menu(root: HTMLElement): HTMLElement {
 }
 
 /** What the browser fires on the Menu popover when it opens or closes. */
-function toggle(newState: 'open' | 'closed'): Event {
+function popoverToggleEvent(newState: 'open' | 'closed'): Event {
   return Object.assign(new Event('toggle'), {
     oldState: newState === 'open' ? 'closed' : 'open',
     newState,
@@ -112,17 +112,18 @@ describe('SiteHeader', () => {
     ]);
   });
 
-  // jsdom has no Popover API: opening, closing, Escape and light dismiss are
-  // covered by e2e/shell.spec.ts. This checks the state the button announces.
+  // jsdom has no Popover API: opening, Escape, closing when focus moves past the
+  // Menu and closing when one of its links is followed are covered by
+  // e2e/shell.spec.ts. This checks the state the button announces.
   it('announces whether the Menu is open', async () => {
     const { fixture, root } = await render();
     expect(menuButton(root).getAttribute('aria-expanded')).toBe('false');
 
-    menu(root).dispatchEvent(toggle('open'));
+    menu(root).dispatchEvent(popoverToggleEvent('open'));
     await fixture.whenStable();
     expect(menuButton(root).getAttribute('aria-expanded')).toBe('true');
 
-    menu(root).dispatchEvent(toggle('closed'));
+    menu(root).dispatchEvent(popoverToggleEvent('closed'));
     await fixture.whenStable();
     expect(menuButton(root).getAttribute('aria-expanded')).toBe('false');
   });

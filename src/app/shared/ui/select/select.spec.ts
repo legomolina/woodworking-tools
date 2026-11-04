@@ -52,7 +52,7 @@ async function render(
 }
 
 /** The options as `[label, value, lang, selected]` tuples. */
-function options(select: HTMLSelectElement): [string, string, string | null, boolean][] {
+function optionTuples(select: HTMLSelectElement): [string, string, string | null, boolean][] {
   return [...select.options].map((option) => [
     option.textContent.trim(),
     option.value,
@@ -65,7 +65,7 @@ describe('Select', () => {
   it('lists one option per choice, in order, with the bound value selected', async () => {
     const { select } = await render();
 
-    expect(options(select)).toEqual([
+    expect(optionTuples(select)).toEqual([
       ['English', 'en', 'en', false],
       ['Español', 'es', 'es', true],
     ]);
@@ -74,7 +74,7 @@ describe('Select', () => {
   it('marks no language on an option whose label is in the page language', async () => {
     const { select } = await render({ options: PRECISIONS, value: '16' });
 
-    expect(options(select)).toEqual([
+    expect(optionTuples(select)).toEqual([
       ['1/8 in', '8', null, false],
       ['1/16 in', '16', null, true],
     ]);
@@ -101,13 +101,13 @@ describe('Select', () => {
   });
 
   it('reflects whether its options are measurements', async () => {
-    const plain = await render();
-    expect(plain.select.hasAttribute('measurement')).toBe(false);
+    const { fixture, select } = await render();
+    expect(select.hasAttribute('measurement')).toBe(false);
 
-    plain.fixture.componentInstance.measurement.set(true);
-    await plain.fixture.whenStable();
+    fixture.componentInstance.measurement.set(true);
+    await fixture.whenStable();
 
-    expect(plain.select.hasAttribute('measurement')).toBe(true);
+    expect(select.hasAttribute('measurement')).toBe(true);
   });
 
   it('has no axe violations', async () => {
