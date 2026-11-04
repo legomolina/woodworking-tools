@@ -7,6 +7,10 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** A usage review after nine tickets showed every agent running on Opus, including the `test-reviewer` and `a11y-auditor` subagents, which follow a fixed checklist.
+  - **Root cause:** Neither agent set `model`, so both inherited the session's model.
+  - **Guardrail:** Both agents now run on `model: sonnet`. If a review misses something Opus would have caught (a tautological test, a keyboard trap), log it here and move that agent back to Opus.
+- **2026-11-04**
   - **What happened:** The #17 agent ran `git push -u origin feat/app-shell 2>&1 | tail -2 && gh pr create --base main …` and was refused twice. It retried the same command, then reported it had no permission to push.
   - **Root cause:** The deny rule `Bash(git push * main*)` is matched against the whole command line, so its `*` reached `--base main` in the chained `gh pr create`.
   - **Guardrail:** `CLAUDE.md` › Workflow: run `git push` on its own, never chained, and `gh pr create` separately (no `--base main`, it is the default). The deny rule stays broad on purpose: a narrower pattern could let a real push to `main` through.
