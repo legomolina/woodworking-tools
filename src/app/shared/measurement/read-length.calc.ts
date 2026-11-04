@@ -1,3 +1,10 @@
+import {
+  INCHES_PER_FOOT,
+  isMetricUnit,
+  MILLIMETRES_PER_INCH,
+  MILLIMETRES_PER_METRIC_UNIT,
+  type MetricUnit,
+} from './length-units';
 import type { UnitSystem } from './unit-system';
 
 export type ReadLengthError = 'unreadable' | 'empty';
@@ -5,17 +12,6 @@ export type ReadLengthError = 'unreadable' | 'empty';
 export type ReadLengthResult =
   | { readonly ok: true; readonly millimetres: number }
   | { readonly ok: false; readonly error: ReadLengthError };
-
-const MILLIMETRES_PER_INCH = 25.4;
-const INCHES_PER_FOOT = 12;
-
-type MetricUnit = 'mm' | 'cm' | 'm';
-
-const MILLIMETRES_PER_METRIC_UNIT: Readonly<Record<MetricUnit, number>> = {
-  mm: 1,
-  cm: 10,
-  m: 1000,
-};
 
 /** A decimal number with `.` or `,` as the decimal separator. */
 const DECIMAL = String.raw`\d+(?:[.,]\d+)?`;
@@ -78,10 +74,6 @@ function fromFeetAndInches(groups: Groups): ReadLengthResult {
   return inchesInMillimetres === undefined
     ? UNREADABLE
     : { ok: true, millimetres: feetInMillimetres + inchesInMillimetres };
-}
-
-function isMetricUnit(unit: string): unit is MetricUnit {
-  return Object.hasOwn(MILLIMETRES_PER_METRIC_UNIT, unit);
 }
 
 function fromMetric(value: string, unit: MetricUnit): ReadLengthResult {
