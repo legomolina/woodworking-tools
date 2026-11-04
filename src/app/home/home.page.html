@@ -1,0 +1,25 @@
+<hgroup>
+  <h1>{{ 'app.name' | transloco }}</h1>
+  <p>{{ 'home.intro' | transloco }}</p>
+</hgroup>
+
+@if (tools.length > 0) {
+  <ul>
+    @for (tool of tools; track tool.path) {
+      <li>
+        <a [routerLink]="['/', tool.path]">
+          <h2>{{ tool.nameKey | transloco }}</h2>
+          <p>{{ tool.descriptionKey | transloco }}</p>
+          <span>
+            {{ 'home.open' | transloco }}
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
+          </span>
+        </a>
+      </li>
+    }
+  </ul>
+} @else {
+  <p>{{ 'home.noTools' | transloco }}</p>
+}

@@ -7,8 +7,10 @@ import en from '../../../../public/i18n/en.json';
 import es from '../../../../public/i18n/es.json';
 import { provideI18n } from './provide-i18n';
 
-const SPANISH_INTRO = 'Calculadoras y utilidades para carpinteros. Próximamente.';
-const ENGLISH_INTRO = 'Calculators and utilities for woodworkers. Coming soon.';
+const SPANISH_INTRO =
+  'Respuestas rápidas y exactas para el taller: convierte medidas y planifica tus cortes.';
+const ENGLISH_INTRO =
+  'Quick, exact answers for the workshop: convert measurements and plan your cuts.';
 
 function setUp(browserLanguages: readonly string[]): {
   http: HttpTestingController;
@@ -44,7 +46,7 @@ describe('provideI18n', () => {
       http.expectOne('/i18n/es.json').flush(es);
       await initialized;
 
-      expect(transloco.translate('placeholder.intro')).toBe(SPANISH_INTRO);
+      expect(transloco.translate('home.intro')).toBe(SPANISH_INTRO);
     },
   );
 
@@ -56,7 +58,7 @@ describe('provideI18n', () => {
       http.expectOne('/i18n/en.json').flush(en);
       await initialized;
 
-      expect(transloco.translate('placeholder.intro')).toBe(ENGLISH_INTRO);
+      expect(transloco.translate('home.intro')).toBe(ENGLISH_INTRO);
     },
   );
 

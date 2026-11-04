@@ -5,7 +5,7 @@ const KEBAB_CASE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /**
  * The router's routes for the registered Tools: one lazy route per Tool at
- * `/<path>`. Throws on a path that is not kebab-case or is taken twice, so a
+ * `/<path>`, titled with the Tool's name. Throws on a path that is not kebab-case or is taken twice, so a
  * bad registry entry fails at startup and in every test that builds the routes.
  */
 export function toolRoutes(tools: readonly ToolEntry[]): Routes {
@@ -21,5 +21,10 @@ export function toolRoutes(tools: readonly ToolEntry[]): Routes {
     }
     seen.add(path);
   }
-  return tools.map(({ path, loadRoutes }) => ({ path, loadChildren: loadRoutes }));
+  // The route's title is a translation key: TranslatedTitleStrategy translates it.
+  return tools.map(({ path, nameKey, loadRoutes }) => ({
+    path,
+    title: nameKey,
+    loadChildren: loadRoutes,
+  }));
 }

@@ -10,5 +10,6 @@ import { toolPages } from '../src/testing/tool-pages';
  */
 export const appRoutes: readonly AppPage[] = [
   { path: '/', heading: 'Woodworking Tools' },
+  { path: '/no-such-page', heading: 'Page not found' },
   ...toolPages(TOOLS, en),
 ];

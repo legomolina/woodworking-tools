@@ -1,0 +1,13 @@
+<footer>
+  <p>{{ 'shell.privacy' | transloco }}</p>
+  <div>
+    <label for="language">{{ 'shell.language' | transloco }}</label>
+    <select
+      wt-select
+      id="language"
+      [options]="languages"
+      [value]="language()"
+      (valueChange)="chooseLanguage($event)"
+    ></select>
+  </div>
+</footer>
