@@ -7,6 +7,10 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** No component in `src/app/shared/ui/` or `src/app/layout/` had its own spec (`nav-link`, `select`, `site-header`, `site-footer`, `skip-link`); they were tested only through page specs and e2e, and no review flagged it (#42).
+  - **Root cause:** `CLAUDE.md` asked for tests of "component behaviour" but never required a spec per component, so a missing one broke no rule.
+  - **Guardrail:** `CLAUDE.md` › Testing: every `wt-*` and `layout/` component has a co-located `*.spec.ts`. Enforced by `scripts/check-component-specs.mjs` (`pnpm specs:check`, part of `pnpm lint`), proven in `scripts/check-component-specs.test.mjs` against files it must block and files it must allow. Each new spec was checked against a mutated component (a removed handler, guard or binding) to prove it goes red.
+- **2026-11-04**
   - **What happened:** A usage review after nine tickets showed every agent running on Opus, including the `test-reviewer` and `a11y-auditor` subagents, which follow a fixed checklist.
   - **Root cause:** Neither agent set `model`, so both inherited the session's model.
   - **Guardrail:** Both agents now run on `model: sonnet`. If a review misses something Opus would have caught (a tautological test, a keyboard trap), log it here and move that agent back to Opus.
