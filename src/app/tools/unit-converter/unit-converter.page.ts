@@ -1,11 +1,69 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { SettingsStore } from '../../core/settings/settings-store';
+import { readLength } from '../../shared/measurement/read-length.calc';
+import type { DisplayUnit } from '../../shared/measurement/show-length.calc';
+import { showLength } from '../../shared/measurement/show-length.calc';
+import type { UnitSystem } from '../../shared/measurement/unit-system';
+import type { Result } from '../../shared/ui/result-list/result-list';
+import { ResultList } from '../../shared/ui/result-list/result-list';
+import { TextField } from '../../shared/ui/text-field/text-field';
 
-/** The Unit Converter's page: its name and a short intro. */
+const METRIC_UNITS: readonly DisplayUnit[] = ['mm', 'cm', 'm'];
+const IMPERIAL_UNITS: readonly DisplayUnit[] = [
+  'fractional-inches',
+  'feet-and-inches',
+  'decimal-inches',
+];
+
+/** The units in display order: the preferred Unit System's first. */
+const UNITS_BY_PREFERENCE: Readonly<Record<UnitSystem, readonly DisplayUnit[]>> = {
+  metric: [...METRIC_UNITS, ...IMPERIAL_UNITS],
+  imperial: [...IMPERIAL_UNITS, ...METRIC_UNITS],
+};
+
+/** The Unit Converter's page: one length field and the length in every unit. */
 @Component({
   selector: 'wt-unit-converter-page',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, TextField, ResultList],
   templateUrl: './unit-converter.page.html',
   styleUrl: './unit-converter.page.css',
 })
-export default class UnitConverterPage {}
+export default class UnitConverterPage {
+  private readonly settings = inject(SettingsStore);
+
+  protected readonly text = signal('');
+
+  private readonly reading = computed(() => readLength(this.text(), this.settings.unitSystem()));
+
+  /** What went wrong reading the text; `undefined` when it reads or is empty. */
+  protected readonly error = computed(() => {
+    const reading = this.reading();
+    return !reading.ok && reading.error !== 'empty' ? reading.error : undefined;
+  });
+
+  /** The length in every unit, in display order, before the unit labels are added. */
+  private readonly shown = computed(() => {
+    const reading = this.reading();
+    if (!reading.ok) {
+      return [];
+    }
+    const options = {
+      precision: this.settings.imperialPrecision(),
+      language: this.settings.language(),
+    };
+    return UNITS_BY_PREFERENCE[this.settings.unitSystem()].map((unit) => ({
+      unit,
+      ...showLength(reading.millimetres, unit, options),
+    }));
+  });
+
+  /** The results labelled with the given unit names (translated by the template). */
+  protected results(labels: Readonly<Record<DisplayUnit, string>>): readonly Result[] {
+    return this.shown().map(({ unit, text, approximate }) => ({
+      label: labels[unit],
+      value: text,
+      approximate,
+    }));
+  }
+}
