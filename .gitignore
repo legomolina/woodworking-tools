@@ -43,11 +43,9 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
-# Claude Code (configuración personal)
+# Claude Code (personal settings, and worktrees made by `claude --worktree`)
 .claude/settings.local.json
-
-# Claude Code (personal settings)
-.claude/settings.local.json
+.claude/worktrees/
 
 # Playwright
 /test-results/
