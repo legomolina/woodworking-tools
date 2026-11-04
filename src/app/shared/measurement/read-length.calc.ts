@@ -80,7 +80,7 @@ function fromMetric(value: string, unit: MetricUnit): ReadLengthResult {
   return { ok: true, millimetres: parseDecimal(value) * MILLIMETRES_PER_METRIC_UNIT[unit] };
 }
 
-function readUnsignedLength(normalised: string, unitSystem: UnitSystem): ReadLengthResult {
+function readUnsignedValue(normalised: string, unitSystem: UnitSystem): ReadLengthResult {
   const metric = METRIC_LENGTH.exec(normalised)?.groups;
   if (metric !== undefined && isMetricUnit(metric['unit'])) {
     return fromMetric(metric['value'], metric['unit']);
@@ -105,6 +105,12 @@ function readUnsignedLength(normalised: string, unitSystem: UnitSystem): ReadLen
   return bare === undefined ? UNREADABLE : fromInches(bare);
 }
 
+/** Reads an unsigned length, rejecting values too large to hold as a finite number. */
+function readFiniteUnsignedLength(normalised: string, unitSystem: UnitSystem): ReadLengthResult {
+  const result = readUnsignedValue(normalised, unitSystem);
+  return result.ok && !Number.isFinite(result.millimetres) ? UNREADABLE : result;
+}
+
 /**
  * Reads a length typed by a woodworker. An explicit unit always wins; a bare number is
  * millimetres under Metric and inches under Imperial. A leading `-` is read as a negative
@@ -116,9 +122,9 @@ export function readLength(text: string, unitSystem: UnitSystem): ReadLengthResu
     return EMPTY;
   }
   if (!normalised.startsWith('-')) {
-    return readUnsignedLength(normalised, unitSystem);
+    return readFiniteUnsignedLength(normalised, unitSystem);
   }
 
-  const magnitude = readUnsignedLength(normalised.slice(1).trimStart(), unitSystem);
+  const magnitude = readFiniteUnsignedLength(normalised.slice(1).trimStart(), unitSystem);
   return magnitude.ok ? { ok: true, millimetres: -magnitude.millimetres } : UNREADABLE;
 }
