@@ -117,7 +117,7 @@ Full decisions in `docs/adr/0003-component-styling.md`; lint enforces most of th
 - Use `model()` for two-way bound properties with `[(prop)]` syntax instead of pairing `input()` with `output()`
 - Use `computed()` for derived state
 - Use `linkedSignal()` for state derived from multiple reactive sources that must stay synchronized
-- Templates and styles always live in their own files (`button.ts`, `button.html`, `button.css`), never inline
+- Templates and styles always live in their own files (`button.ts`, `button.html`, `button.css`), never inline. The one exception: test-only host components declared inside a `*.spec.ts`
 - Prefer Signal Forms (`@angular/forms/signals`) for new forms. They are stable in Angular v22+ and provide signal-based state, type-safe field access, and schema-based validation
 - When not using Signal Forms, prefer Reactive forms instead of Template-driven ones
 - Do NOT use `ngClass`, use `class` bindings instead

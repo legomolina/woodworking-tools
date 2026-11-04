@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { expectNoAxeViolations } from './expect-no-axe-violations';
 
 @Component({
-  selector: 'app-unlabelled-input',
+  selector: 'wt-unlabelled-input',
   template: `
     <main>
       <h1>Fixture</h1>
@@ -14,7 +14,7 @@ import { expectNoAxeViolations } from './expect-no-axe-violations';
 class UnlabelledInput {}
 
 @Component({
-  selector: 'app-labelled-input',
+  selector: 'wt-labelled-input',
   template: `
     <main>
       <h1>Fixture</h1>

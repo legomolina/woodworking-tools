@@ -30,7 +30,7 @@ Self-hosted in `public/fonts/`, with no Google Fonts or other external requests:
 
 ## Enforcement
 
-- ESLint: `@angular-eslint/component-selector` (element and attribute, kebab-case) and `directive-selector` require `wt`; `component-max-inline-declarations` forbids inline templates and styles.
+- ESLint: `@angular-eslint/component-selector` (element and attribute, kebab-case) and `directive-selector` require `wt`; `component-max-inline-declarations` forbids inline templates and styles (turned off only in `*.spec.ts`, for test-only host components).
 - Stylelint: class pattern, `selector-max-class: 1`, no `::ng-deep`, no `!important`, logical properties (`stylelint-plugin-logical-css`, which the repo already used; it covers what `stylelint-use-logical` would), token-only colours / `font` / `font-family` / `font-size`, `@font-face` only in `fonts.css`, `:where()` (zero specificity) for every rule in `reset.css` and `base.css`, no external URLs in `url()` or `@import` (a local plugin, `stylelint/no-external-import.mjs`, because the built-in URL rules skip `@import`).
 - Each rule is tested against code it must block and code it must allow (`scripts/*-rules.test.mjs`, run by `pnpm test:ci`).
 
