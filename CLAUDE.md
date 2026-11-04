@@ -8,9 +8,9 @@ Before working on anything domain-related, read `GLOSSARY.md` and use its terms 
 
 Use `pnpm`, never `npm` or `yarn`.
 
-- `pnpm lint` / `pnpm lint:fix`: generated-token check + Prettier + ESLint + Stylelint (check / auto-fix)
+- `pnpm lint` / `pnpm lint:fix`: generated-token check + translation check + Prettier + ESLint + Stylelint (check / auto-fix)
 - `pnpm tokens`: regenerate `src/styles/tokens.css` from the `tokens.json` snapshot
-- `pnpm i18n:check`: fails when a translation key used in `src/app` is missing from any language file (Transloco keys manager), or a language file is missing. Run it whenever you add or change user-facing text.
+- `pnpm i18n:check`: fails when a translation key used in `src/app` is missing from any language file (Transloco keys manager), or a language file is missing. Part of `pnpm lint`; run it on its own while adding user-facing text.
 - `pnpm typecheck`: type-check app and spec sources
 - `pnpm test:ci`: unit tests (Vitest), single run, then the tooling tests (`pnpm test:tooling`: token generator, translation check and lint rules, `node --test`). Prefer running a single spec file while iterating.
 - `pnpm build`: production build

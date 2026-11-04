@@ -16,7 +16,7 @@
     "tokens": "node scripts/generate-tokens.mjs",
     "tokens:check": "node scripts/generate-tokens.mjs --check",
     "i18n:check": "node scripts/check-translations.mjs",
-    "lint": "pnpm tokens:check && pnpm prettier && pnpm eslint && pnpm stylelint",
+    "lint": "pnpm tokens:check && pnpm i18n:check && pnpm prettier && pnpm eslint && pnpm stylelint",
     "lint:fix": "pnpm tokens && pnpm prettier:fix && pnpm eslint:fix && pnpm stylelint:fix",
     "prettier": "prettier -c .",
     "prettier:fix": "prettier -w .",
