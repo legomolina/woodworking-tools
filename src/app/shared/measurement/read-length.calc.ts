@@ -7,7 +7,7 @@ import {
 } from './length-units';
 import type { UnitSystem } from './unit-system';
 
-export type ReadLengthError = 'unreadable' | 'empty';
+export type ReadLengthError = 'unreadable' | 'empty' | 'negative';
 
 export type ReadLengthResult =
   | { readonly ok: true; readonly millimetres: number }
@@ -41,6 +41,7 @@ type Groups = Readonly<Record<string, string | undefined>>;
 
 const EMPTY: ReadLengthResult = { ok: false, error: 'empty' };
 const UNREADABLE: ReadLengthResult = { ok: false, error: 'unreadable' };
+const NEGATIVE: ReadLengthResult = { ok: false, error: 'negative' };
 
 function parseDecimal(value: string): number {
   return Number(value.replace(',', '.'));
@@ -113,8 +114,9 @@ function readFiniteUnsignedLength(normalised: string, unitSystem: UnitSystem): R
 
 /**
  * Reads a length typed by a woodworker. An explicit unit always wins; a bare number is
- * millimetres under Metric and inches under Imperial. A leading `-` is read as a negative
- * length: sign and range validation is left to the caller.
+ * millimetres under Metric and inches under Imperial. No woodworking length is negative, so a
+ * leading `-` on a valid length gives the `negative` error (zero, even `-0`, still reads as zero).
+ * Other range validation is left to the caller.
  */
 export function readLength(text: string, unitSystem: UnitSystem): ReadLengthResult {
   const normalised = text.trim().toLowerCase();
@@ -126,5 +128,9 @@ export function readLength(text: string, unitSystem: UnitSystem): ReadLengthResu
   }
 
   const magnitude = readFiniteUnsignedLength(normalised.slice(1).trimStart(), unitSystem);
-  return magnitude.ok ? { ok: true, millimetres: -magnitude.millimetres } : UNREADABLE;
+  if (!magnitude.ok) {
+    return UNREADABLE;
+  }
+  // A signed zero (`-0`) is still zero, not a negative length.
+  return magnitude.millimetres === 0 ? magnitude : NEGATIVE;
 }
