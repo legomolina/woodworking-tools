@@ -37,5 +37,11 @@
       "inch": "pulg."
     },
     "language": "Idioma"
+  },
+  "tools": {
+    "unitConverter": {
+      "name": "Conversor de unidades",
+      "description": "Escribe una longitud y mírala a la vez en milímetros, centímetros, metros y pulgadas."
+    }
   }
 }

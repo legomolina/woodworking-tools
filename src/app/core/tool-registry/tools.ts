@@ -16,4 +16,11 @@ import type { ToolEntry } from './tool-entry';
  * }
  * ```
  */
-export const TOOLS: readonly ToolEntry[] = [];
+export const TOOLS: readonly ToolEntry[] = [
+  {
+    path: 'unit-converter',
+    nameKey: 'tools.unitConverter.name',
+    descriptionKey: 'tools.unitConverter.description',
+    loadRoutes: async () => import('../../tools/unit-converter/unit-converter.routes'),
+  },
+];

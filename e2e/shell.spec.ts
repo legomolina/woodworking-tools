@@ -84,6 +84,8 @@ test.describe('on a narrow screen', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
     await page.getByRole('button', { name: 'Menu' }).click();
     await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: 'Unit Converter' })).toBeFocused();
+    await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'Settings' })).toBeFocused();
 
     await page.keyboard.press('Tab');

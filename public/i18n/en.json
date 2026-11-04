@@ -37,5 +37,11 @@
       "inch": "in"
     },
     "language": "Language"
+  },
+  "tools": {
+    "unitConverter": {
+      "name": "Unit Converter",
+      "description": "Type a length and see it in millimetres, centimetres, metres and inches at once."
+    }
   }
 }
