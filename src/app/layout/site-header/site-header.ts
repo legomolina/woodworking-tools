@@ -1,7 +1,7 @@
 import type { ElementRef } from '@angular/core';
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { filter } from 'rxjs';
 import { TOOL_REGISTRY } from '../../core/tool-registry/tool-registry';
@@ -32,10 +32,12 @@ export class SiteHeader {
   private readonly menuButton = viewChild.required<ElementRef<HTMLElement>>('menuButton');
 
   constructor() {
-    // A link in the Menu changes the page without reloading it: close the Menu then.
+    // A link in the Menu changes the page without reloading it: close the Menu as the
+    // navigation starts. Not when it ends: the first navigation, which starts at bootstrap,
+    // can end after the Menu was opened (a slow lazy-loaded page) and would close it.
     inject(Router)
       .events.pipe(
-        filter((event) => event instanceof NavigationEnd),
+        filter((event) => event instanceof NavigationStart),
         takeUntilDestroyed(),
       )
       .subscribe(() => {
