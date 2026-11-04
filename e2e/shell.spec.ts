@@ -49,10 +49,39 @@ test.describe('on a narrow screen', () => {
     await expect(page.getByRole('button', { name: 'Menu', expanded: false })).toBeFocused();
   });
 
+  test('the Menu stays open when the page it was opened on finishes loading', async ({ page }) => {
+    // Hold back the home page's lazy-loaded script so the first navigation is still running
+    // when the Menu opens, as on a slow connection. Chunk names change with every build, so the
+    // script is found by the home page's component selector. If it stops matching, nothing is
+    // held, the page is there before the Menu opens and the heading check below goes red.
+    let releaseHomePage = (): void => undefined;
+    const homePageHeld = new Promise<void>((resolve) => {
+      releaseHomePage = resolve;
+    });
+    await page.route('**/*.js', async (route) => {
+      const response = await route.fetch();
+      if ((await response.text()).includes('wt-home-page')) {
+        await homePageHeld;
+      }
+      await route.fulfill({ response });
+    });
+
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Menu' }).click();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(0);
+    releaseHomePage();
+
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Woodworking Tools');
+    await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Menu', expanded: true })).toBeVisible();
+  });
+
   test('the Menu closes when focus moves on past it, so it never covers what has focus', async ({
     page,
   }) => {
     await page.goto('/no-such-page');
+    // The next Tab stop past the Menu is in the page, so wait for the page to be there.
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
     await page.getByRole('button', { name: 'Menu' }).click();
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'Settings' })).toBeFocused();
