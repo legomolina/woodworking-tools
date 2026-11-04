@@ -44,6 +44,10 @@ function pageText(fixture: ComponentFixture<UnitConverterPage>): string {
   return (fixture.nativeElement as HTMLElement).textContent;
 }
 
+function field(fixture: ComponentFixture<UnitConverterPage>): HTMLInputElement {
+  return (fixture.nativeElement as HTMLElement).querySelector('input')!;
+}
+
 describe('UnitConverterPage', () => {
   it("shows the Tool's name as its only h1 in English", async () => {
     const fixture = render();
@@ -215,6 +219,32 @@ describe('UnitConverterPage', () => {
     expect(pageText(fixture)).toContain("A length can't be negative.");
   });
 
+  it('marks the field invalid for unreadable text and valid again once corrected', async () => {
+    const fixture = render();
+    await type(fixture, 'abc');
+
+    expect(field(fixture).getAttribute('aria-invalid')).toBe('true');
+    expect(field(fixture).getAttribute('aria-describedby')).toBe('length-hint length-error');
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelectorAll('[role="alert"], [aria-live]:not(dl)')).toHaveLength(1);
+
+    await type(fixture, '12');
+
+    expect(field(fixture).hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  it('marks the field invalid for a negative length and valid again once corrected', async () => {
+    const fixture = render();
+    await type(fixture, '-5');
+
+    expect(field(fixture).getAttribute('aria-invalid')).toBe('true');
+
+    await type(fixture, '5');
+
+    expect(field(fixture).hasAttribute('aria-invalid')).toBe(false);
+  });
+
   it('clears the message when the field is emptied', async () => {
     const fixture = render();
     await type(fixture, 'abc');
@@ -223,13 +253,12 @@ describe('UnitConverterPage', () => {
     expect(pageText(fixture)).not.toContain("can't");
   });
 
-  it('announces results and messages politely', async () => {
+  it('announces results politely', async () => {
     const fixture = render();
     await type(fixture, '5');
 
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('dl')!.getAttribute('aria-live')).toBe('polite');
-    expect(root.querySelector('div[aria-live]')!.getAttribute('aria-live')).toBe('polite');
   });
 
   describe('in Spanish', () => {

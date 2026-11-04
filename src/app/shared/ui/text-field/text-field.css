@@ -34,3 +34,11 @@ p {
   font: var(--text-caption);
   color: var(--ink-muted);
 }
+
+:host([invalid]) input {
+  border-color: var(--danger);
+}
+
+:host([invalid]) p[role='alert'] {
+  color: var(--danger);
+}

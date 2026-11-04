@@ -7,7 +7,3 @@
 p {
   color: var(--ink-muted);
 }
-
-div[aria-live] > p {
-  color: var(--danger);
-}

@@ -12,6 +12,7 @@ import { TextField } from './text-field';
       name="length"
       label="Length"
       [hint]="hint()"
+      [error]="error()"
       [measurement]="measurement()"
       [(value)]="length"
     />
@@ -20,14 +21,16 @@ import { TextField } from './text-field';
 class Host {
   readonly length = signal('3 1/2');
   readonly hint = signal<string | undefined>(undefined);
+  readonly error = signal<string | undefined>(undefined);
   readonly measurement = signal(false);
 }
 
 async function render(
-  setup: { hint?: string; measurement?: boolean } = {},
+  setup: { hint?: string; error?: string; measurement?: boolean } = {},
 ): Promise<{ fixture: ComponentFixture<Host>; root: HTMLElement; input: HTMLInputElement }> {
   const fixture = TestBed.createComponent(Host);
   fixture.componentInstance.hint.set(setup.hint);
+  fixture.componentInstance.error.set(setup.error);
   fixture.componentInstance.measurement.set(setup.measurement ?? false);
   await fixture.whenStable();
   const root = fixture.nativeElement as HTMLElement;
@@ -95,6 +98,42 @@ describe('TextField', () => {
     expect(input.hasAttribute('aria-describedby')).toBe(false);
   });
 
+  it('is not invalid and shows no error when it has no error', async () => {
+    const { root, input } = await render();
+
+    expect(input.hasAttribute('aria-invalid')).toBe(false);
+    expect(root.querySelector('[role="alert"]')).toBeNull();
+    expect(root.querySelector('wt-text-field')?.hasAttribute('invalid')).toBe(false);
+  });
+
+  it('is invalid and described by its error when it has one', async () => {
+    const { root, input } = await render({ error: 'Not a length.' });
+
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(root.querySelector('[role="alert"]')?.textContent.trim()).toBe('Not a length.');
+    expect(describedBy(root, input)).toBe('Not a length.');
+    expect(root.querySelector('wt-text-field')?.hasAttribute('invalid')).toBe(true);
+  });
+
+  it('is described by its hint first, then its error', async () => {
+    const { root, input } = await render({ hint: 'Try 3 1/2.', error: 'Not a length.' });
+
+    expect(input.getAttribute('aria-describedby')).toBe('length-hint length-error');
+    expect(describedBy(root, input)).toBe('Try 3 1/2. Not a length.');
+  });
+
+  it('is valid again and falls back to its hint when the error is cleared', async () => {
+    const { fixture, root, input } = await render({ hint: 'Try 3 1/2.', error: 'Not a length.' });
+
+    fixture.componentInstance.error.set(undefined);
+    await fixture.whenStable();
+
+    expect(input.hasAttribute('aria-invalid')).toBe(false);
+    expect(root.querySelector('[role="alert"]')).toBeNull();
+    expect(describedBy(root, input)).toBe('Try 3 1/2.');
+    expect(root.querySelector('wt-text-field')?.hasAttribute('invalid')).toBe(false);
+  });
+
   it('reflects measurement mode on the host when asked', async () => {
     const { root } = await render({ measurement: true });
 
@@ -109,6 +148,12 @@ describe('TextField', () => {
 
   it('has no axe violations', async () => {
     const { root } = await render({ hint: 'Try 3 1/2 or 8.9 cm.' });
+
+    await expectNoAxeViolations(root);
+  });
+
+  it('has no axe violations with an error', async () => {
+    const { root } = await render({ hint: 'Try 3 1/2.', error: 'Not a length.' });
 
     await expectNoAxeViolations(root);
   });

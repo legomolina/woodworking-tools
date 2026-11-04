@@ -2,8 +2,8 @@ import { booleanAttribute, Component, computed, input, model } from '@angular/co
 import type { FormValueControl } from '@angular/forms/signals';
 
 /**
- * A labelled text input stacked over an optional hint, which describes it
- * (design system: Field). `name` is the input's id and derives the hint's, so
+ * A labelled text input stacked over an optional hint and error, which describe it
+ * (design system: Field). `name` is the input's id and derives the hint's and the error's, so
  * it must be unique on the page. All text comes in as inputs.
  *
  * ```html
@@ -16,6 +16,7 @@ import type { FormValueControl } from '@angular/forms/signals';
   styleUrl: './text-field.css',
   host: {
     '[attr.measurement]': "measurement() ? '' : null",
+    '[attr.invalid]': "error() ? '' : null",
   },
 })
 export class TextField implements FormValueControl<string> {
@@ -26,6 +27,12 @@ export class TextField implements FormValueControl<string> {
   /** Extra guidance under the input, announced with it. */
   readonly hint = input<string>();
 
+  /**
+   * What is wrong with the value; unset when it is fine. Marks the input invalid
+   * and is announced once, when it appears, as an alert.
+   */
+  readonly error = input<string>();
+
   /** Whether the value is a measurement, shown in the mono face. */
   readonly measurement = input(false, { transform: booleanAttribute });
 
@@ -33,4 +40,14 @@ export class TextField implements FormValueControl<string> {
   readonly value = model('');
 
   protected readonly hintId = computed(() => `${this.name()}-hint`);
+
+  protected readonly errorId = computed(() => `${this.name()}-error`);
+
+  /** The ids of the hint and the error, in that order; `null` when neither shows. */
+  protected readonly describedBy = computed(
+    () =>
+      [this.hint() ? this.hintId() : '', this.error() ? this.errorId() : '']
+        .filter((id) => id !== '')
+        .join(' ') || null,
+  );
 }

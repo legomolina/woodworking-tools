@@ -3,11 +3,15 @@
   #field
   type="text"
   [id]="name()"
-  [attr.aria-describedby]="hint() ? hintId() : null"
+  [attr.aria-invalid]="error() ? 'true' : null"
+  [attr.aria-describedby]="describedBy()"
   autocomplete="off"
   [value]="value()"
   (input)="value.set(field.value)"
 />
 @if (hint(); as hint) {
   <p [id]="hintId()">{{ hint }}</p>
+}
+@if (error(); as error) {
+  <p role="alert" [id]="errorId()">{{ error }}</p>
 }
