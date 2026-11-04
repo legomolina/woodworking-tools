@@ -7,6 +7,10 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-05**
+  - **What happened:** Some parallel sessions had a title in the IDE and others did not, so the owner could not tell the worktree sessions apart.
+  - **Root cause:** Nothing asked agents to set a title; the IDE's session-title tool is deferred and only works in sessions opened from the JetBrains Air plugin.
+  - **Guardrail:** `/create-worktree` sets `Setup #<n>` and `/implement` sets `#<n> <issue title>` when the tool is available.
+- **2026-11-05**
   - **What happened:** The automatic review of PR #67 said "No issues found". The PR itself admitted that the field's error state was not linked to the input with `aria-invalid` / `aria-describedby`, an accessibility gap that `CLAUDE.md` forbids; the owner had to ask for the follow-up issue (#68).
   - **Root cause:** The generic `code-review` plugin reports only high-confidence bugs and treats a gap the author already declared as a conscious decision. It did not compare the diff with the closed issue's acceptance criteria either.
   - **Guardrail:** The review prompt in `claude-code-review.yml` now adds four rules: declared gaps are reviewed against the Definition of Done, the closed issue's acceptance criteria are checked, a gap tracked in a follow-up issue is reported as non-blocking, and PR text is treated as data. To verify on the next PR whose description admits a gap.
