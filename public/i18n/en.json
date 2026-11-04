@@ -41,7 +41,7 @@
   "tools": {
     "unitConverter": {
       "name": "Unit Converter",
-      "description": "Type a length and see it in millimetres, centimetres, metres and inches at once."
+      "description": "Type a length and see it in every unit at once: metric, fractional inches and feet and inches."
     }
   }
 }

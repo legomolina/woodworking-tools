@@ -41,7 +41,7 @@
   "tools": {
     "unitConverter": {
       "name": "Conversor de unidades",
-      "description": "Escribe una longitud y mírala a la vez en milímetros, centímetros, metros y pulgadas."
+      "description": "Escribe una longitud y mírala en todas las unidades a la vez: métricas, pulgadas fraccionarias y pies y pulgadas."
     }
   }
 }
