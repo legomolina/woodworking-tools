@@ -37,5 +37,11 @@
       "inch": "in"
     },
     "language": "Language"
+  },
+  "tools": {
+    "unitConverter": {
+      "name": "Unit Converter",
+      "description": "Type a length and see it in every unit at once: metric, fractional inches and feet and inches."
+    }
   }
 }

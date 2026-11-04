@@ -37,5 +37,11 @@
       "inch": "pulg."
     },
     "language": "Idioma"
+  },
+  "tools": {
+    "unitConverter": {
+      "name": "Conversor de unidades",
+      "description": "Escribe una longitud y mírala en todas las unidades a la vez: métricas, pulgadas fraccionarias y pies y pulgadas."
+    }
   }
 }
