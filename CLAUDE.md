@@ -21,7 +21,7 @@ Use `pnpm`, never `npm` or `yarn`.
 - **Unit tests** (`src/**/*.spec.ts`, Vitest): domain logic in `*.calc.ts` and component behaviour.
   Page-level tests call `await expectNoAxeViolations(fixture.nativeElement)` (`src/testing/`) for a fast axe check; colour contrast is left to e2e.
 - **Tooling tests** (`scripts/*.test.mjs`, `node:test`): the token generator, the translation check, and every lint rule proven against code it must block and code it must allow.
-- **End-to-end tests** (`e2e/`, Playwright): user flows in a real browser. `e2e/accessibility.spec.ts` audits every route listed in `e2e/routes.ts` against WCAG 2.2 AA with axe, in the light and dark themes. When you add a page, add its route there.
+- **End-to-end tests** (`e2e/`, Playwright): user flows in a real browser. `e2e/accessibility.spec.ts` audits every page in `e2e/routes.ts` against WCAG 2.2 AA with axe, in the light and dark themes, and checks each has exactly one `h1`. Tool pages come from the Tool registry automatically (each must show the Tool's name as its `h1`); add only pages outside the registry there.
 - Test-quality lint rules reject tests that cannot fail (no assertions, `expect(<literal>)`, conditional or skipped tests). Fix the test, never the rule.
 - To check UI work visually, use the Playwright MCP tools against the running dev server (`pnpm start`): open the page, take a snapshot or screenshot, and compare with what was asked.
 
@@ -48,7 +48,7 @@ src/
 
 Test-only helpers shared by specs (never imported by app code) live in `src/testing/`.
 
-- One Tool = one lazy route at `/<tool-name>` (kebab-case, matching the folder).
+- One Tool = one lazy route at `/<tool-name>` (kebab-case, matching the folder). A Tool is declared only in the Tool registry (`core/tool-registry/tools.ts`), with its name and description in the app-wide translation files under `tools.<toolName>`; the router builds Tool routes from it, so never add them to `app.routes.ts`.
 - A Tool must NOT import from another Tool, nor from `layout/`. Move shared code to `shared/` (or `core/` for services and providers).
 - Domain logic lives in pure functions in `*.calc.ts` so it can be tested without Angular. Components only handle input, state and presentation.
 - Promote code to `shared/` only when a second Tool actually needs it. Design system components (`wt-*`) are the exception: they live in `shared/ui/` from day one.
@@ -83,6 +83,7 @@ Runtime i18n with Transloco (`docs/adr/0001-runtime-i18n-with-transloco.md`), se
 
 - App-wide text lives in `public/i18n/en.json` and `public/i18n/es.json` (nested keys, e.g. `app.name`).
 - Each Tool has its own lazy-loaded scope: `public/i18n/<tool-name>/en.json` and `es.json`, registered on the Tool's route in `<tool-name>.routes.ts` with `providers: [provideTranslocoScope('<tool-name>')]`. In templates its keys are prefixed with the camelCased Tool name: `{{ 'cutOptimizer.title' | transloco }}`.
+- A Tool's name and description are the exception: they live app-wide under `tools.<toolName>.name` / `.description`, because the Tool registry and the home page need them without loading the Tool's scope. Since registry keys are plain strings, `tools.spec.ts` checks them instead of `pnpm i18n:check`.
 - Specs import `translocoTesting()` from `src/testing/` (real translation files, English active); a Tool's spec passes its scope files keyed `'<tool-name>/<lang>'`.
 - Translation keys are string literals in templates or code, so `pnpm i18n:check` can find them.
 

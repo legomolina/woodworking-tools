@@ -1,11 +1,14 @@
-/** A page of the app and the `h1` that proves the right page rendered. */
-export interface AppRoute {
-  readonly path: string;
-  readonly heading: string;
-}
+import en from '../public/i18n/en.json';
+import { TOOLS } from '../src/app/core/tool-registry/tools';
+import type { AppPage } from '../src/testing/tool-pages';
+import { toolPages } from '../src/testing/tool-pages';
 
 /**
  * Every page of the app. Page-level checks (such as accessibility) run against
- * each one, so adding a Tool means adding its route here.
+ * each one. Tool pages come from the Tool registry, so a Tool added to the
+ * router is audited automatically; only pages outside it are listed here.
  */
-export const appRoutes: readonly AppRoute[] = [{ path: '/', heading: 'Woodworking Tools' }];
+export const appRoutes: readonly AppPage[] = [
+  { path: '/', heading: 'Woodworking Tools' },
+  ...toolPages(TOOLS, en),
+];

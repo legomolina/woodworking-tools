@@ -29,7 +29,11 @@ for (const { colorScheme, surface } of THEMES) {
 
         // Proves this route's own page rendered: a blank page or a fallback page
         // (e.g. a mistyped path) would otherwise pass every accessibility rule.
-        await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
+        await expect(
+          page.getByRole('heading', { level: 1, name: heading, exact: true }),
+        ).toBeVisible();
+        // Exactly one h1 per page: the shell must not add its own on a Tool page.
+        await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
 
         // Proves the theme under test is the one applied, both its scheme and its
         // palette, so a broken dark theme cannot pass as a second light run.
