@@ -1,0 +1,13 @@
+<label [for]="name()">{{ label() }}</label>
+<input
+  #field
+  type="text"
+  [id]="name()"
+  [attr.aria-describedby]="hint() ? hintId() : null"
+  autocomplete="off"
+  [value]="value()"
+  (input)="value.set(field.value)"
+/>
+@if (hint(); as hint) {
+  <p [id]="hintId()">{{ hint }}</p>
+}
