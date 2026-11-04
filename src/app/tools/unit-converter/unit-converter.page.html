@@ -14,10 +14,10 @@
 <div aria-live="polite">
   @switch (error()) {
     @case ('unreadable') {
-      <p class="error">{{ 'unitConverter.errors.unreadable' | transloco }}</p>
+      <p>{{ 'unitConverter.errors.unreadable' | transloco }}</p>
     }
     @case ('negative') {
-      <p class="error">{{ 'unitConverter.errors.negative' | transloco }}</p>
+      <p>{{ 'unitConverter.errors.negative' | transloco }}</p>
     }
   }
 </div>
@@ -31,8 +31,4 @@
     'decimal-inches': 'unitConverter.units.decimalInches' | transloco,
     'feet-and-inches': 'unitConverter.units.feetAndInches' | transloco,
   };
-@if (results(labels); as results) {
-  @if (results.length > 0) {
-    <wt-result-list [results]="results" />
-  }
-}
+<wt-result-list [results]="results(labels)" />

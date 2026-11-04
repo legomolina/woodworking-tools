@@ -100,7 +100,7 @@ describe('UnitConverterPage', () => {
     await fixture.whenStable();
 
     expect(rows(fixture)).toEqual([]);
-    expect(fixture.nativeElement.querySelector('.error')).toBeNull();
+    expect(pageText(fixture)).not.toContain("can't");
   });
 
   describe('under Imperial', () => {
@@ -190,6 +190,23 @@ describe('UnitConverterPage', () => {
     expect(pageText(fixture)).toContain("That length can't be read.");
   });
 
+  it('treats whitespace-only text as empty', async () => {
+    const fixture = render();
+    await type(fixture, '   ');
+
+    expect(rows(fixture)).toEqual([]);
+    expect(pageText(fixture)).not.toContain("can't");
+  });
+
+  it('shows 6\' 4 1/4" as feet and inches', async () => {
+    const fixture = render();
+    TestBed.inject(SettingsStore).setUnitSystem('imperial');
+    await type(fixture, '6\' 4 1/4"');
+
+    expect(rows(fixture)[1]).toEqual(['Feet and inches', '6\' 4 1/4"']);
+    expect(rows(fixture)[2]).toEqual(['Decimal inches', '76.25"']);
+  });
+
   it('replaces the results with a message when the length is negative', async () => {
     const fixture = render();
     await type(fixture, '-5');
@@ -203,7 +220,7 @@ describe('UnitConverterPage', () => {
     await type(fixture, 'abc');
     await type(fixture, '');
 
-    expect(fixture.nativeElement.querySelector('.error')).toBeNull();
+    expect(pageText(fixture)).not.toContain("can't");
   });
 
   it('announces results and messages politely', async () => {
@@ -225,6 +242,15 @@ describe('UnitConverterPage', () => {
 
       expect(rows(fixture)[0]).toEqual(['Milímetros', '88,9 mm']);
       expect(rows(fixture)[3]).toEqual(['Pulgadas fraccionarias', '3 1/2"']);
+    });
+
+    it('shows the unreadable message in Spanish', async () => {
+      const fixture = render();
+      TestBed.inject(TranslocoService).setActiveLang('es');
+      await fixture.whenStable();
+      await type(fixture, 'abc');
+
+      expect(pageText(fixture)).toContain('No se puede leer esa longitud.');
     });
 
     it('shows the messages in Spanish', async () => {

@@ -8,6 +8,6 @@ p {
   color: var(--ink-muted);
 }
 
-.error {
+div[aria-live] > p {
   color: var(--danger);
 }
