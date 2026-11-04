@@ -7,6 +7,10 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** The e2e accessibility audit only covered routes someone remembered to add to `e2e/routes.ts`, so a Tool could reach the router and ship unaudited (test-reviewer finding in #2).
+  - **Root cause:** The router and the e2e route list were two separate lists with nothing keeping them in step.
+  - **Guardrail:** The Tool registry (`src/app/core/tool-registry/tools.ts`, #16) is the one place a Tool is declared: the router builds Tool routes from it (rejecting non-kebab-case or duplicate paths) and `e2e/routes.ts` derives each Tool page and its expected `h1` from it, failing if a Tool's name is untranslated. The audit also requires exactly one `h1` per page. `tools.spec.ts` checks every entry's name and description keys exist in every language, since `pnpm i18n:check` cannot see plain-string keys. Verified with temporary entries: a bad path and a missing key turn the registry spec red, and a new entry appears in `playwright test --list`.
+- **2026-11-04**
   - **What happened:** `pnpm i18n:check` (#30) was required by the Definition of Done but ran only when someone remembered to: not in CI, the Stop hook or the pre-commit hook.
   - **Root cause:** Issue #12 kept CI wiring out of scope, so the check shipped as a standalone script.
   - **Guardrail:** `pnpm lint` now runs `pnpm i18n:check`, so the pre-commit hook, the Stop hook and CI all enforce it with no extra wiring. Verified: removing a Spanish key makes `pnpm lint` exit 1.
