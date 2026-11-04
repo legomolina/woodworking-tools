@@ -7,6 +7,10 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** `pnpm i18n:check` (#30) was required by the Definition of Done but ran only when someone remembered to: not in CI, the Stop hook or the pre-commit hook.
+  - **Root cause:** Issue #12 kept CI wiring out of scope, so the check shipped as a standalone script.
+  - **Guardrail:** `pnpm lint` now runs `pnpm i18n:check`, so the pre-commit hook, the Stop hook and CI all enforce it with no extra wiring. Verified: removing a Spanish key makes `pnpm lint` exit 1.
+- **2026-11-04**
   - **What happened:** Text added in one language only would ship with raw keys in the other. The Transloco keys manager's `find` catches missing keys, but exits 0 when its folders do not exist and ignores a language file that is missing altogether, so a misconfigured check passes silently.
   - **Root cause:** ADR 0001 requires every key in English and Spanish, with nothing enforcing it.
   - **Guardrail:** `pnpm i18n:check` (`scripts/check-translations.mjs`) wraps the keys manager and also fails on missing folders or language files; `scripts/check-translations.test.mjs` proves it passes on complete files and fails on each gap. Runs locally; not yet in CI or the Stop hook.
