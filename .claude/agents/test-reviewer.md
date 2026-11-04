@@ -1,6 +1,7 @@
 ---
 name: test-reviewer
 description: Reviews tests in a diff for whether they can go red. Use before opening a PR that adds or changes tests, or when asked to audit test quality.
+model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
 
