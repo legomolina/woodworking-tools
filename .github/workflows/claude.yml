@@ -50,6 +50,10 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # The plugin .claude/settings.json enables locally, so CLAUDE.md's
+          # skills (tdd, code-review, diagnosing-bugs, pr…) load in CI too.
+          plugin_marketplaces: 'https://github.com/anthropics/claude-plugins-official.git'
+          plugins: 'mattpocock-skills@claude-plugins-official'
           additional_permissions: |
             actions: read
           # Same commands the project allows locally (.claude/settings.json),
