@@ -145,7 +145,6 @@ export default defineConfig(
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-type-assertion': 'off',
       '@typescript-eslint/no-magic-numbers': 'off',
-      '@angular-eslint/component-max-inline-declarations': 'off',
       '@typescript-eslint/class-methods-use-this': 'off',
     },
   },
@@ -157,7 +156,16 @@ export default defineConfig(
       globals: vitest.environments.env.globals,
     },
     rules: {
-      'vitest/expect-expect': 'error',
+      // A test-only host component can keep its template inline, next to the test that uses it.
+      // Everything else (mocks, src/testing/ helpers) keeps templates in their own files.
+      '@angular-eslint/component-max-inline-declarations': 'off',
+      // An un-awaited async assertion (e.g. `expectNoAxeViolations`) lets the test pass before it settles.
+      '@typescript-eslint/no-floating-promises': 'error',
+      // `expectNoAxeViolations` rejects on any violation, so it counts as an assertion.
+      'vitest/expect-expect': [
+        'error',
+        { assertFunctionNames: ['expect', 'expectNoAxeViolations'] },
+      ],
       'vitest/valid-expect': 'error',
       'vitest/no-standalone-expect': 'error',
       'vitest/no-conditional-expect': 'error',

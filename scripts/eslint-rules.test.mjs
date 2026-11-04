@@ -7,20 +7,23 @@ import { fileURLToPath } from 'node:url';
 import { ESLint } from 'eslint';
 
 const FIXTURE = 'src/app/lint-fixture.ts';
+const SPEC_FIXTURE = 'src/app/lint-fixture.spec.ts';
+const TESTING_FIXTURE = 'src/testing/lint-fixture.ts';
+const FIXTURES = [FIXTURE, SPEC_FIXTURE, TESTING_FIXTURE];
 
-// The fixture is never written to disk, so no tsconfig includes it: let the
-// type-aware parser treat it as a file of the default project.
+// The fixtures are never written to disk, so no tsconfig includes them: let the
+// type-aware parser treat them as files of the default project.
 const eslint = new ESLint({
   cwd: fileURLToPath(new URL('..', import.meta.url)),
   overrideConfig: {
-    files: [FIXTURE],
-    languageOptions: { parserOptions: { projectService: { allowDefaultProject: [FIXTURE] } } },
+    files: FIXTURES,
+    languageOptions: { parserOptions: { projectService: { allowDefaultProject: FIXTURES } } },
   },
 });
 
-/** The rules a component source breaks when linted as a file under src/app. */
-async function brokenRules(code) {
-  const [result] = await eslint.lintText(code, { filePath: FIXTURE });
+/** The rules a component source breaks when linted as the given file (app code by default). */
+async function brokenRules(code, filePath = FIXTURE) {
+  const [result] = await eslint.lintText(code, { filePath });
   const fatal = result.messages.find((message) => message.fatal);
   assert.equal(fatal, undefined, fatal?.message);
   return [...new Set(result.messages.map((message) => message.ruleId))];
@@ -98,6 +101,24 @@ describe('eslint: templates and styles in their own files', () => {
         "templateUrl: './fixture.html',",
         "styles: ':host { display: block; }',",
       ),
+    );
+    assert.ok(rules.includes('@angular-eslint/component-max-inline-declarations'), rules.join());
+  });
+
+  it('allows an inline template in a spec, for test-only host components', async () => {
+    assert.deepEqual(
+      await brokenRules(
+        component("selector: 'wt-fixture',", "template: '<p>Hi</p>',"),
+        SPEC_FIXTURE,
+      ),
+      [],
+    );
+  });
+
+  it('still blocks an inline template in test helpers outside specs', async () => {
+    const rules = await brokenRules(
+      component("selector: 'wt-fixture',", "template: '<p>Hi</p>',"),
+      TESTING_FIXTURE,
     );
     assert.ok(rules.includes('@angular-eslint/component-max-inline-declarations'), rules.join());
   });

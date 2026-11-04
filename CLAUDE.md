@@ -18,6 +18,7 @@ Use `pnpm`, never `npm` or `yarn`.
 ## Testing
 
 - **Unit tests** (`src/**/*.spec.ts`, Vitest): domain logic in `*.calc.ts` and component behaviour.
+  Page-level tests call `await expectNoAxeViolations(fixture.nativeElement)` (`src/testing/`) for a fast axe check; colour contrast is left to e2e.
 - **Tooling tests** (`scripts/*.test.mjs`, `node:test`): the token generator, and every lint rule proven against code it must block and code it must allow.
 - **End-to-end tests** (`e2e/`, Playwright): user flows in a real browser. `e2e/accessibility.spec.ts` audits every route listed in `e2e/routes.ts` against WCAG 2.2 AA with axe, in the light and dark themes. When you add a page, add its route there.
 - Test-quality lint rules reject tests that cannot fail (no assertions, `expect(<literal>)`, conditional or skipped tests). Fix the test, never the rule.
@@ -43,6 +44,8 @@ src/
             ├── *.calc.ts               # pure domain logic: no Angular, no DOM
             └── components/             # small presentational components
 ```
+
+Test-only helpers shared by specs (never imported by app code) live in `src/testing/`.
 
 - One Tool = one lazy route at `/<tool-name>` (kebab-case, matching the folder).
 - A Tool must NOT import from another Tool, nor from `layout/`. Move shared code to `shared/` (or `core/` for services and providers).
@@ -114,7 +117,7 @@ Full decisions in `docs/adr/0003-component-styling.md`; lint enforces most of th
 - Use `model()` for two-way bound properties with `[(prop)]` syntax instead of pairing `input()` with `output()`
 - Use `computed()` for derived state
 - Use `linkedSignal()` for state derived from multiple reactive sources that must stay synchronized
-- Templates and styles always live in their own files (`button.ts`, `button.html`, `button.css`), never inline
+- Templates and styles always live in their own files (`button.ts`, `button.html`, `button.css`), never inline. The one exception: test-only host components declared inside a `*.spec.ts`
 - Prefer Signal Forms (`@angular/forms/signals`) for new forms. They are stable in Angular v22+ and provide signal-based state, type-safe field access, and schema-based validation
 - When not using Signal Forms, prefer Reactive forms instead of Template-driven ones
 - Do NOT use `ngClass`, use `class` bindings instead
