@@ -51,7 +51,13 @@ describe('toolRoutes', () => {
     },
   );
 
+  it.each(['unit-converter', 'tool2', 'a2-b', 'x'])('accepts %j as a Tool path', (path) => {
+    expect(toolRoutes([testEntry({ path })])).toEqual([expect.objectContaining({ path })]);
+  });
+
   it('rejects two Tools at the same path', () => {
-    expect(() => toolRoutes([testEntry(), testEntry()])).toThrow(/test-tool/);
+    expect(() => toolRoutes([testEntry(), testEntry()])).toThrow(
+      'Two Tools are registered at the path "test-tool".',
+    );
   });
 });

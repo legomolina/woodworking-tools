@@ -83,6 +83,7 @@ Runtime i18n with Transloco (`docs/adr/0001-runtime-i18n-with-transloco.md`), se
 
 - App-wide text lives in `public/i18n/en.json` and `public/i18n/es.json` (nested keys, e.g. `app.name`).
 - Each Tool has its own lazy-loaded scope: `public/i18n/<tool-name>/en.json` and `es.json`, registered on the Tool's route in `<tool-name>.routes.ts` with `providers: [provideTranslocoScope('<tool-name>')]`. In templates its keys are prefixed with the camelCased Tool name: `{{ 'cutOptimizer.title' | transloco }}`.
+- A Tool's name and description are the exception: they live app-wide under `tools.<toolName>.name` / `.description`, because the Tool registry and the home page need them without loading the Tool's scope. Since registry keys are plain strings, `tools.spec.ts` checks them instead of `pnpm i18n:check`.
 - Specs import `translocoTesting()` from `src/testing/` (real translation files, English active); a Tool's spec passes its scope files keyed `'<tool-name>/<lang>'`.
 - Translation keys are string literals in templates or code, so `pnpm i18n:check` can find them.
 

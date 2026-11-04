@@ -2,9 +2,9 @@ import type { Type } from '@angular/core';
 import type { Routes } from '@angular/router';
 
 /**
- * How a Tool is declared in the Tool registry (`tools.ts`). The shell, the
- * home page and the settings surface only ever see this, never a Tool's
- * internals.
+ * How a Tool is declared in the Tool registry (`tools.ts`). Code outside a
+ * Tool (the router, and later the shell, home page and settings surface)
+ * only ever sees this, never the Tool's internals.
  *
  * Keep this module free of runtime imports: the e2e suite imports the registry
  * in Node to audit every Tool's page.
