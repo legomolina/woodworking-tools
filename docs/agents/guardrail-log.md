@@ -7,6 +7,13 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** On #49, `@claude` used the `tdd` skill only because the comment asked for it. It skipped `test-reviewer` and `code-review`, which nothing asked for. Every request had to spell out the whole workflow.
+  - **Root cause:** The action's `prompt` input replaces the owner's comment, so it cannot hold standing instructions. The local `/implement` skill is user-invoked and creates worktrees, so it does not fit a runner.
+  - **Guardrail:**
+    - `.github/claude/implement-issue.md` holds the standing steps: read the issue, `tdd`, the Definition of Done (with `pnpm mutation`), `test-reviewer` and `code-review`, then push and give the "Create PR" link with `Closes #<n>`.
+    - `claude.yml` points at that file through `--append-system-prompt`, which adds to the comment instead of replacing it, so "implement this issue" is enough.
+    - The owner still opens the PR. A PR opened by the bot would skip the owner-only automatic review.
+- **2026-11-04**
   - **What happened:** Reviews kept finding tests that could not fail, or that checked less than their names claimed (#40, #58). Each was caught by a person or `test-reviewer` reading the tests. With the Unit Converter (#3) and the Cut Optimizer (#4), most of the domain logic is still to come, and agents write its tests.
   - **Root cause:** Nothing measured whether the domain specs pin down behaviour. Line coverage only shows that code ran.
   - **Guardrail:**
