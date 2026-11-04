@@ -14,7 +14,7 @@ Use `pnpm`, never `npm` or `yarn`.
 - `pnpm typecheck`: type-check app and spec sources
 - `pnpm test:ci`: unit tests (Vitest), single run, then the tooling tests (`pnpm test:tooling`: token generator, translation check and lint rules, `node --test`). Prefer running a single spec file while iterating.
 - `pnpm build`: production build
-- `pnpm e2e`: end-to-end tests (Playwright, desktop + mobile), including the accessibility audit. Starts the dev server itself; set `E2E_BASE_URL` to test a deployed URL instead.
+- `pnpm e2e`: end-to-end tests (Playwright, desktop + mobile), including the accessibility audit. Starts the dev server itself on `E2E_PORT` (default 4200); set `E2E_BASE_URL` to test a deployed URL instead.
 
 ## Testing
 

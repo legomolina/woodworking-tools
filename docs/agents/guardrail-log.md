@@ -7,6 +7,10 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
 - **2026-11-04**
+  - **What happened:** Two ticket sessions ran in parallel worktrees, and both would have run `pnpm e2e` on port 4200. Playwright reuses a running server locally, so one session would have tested the other's code without noticing. The same review also showed that a green e2e job can hide retried failures: #40's run reported "3 flaky" (#41). Setting up each worktree, and the instructions around it, were retyped by hand for every ticket.
+  - **Root cause:** The port was hard-coded in `playwright.config.ts` and the `a11y-auditor`. The ticket workflow lived in the orchestrator's memory, not in the repo.
+  - **Guardrail:** `/implement <n>` (`.claude/skills/implement/`) runs in two phases. In the main checkout, it creates the sibling worktree, installs dependencies and copies the local settings. Inside that worktree, it builds the issue on port 4200 + n, runs the reviews, opens the PR and watches CI, treating `flaky` in the e2e log as a failure. `playwright.config.ts` reads `E2E_PORT`, and the `a11y-auditor` takes the server's URL from its caller.
+- **2026-11-04**
   - **What happened:** A usage review after nine tickets showed every agent running on Opus, including the `test-reviewer` and `a11y-auditor` subagents, which follow a fixed checklist.
   - **Root cause:** Neither agent set `model`, so both inherited the session's model.
   - **Guardrail:** Both agents now run on `model: sonnet`. If a review misses something Opus would have caught (a tautological test, a keyboard trap), log it here and move that agent back to Opus.
