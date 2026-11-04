@@ -1,0 +1,33 @@
+/*
+ * App-wide defaults from the design tokens. Every rule is wrapped in :where()
+ * so it has zero specificity: component styles always win.
+ */
+
+:where(body) {
+  font: var(--text-body);
+  color: var(--ink);
+  background-color: var(--surface);
+}
+
+:where(h1) {
+  font: var(--text-display);
+  letter-spacing: var(--text-display-letter-spacing);
+}
+
+:where(h2) {
+  font: var(--text-heading);
+}
+
+:where(h3) {
+  font: var(--text-title);
+}
+
+:where(a) {
+  color: var(--link);
+}
+
+/* Every interactive element shows the same ring, offset so it lands on the ground. */
+:where(:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--focus);
+  outline-offset: 2px;
+}
