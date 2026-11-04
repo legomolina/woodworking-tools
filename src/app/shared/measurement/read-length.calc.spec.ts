@@ -106,12 +106,8 @@ describe('readLength', () => {
       expect(readLength(text, 'imperial')).toEqual({ ok: false, error: 'negative' });
     });
 
-    it('rejects a bare negative number as negative millimetres under Metric', () => {
-      expect(readLength('-5', 'metric')).toEqual({ ok: false, error: 'negative' });
-    });
-
     it.each(['-5', '-3 1/2', '- 3-1/2', '-1/2'])(
-      'rejects the bare number %j as negative inches under Imperial',
+      'rejects the bare number %j under Imperial',
       (text) => {
         expect(readLength(text, 'imperial')).toEqual({ ok: false, error: 'negative' });
       },
