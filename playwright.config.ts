@@ -2,11 +2,13 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * End-to-end tests run against:
- * - a local dev server (default), started automatically, or
+ * - a local dev server (default), started automatically on E2E_PORT (4200
+ *   unless set, so parallel worktrees each test their own code), or
  * - a deployed URL, such as a PR preview, when E2E_BASE_URL is set.
  */
 const externalBaseUrl = process.env['E2E_BASE_URL'];
-const baseURL = externalBaseUrl ?? 'http://localhost:4200';
+const port = process.env['E2E_PORT'] ?? '4200';
+const baseURL = externalBaseUrl ?? `http://localhost:${port}`;
 const isCI = Boolean(process.env['CI']);
 
 export default defineConfig({
@@ -30,7 +32,7 @@ export default defineConfig({
   webServer: externalBaseUrl
     ? undefined
     : {
-        command: 'pnpm start --port 4200',
+        command: `pnpm start --port ${port}`,
         url: baseURL,
         reuseExistingServer: !isCI,
         timeout: 120_000,
