@@ -4,15 +4,20 @@ import { translocoTesting } from '../../../testing/transloco-testing';
 import type { ImperialPrecision } from '../../shared/measurement/show-length.calc';
 import { SettingsStore } from './settings-store';
 
-function setUp(browserLanguages: readonly string[]): SettingsStore {
+function configure(browserLanguages: readonly string[]): void {
   vi.spyOn(navigator, 'languages', 'get').mockReturnValue(browserLanguages);
   TestBed.configureTestingModule({ imports: [translocoTesting()] });
+}
+
+function setUp(browserLanguages: readonly string[]): SettingsStore {
+  configure(browserLanguages);
   return TestBed.inject(SettingsStore);
 }
 
 describe('SettingsStore', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   describe('Unit System', () => {
@@ -28,12 +33,15 @@ describe('SettingsStore', () => {
       expect(store.unitSystem()).toBe('metric');
     });
 
-    it('can be changed', () => {
-      const store = setUp(['es-ES']);
+    it.each([
+      ['es-ES', 'imperial'],
+      ['en-US', 'metric'],
+    ] as const)('can be changed from the %s default to %s', (browserLang, unitSystem) => {
+      const store = setUp([browserLang]);
 
-      store.setUnitSystem('imperial');
+      store.setUnitSystem(unitSystem);
 
-      expect(store.unitSystem()).toBe('imperial');
+      expect(store.unitSystem()).toBe(unitSystem);
     });
   });
 
@@ -41,33 +49,48 @@ describe('SettingsStore', () => {
     it('defaults to sixteenths of an inch', () => {
       const store = setUp(['en-US']);
 
-      expect(store.precision()).toBe(16);
+      expect(store.imperialPrecision()).toBe(16);
     });
 
     it.each([8, 32, 64] as const)('can be set to %i', (precision) => {
       const store = setUp(['en-US']);
 
-      store.setPrecision(precision);
+      store.setImperialPrecision(precision);
 
-      expect(store.precision()).toBe(precision);
+      expect(store.imperialPrecision()).toBe(precision);
     });
 
-    it.each([0, 4, 12, 128, 16.5])('rejects %s and keeps the current precision', (precision) => {
+    it('can be set back to 16', () => {
       const store = setUp(['en-US']);
-      store.setPrecision(32);
+      store.setImperialPrecision(8);
 
-      expect(() => {
-        store.setPrecision(precision as ImperialPrecision);
-      }).toThrow(RangeError);
-      expect(store.precision()).toBe(32);
+      store.setImperialPrecision(16);
+
+      expect(store.imperialPrecision()).toBe(16);
     });
+
+    it.each([0, -16, 4, 12, 128, 16.5, Number.NaN])(
+      'rejects %s and keeps the current precision',
+      (precision) => {
+        const store = setUp(['en-US']);
+        store.setImperialPrecision(32);
+
+        expect(() => {
+          store.setImperialPrecision(precision as ImperialPrecision);
+        }).toThrow(RangeError);
+        expect(store.imperialPrecision()).toBe(32);
+      },
+    );
   });
 
-  describe('language', () => {
-    it("starts as Transloco's active language", () => {
-      const store = setUp(['en-US']);
+  describe('Language', () => {
+    it("starts as Transloco's active language, not the browser's", () => {
+      configure(['en-US']);
+      TestBed.inject(TranslocoService).setActiveLang('es');
 
-      expect(store.language()).toBe('en');
+      const store = TestBed.inject(SettingsStore);
+
+      expect(store.language()).toBe('es');
     });
 
     it("changes Transloco's active language", () => {
@@ -89,13 +112,21 @@ describe('SettingsStore', () => {
   });
 
   it('writes nothing to browser storage', () => {
+    localStorage.clear();
+    sessionStorage.clear();
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
+    // jsdom has no IndexedDB: stand one in so any use is recorded.
+    const openDatabase = vi.fn();
+    vi.stubGlobal('indexedDB', { open: openDatabase });
     const store = setUp(['en-US']);
 
     store.setUnitSystem('metric');
-    store.setPrecision(64);
+    store.setImperialPrecision(64);
     store.setLanguage('es');
 
     expect(setItem).not.toHaveBeenCalled();
+    expect(localStorage).toHaveLength(0);
+    expect(sessionStorage).toHaveLength(0);
+    expect(openDatabase).not.toHaveBeenCalled();
   });
 });

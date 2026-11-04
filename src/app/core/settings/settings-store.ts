@@ -34,13 +34,13 @@ export class SettingsStore {
 
   private readonly unitSystemState = signal(defaultUnitSystem(getBrowserCultureLang()));
 
-  private readonly precisionState = signal(DEFAULT_PRECISION);
+  private readonly imperialPrecisionState = signal(DEFAULT_PRECISION);
 
   /** The preferred Unit System. */
   readonly unitSystem = this.unitSystemState.asReadonly();
 
   /** The denominator Imperial lengths are rounded to: 16 shows lengths to the nearest 1/16". */
-  readonly precision = this.precisionState.asReadonly();
+  readonly imperialPrecision = this.imperialPrecisionState.asReadonly();
 
   /** The language the UI is shown in. */
   readonly language = toSignal(this.transloco.langChanges$.pipe(filter(isLang)), {
@@ -52,11 +52,11 @@ export class SettingsStore {
   }
 
   /** @throws RangeError when `precision` is not 8, 16, 32 or 64. */
-  setPrecision(precision: ImperialPrecision): void {
+  setImperialPrecision(precision: ImperialPrecision): void {
     if (!IMPERIAL_PRECISIONS.includes(precision)) {
       throw new RangeError(`Imperial precision must be one of ${IMPERIAL_PRECISIONS.join(', ')}`);
     }
-    this.precisionState.set(precision);
+    this.imperialPrecisionState.set(precision);
   }
 
   setLanguage(language: Lang): void {
