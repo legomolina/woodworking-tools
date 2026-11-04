@@ -20,5 +20,22 @@
     "menu": "Menu",
     "privacy": "Runs entirely in your browser. Nothing you type is sent anywhere.",
     "language": "Language"
+  },
+  "settings": {
+    "title": "Settings",
+    "intro": "Changes apply at once and last until you reload or close this tab.",
+    "general": "General",
+    "unitSystem": {
+      "label": "Unit System",
+      "hint": "Unit for numbers you type without one. You can always type any unit.",
+      "metric": "Metric",
+      "imperial": "Imperial"
+    },
+    "imperialPrecision": {
+      "label": "Imperial precision",
+      "hint": "Smallest fraction shown in Imperial results.",
+      "inch": "in"
+    },
+    "language": "Language"
   }
 }

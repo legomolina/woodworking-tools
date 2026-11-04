@@ -11,3 +11,11 @@ export function isLang(lang: string): lang is Lang {
 
 /** Each language's name in that language, as language pickers show it. Never translated. */
 export const LANG_NAMES: Readonly<Record<Lang, string>> = { en: 'English', es: 'Español' };
+
+/**
+ * Each language as a language picker offers it: named in itself and marked
+ * with its own `lang`, so a reader finds theirs whatever the page's language.
+ */
+export const LANGUAGE_OPTIONS: readonly { value: Lang; label: string; lang: Lang }[] = LANGS.map(
+  (lang) => ({ value: lang, label: LANG_NAMES[lang], lang }),
+);

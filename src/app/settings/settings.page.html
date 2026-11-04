@@ -1,0 +1,40 @@
+<hgroup>
+  <h1>{{ 'settings.title' | transloco }}</h1>
+  <p>{{ 'settings.intro' | transloco }}</p>
+</hgroup>
+
+<section aria-labelledby="settings-general">
+  <h2 id="settings-general">{{ 'settings.general' | transloco }}</h2>
+  <wt-segmented-control
+    name="unit-system"
+    [label]="'settings.unitSystem.label' | transloco"
+    [hint]="'settings.unitSystem.hint' | transloco"
+    [options]="unitSystems()"
+    [value]="unitSystem()"
+    (valueChange)="chooseUnitSystem($event)"
+  />
+  <wt-select-field
+    name="imperial-precision"
+    measurement
+    [label]="'settings.imperialPrecision.label' | transloco"
+    [hint]="'settings.imperialPrecision.hint' | transloco"
+    [options]="precisions()"
+    [value]="imperialPrecision()"
+    (valueChange)="chooseImperialPrecision($event)"
+  />
+  <!-- The footer's language picker is #language. -->
+  <wt-select-field
+    name="settings-language"
+    [label]="'settings.language' | transloco"
+    [options]="languages"
+    [value]="language()"
+    (valueChange)="chooseLanguage($event)"
+  />
+</section>
+
+@for (section of toolSections.value(); track section.tool.path) {
+  <section [attr.aria-labelledby]="'settings-tool-' + section.tool.path">
+    <h2 [id]="'settings-tool-' + section.tool.path">{{ section.tool.nameKey | transloco }}</h2>
+    <ng-container *ngComponentOutlet="section.component" />
+  </section>
+}

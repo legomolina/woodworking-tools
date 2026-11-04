@@ -3,7 +3,7 @@ import type { Routes } from '@angular/router';
 
 /**
  * How a Tool is declared in the Tool registry (`tools.ts`). Code outside a
- * Tool (the router, and later the shell, home page and settings surface)
+ * Tool (the router, the shell, the home page and the settings page)
  * only ever sees this, never the Tool's internals.
  *
  * Keep this module free of runtime imports: the e2e suite imports the registry
@@ -24,6 +24,10 @@ export interface ToolEntry {
    * `() => import('../../tools/<tool-name>/<tool-name>.routes')`.
    */
   readonly loadRoutes: () => Promise<Routes | { default: Routes }>;
-  /** Lazily loads the Tool's section of the settings surface, for Tools that have settings. */
+  /**
+   * Lazily loads the Tool's section of the settings page, for Tools that have
+   * settings. The page puts it in its own section under the Tool's name (an
+   * `h2`), so the component renders only the fields, starting at `h3`.
+   */
   readonly loadSettingsSection?: () => Promise<Type<unknown>>;
 }

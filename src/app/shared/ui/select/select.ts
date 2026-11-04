@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, model } from '@angular/core';
+import { booleanAttribute, Component, ElementRef, inject, input, model } from '@angular/core';
 
 /** One choice of a `select[wt-select]`. */
 export interface SelectOption {
@@ -16,16 +16,23 @@ export interface SelectOption {
  *
  * ```html
  * <select wt-select id="language" [options]="languages" [(value)]="language"></select>
+ * <select wt-select id="precision" measurement [options]="precisions" [(value)]="precision"></select>
  * ```
  */
 @Component({
   selector: 'select[wt-select]',
   templateUrl: './select.html',
   styleUrl: './select.css',
-  host: { '(change)': 'choose()' },
+  host: {
+    '(change)': 'choose()',
+    '[attr.measurement]': "measurement() ? '' : null",
+  },
 })
 export class Select {
   private readonly select = inject<ElementRef<HTMLSelectElement>>(ElementRef);
+
+  /** Whether the options are measurements, shown in the mono face like every other value. */
+  readonly measurement = input(false, { transform: booleanAttribute });
 
   readonly options = input.required<readonly SelectOption[]>();
 
