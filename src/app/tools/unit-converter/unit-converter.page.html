@@ -15,7 +15,8 @@
   [hint]="'unitConverter.field.hint' | transloco"
   [error]="errorText"
   measurement
-  [(value)]="text"
+  [value]="text()"
+  (valueChange)="setText($event)"
 />
 
 <wt-select-field

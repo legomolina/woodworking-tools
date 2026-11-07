@@ -93,3 +93,29 @@ test.describe('the Imperial precision', () => {
     await expect(page.getByLabel('Imperial precision')).toHaveValue('64');
   });
 });
+
+test('the typed length is still there after visiting the home page and coming back', async ({
+  page,
+}) => {
+  await page.goto('/unit-converter');
+  await page.getByLabel('Length').fill('3 1/2"');
+  await expect(page.getByText('88.9 mm')).toBeVisible();
+
+  await page
+    .getByRole('banner')
+    .getByRole('link', { name: /Woodworking Tools/ })
+    .first()
+    .click();
+  await expect(page).toHaveURL('/');
+  await page
+    .getByRole('main')
+    .getByRole('link', { name: /Unit Converter/ })
+    .click();
+
+  await expect(page.getByLabel('Length')).toHaveValue('3 1/2"');
+  await expect(page.getByText('88.9 mm')).toBeVisible();
+
+  await page.reload();
+
+  await expect(page.getByLabel('Length')).toHaveValue('');
+});
