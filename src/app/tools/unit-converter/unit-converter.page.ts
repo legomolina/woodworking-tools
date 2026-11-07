@@ -1,5 +1,5 @@
 import { DOCUMENT, LowerCasePipe } from '@angular/common';
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, linkedSignal, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsStore } from '../../core/settings/settings-store';
 import { readLength } from '../../shared/measurement/read-length.calc';
@@ -67,17 +67,14 @@ export default class UnitConverterPage {
     }));
   });
 
-  /** What the confirmation under the results says; `undefined` when there is none. */
-  private readonly copyOutcome = signal<
-    { unit: string; copied: boolean; forText: string } | undefined
-  >(undefined);
-
-  /** The outcome as a list, so each copy renders a fresh message that a live region announces again. */
-  protected readonly copyOutcomes = computed(() => {
-    const outcome = this.copyOutcome();
-    // A message about the previous length is stale once the text changes.
-    return outcome?.forText === this.text() ? [outcome] : [];
-  });
+  /**
+   * The confirmation for the last copy only. It is a list of at most one, so each copy renders a
+   * fresh message that a live region announces again, and it empties when the text changes.
+   */
+  protected readonly copyOutcomes = linkedSignal<
+    string,
+    readonly { unit: string; copied: boolean }[]
+  >({ source: this.text, computation: () => [] });
 
   private confirmationTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -101,10 +98,13 @@ export default class UnitConverterPage {
     const text = result.approximate ? result.value.slice(APPROXIMATE_MARK.length) : result.value;
     const forText = this.text();
     const copied = await this.write(text);
-    this.copyOutcome.set({ unit: result.label, copied, forText });
+    if (this.text() !== forText) {
+      return;
+    }
+    this.copyOutcomes.set([{ unit: result.label, copied }]);
     clearTimeout(this.confirmationTimer);
     this.confirmationTimer = setTimeout(() => {
-      this.copyOutcome.set(undefined);
+      this.copyOutcomes.set([]);
     }, CONFIRMATION_MS);
   }
 
