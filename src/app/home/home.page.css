@@ -64,12 +64,3 @@ span {
   font-weight: 600;
   color: var(--link);
 }
-
-svg {
-  inline-size: 1rem;
-  block-size: 1rem;
-
-  fill: none;
-  stroke: currentcolor;
-  stroke-width: 2;
-}
