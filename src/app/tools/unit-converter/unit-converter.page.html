@@ -18,6 +18,16 @@
   [(value)]="text"
 />
 
+<wt-select-field
+  name="imperial-precision"
+  measurement
+  [label]="'unitConverter.precision.label' | transloco"
+  [hint]="'unitConverter.precision.hint' | transloco"
+  [options]="precisions('unitConverter.precision.inch' | transloco)"
+  [value]="imperialPrecision()"
+  (valueChange)="chooseImperialPrecision($event)"
+/>
+
 @let labels =
   {
     'mm': 'unitConverter.units.mm' | transloco,

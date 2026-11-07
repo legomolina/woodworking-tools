@@ -66,3 +66,30 @@ test('typing a length shows it in every unit, and a bad one shows a message', as
   await expect(page.getByText("That length can't be read.", { exact: false })).toBeVisible();
   await expect(page.getByText('88.9 mm')).toBeHidden();
 });
+
+test.describe('the Imperial precision', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test('offers each precision as a translated fraction of an inch', async ({ page }) => {
+    await page.goto('/unit-converter');
+
+    await expect(page.getByLabel('Imperial precision').locator('option')).toHaveText([
+      '1/8 in',
+      '1/16 in',
+      '1/32 in',
+      '1/64 in',
+    ]);
+  });
+
+  test('changing it on the page updates the results and the settings page', async ({ page }) => {
+    await page.goto('/unit-converter');
+    await page.getByLabel('Length').fill('90 mm');
+    await expect(page.getByText('≈ 3 9/16"').first()).toBeVisible();
+
+    await page.getByLabel('Imperial precision').selectOption('64');
+
+    await expect(page.getByText('≈ 3 35/64"').first()).toBeVisible();
+    await page.getByRole('link', { name: 'Settings' }).first().click();
+    await expect(page.getByLabel('Imperial precision')).toHaveValue('64');
+  });
+});
