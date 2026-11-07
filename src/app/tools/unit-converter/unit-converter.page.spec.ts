@@ -382,6 +382,30 @@ describe('UnitConverterPage', () => {
     });
   });
 
+  it('shows the same text and results when the page is opened again in the session', async () => {
+    const first = render();
+    await type(first, '3 1/2"');
+    first.destroy();
+
+    const second = TestBed.createComponent(UnitConverterPage);
+    await second.whenStable();
+
+    expect(field(second).value).toBe('3 1/2"');
+    expect(rows(second)).toContainEqual(['Millimetres', '88.9 mm']);
+  });
+
+  it('starts empty in a fresh app', async () => {
+    const first = render();
+    await type(first, '3 1/2"');
+    TestBed.resetTestingModule();
+
+    const fresh = render();
+    await fresh.whenStable();
+
+    expect(field(fresh).value).toBe('');
+    expect(rows(fresh)).toEqual([]);
+  });
+
   it('has no accessibility violations with results shown', async () => {
     const fixture = render();
     await type(fixture, '3 1/2"');

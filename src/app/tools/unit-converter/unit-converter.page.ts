@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsStore } from '../../core/settings/settings-store';
 import { readLength } from '../../shared/measurement/read-length.calc';
@@ -10,6 +10,7 @@ import { ResultList } from '../../shared/ui/result-list/result-list';
 import type { SelectOption } from '../../shared/ui/select/select';
 import { SelectField } from '../../shared/ui/select-field/select-field';
 import { TextField } from '../../shared/ui/text-field/text-field';
+import { TypedLengthStore } from './typed-length-store';
 
 const METRIC_UNITS: readonly DisplayUnit[] = ['mm', 'cm', 'm'];
 const IMPERIAL_UNITS: readonly DisplayUnit[] = [
@@ -42,7 +43,9 @@ function precisionOptions(inch: string): readonly SelectOption[] {
 export default class UnitConverterPage {
   private readonly settings = inject(SettingsStore);
 
-  protected readonly text = signal('');
+  private readonly typedLength = inject(TypedLengthStore);
+
+  protected readonly text = this.typedLength.text;
 
   protected readonly precisions = precisionOptions;
 
@@ -77,6 +80,10 @@ export default class UnitConverterPage {
     if (denominator !== undefined) {
       this.settings.setImperialPrecision(denominator);
     }
+  }
+
+  protected setText(text: string): void {
+    this.typedLength.setText(text);
   }
 
   /** The results labelled with the given unit names (translated by the template). */
