@@ -114,4 +114,8 @@ test('the typed length is still there after visiting the home page and coming ba
 
   await expect(page.getByLabel('Length')).toHaveValue('3 1/2"');
   await expect(page.getByText('88.9 mm')).toBeVisible();
+
+  await page.reload();
+
+  await expect(page.getByLabel('Length')).toHaveValue('');
 });

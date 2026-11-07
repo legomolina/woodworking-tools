@@ -397,6 +397,7 @@ describe('UnitConverterPage', () => {
   it('starts empty in a fresh app', async () => {
     const first = render();
     await type(first, '3 1/2"');
+    expect(field(first).value).toBe('3 1/2"');
     TestBed.resetTestingModule();
 
     const fresh = render();
