@@ -15,5 +15,11 @@
     "fractionalInches": "Fractional inches",
     "decimalInches": "Decimal inches",
     "feetAndInches": "Feet and inches"
+  },
+  "copy": {
+    "label": "Copy",
+    "action": "Copy {{unit}}",
+    "done": "Copied {{unit}}",
+    "failed": "Couldn't copy {{unit}}"
   }
 }

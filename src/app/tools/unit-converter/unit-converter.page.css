@@ -7,3 +7,9 @@
 p {
   color: var(--ink-muted);
 }
+
+[role='status'] {
+  min-block-size: 1lh;
+  font: var(--text-caption);
+  color: var(--ink-muted);
+}

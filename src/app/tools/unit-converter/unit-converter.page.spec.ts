@@ -261,6 +261,141 @@ describe('UnitConverterPage', () => {
     expect(root.querySelector('dl')!.getAttribute('aria-live')).toBe('polite');
   });
 
+  describe('copying a result', () => {
+    function stubClipboard(writeText = vi.fn().mockResolvedValue(undefined)): typeof writeText {
+      Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+      return writeText;
+    }
+
+    function copyButton(fixture: ComponentFixture<UnitConverterPage>, name: string): HTMLElement {
+      const match = [...(fixture.nativeElement as HTMLElement).querySelectorAll('button')].find(
+        (button) => button.getAttribute('aria-label') === name,
+      );
+      if (!match) {
+        throw new Error(`No button named ${name}.`);
+      }
+      return match;
+    }
+
+    function status(fixture: ComponentFixture<UnitConverterPage>): string {
+      return (fixture.nativeElement as HTMLElement)
+        .querySelector('[role="status"]')!
+        .textContent.trim();
+    }
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('gives every result a copy control named after its unit', async () => {
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('metric');
+      await type(fixture, '89');
+
+      const names = [...(fixture.nativeElement as HTMLElement).querySelectorAll('button')].map(
+        (button) => button.getAttribute('aria-label'),
+      );
+      expect(names).toEqual([
+        'Copy millimetres',
+        'Copy centimetres',
+        'Copy metres',
+        'Copy fractional inches',
+        'Copy feet and inches',
+        'Copy decimal inches',
+      ]);
+    });
+
+    it('writes an exact result to the clipboard as shown', async () => {
+      const writeText = stubClipboard();
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('metric');
+      await type(fixture, '3 1/2"');
+
+      copyButton(fixture, 'Copy millimetres').click();
+      await fixture.whenStable();
+
+      expect(writeText).toHaveBeenCalledExactlyOnceWith('88.9 mm');
+    });
+
+    it('writes an approximate result without the ≈ marker', async () => {
+      const writeText = stubClipboard();
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('metric');
+      await type(fixture, '3 1/2"');
+
+      copyButton(fixture, 'Copy metres').click();
+      await fixture.whenStable();
+
+      expect(writeText).toHaveBeenCalledExactlyOnceWith('0.089 m');
+    });
+
+    it('confirms the copy in a status message', async () => {
+      stubClipboard();
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('metric');
+      await type(fixture, '89');
+      expect(status(fixture)).toBe('');
+
+      copyButton(fixture, 'Copy centimetres').click();
+      await fixture.whenStable();
+
+      expect(status(fixture)).toBe('Copied centimetres');
+    });
+
+    it('removes the confirmation after a few seconds', async () => {
+      stubClipboard();
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('metric');
+      await type(fixture, '89');
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+
+      copyButton(fixture, 'Copy centimetres').click();
+      await vi.advanceTimersByTimeAsync(2900);
+      expect(status(fixture)).toBe('Copied centimetres');
+      await vi.advanceTimersByTimeAsync(200);
+      vi.useRealTimers();
+      await fixture.whenStable();
+
+      expect(status(fixture)).toBe('');
+    });
+
+    it('says so when the clipboard refuses', async () => {
+      stubClipboard(vi.fn().mockRejectedValue(new Error('denied')));
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('metric');
+      await type(fixture, '89');
+
+      copyButton(fixture, 'Copy centimetres').click();
+      await fixture.whenStable();
+
+      expect(status(fixture)).toBe("Couldn't copy centimetres");
+    });
+
+    it('is named and confirmed in Spanish', async () => {
+      stubClipboard();
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('metric');
+      TestBed.inject(TranslocoService).setActiveLang('es');
+      await fixture.whenStable();
+      await type(fixture, '89');
+
+      copyButton(fixture, 'Copiar milímetros').click();
+      await fixture.whenStable();
+
+      expect(status(fixture)).toBe('Copiado: milímetros');
+    });
+
+    it('has no accessibility violations once confirmed', async () => {
+      stubClipboard();
+      const fixture = render();
+      await type(fixture, '3 1/2"');
+      copyButton(fixture, 'Copy millimetres').click();
+      await fixture.whenStable();
+
+      await expectNoAxeViolations(fixture.nativeElement as HTMLElement);
+    });
+  });
+
   describe('in Spanish', () => {
     it('shows Spanish labels and number formatting', async () => {
       const fixture = render();
