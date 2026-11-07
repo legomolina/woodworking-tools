@@ -43,6 +43,7 @@
 <ng-template #copyButton let-result>
   <button
     wt-button
+    size="small"
     type="button"
     [attr.aria-label]="'unitConverter.copy.action' | transloco: { unit: result.label | lowercase }"
     (click)="copy(result)"

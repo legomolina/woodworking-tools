@@ -9,10 +9,12 @@ import { Button } from './button';
   template: `
     <button wt-button type="button">Add Part</button>
     <button wt-button type="button" [variant]="variant()" id="main">Optimize cuts</button>
+    <button wt-button type="button" [size]="size()" id="sized">Copy</button>
   `,
 })
 class Host {
   readonly variant = signal<'primary' | 'secondary'>('primary');
+  readonly size = signal<'default' | 'small'>('small');
 }
 
 async function render(): Promise<{ host: Host; root: HTMLElement; settle: () => Promise<void> }> {
@@ -54,6 +56,19 @@ describe('Button', () => {
     host.variant.set('secondary');
     await settle();
     expect(button(root, 'main').getAttribute('variant')).toBe('secondary');
+  });
+
+  it('is default size unless told otherwise', async () => {
+    const { root } = await render();
+    expect(root.querySelector('button')?.getAttribute('size')).toBe('default');
+  });
+
+  it('reflects the size and follows its changes', async () => {
+    const { host, root, settle } = await render();
+    expect(button(root, 'sized').getAttribute('size')).toBe('small');
+    host.size.set('default');
+    await settle();
+    expect(button(root, 'sized').getAttribute('size')).toBe('default');
   });
 
   it('has no axe violations', async () => {
