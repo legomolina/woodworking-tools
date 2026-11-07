@@ -4,11 +4,13 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsStore } from '../../core/settings/settings-store';
 import { readLength } from '../../shared/measurement/read-length.calc';
 import type { DisplayUnit } from '../../shared/measurement/show-length.calc';
-import { showLength } from '../../shared/measurement/show-length.calc';
+import { IMPERIAL_PRECISIONS, showLength } from '../../shared/measurement/show-length.calc';
 import type { UnitSystem } from '../../shared/measurement/unit-system';
 import type { Result } from '../../shared/ui/result-list/result-list';
 import { Button } from '../../shared/ui/button/button';
 import { ResultList } from '../../shared/ui/result-list/result-list';
+import type { SelectOption } from '../../shared/ui/select/select';
+import { SelectField } from '../../shared/ui/select-field/select-field';
 import { TextField } from '../../shared/ui/text-field/text-field';
 
 /** How long the copy confirmation stays on screen. */
@@ -29,10 +31,18 @@ const UNITS_BY_PREFERENCE: Readonly<Record<UnitSystem, readonly DisplayUnit[]>> 
   imperial: [...IMPERIAL_UNITS, ...METRIC_UNITS],
 };
 
+/** Each Imperial precision as the smallest fraction it shows, such as `1/16 in`. */
+function precisionOptions(inch: string): readonly SelectOption[] {
+  return IMPERIAL_PRECISIONS.map((denominator) => ({
+    value: String(denominator),
+    label: `1/${denominator} ${inch}`,
+  }));
+}
+
 /** The Unit Converter's page: one length field and the length in every unit. */
 @Component({
   selector: 'wt-unit-converter-page',
-  imports: [TranslocoPipe, LowerCasePipe, TextField, ResultList, Button],
+  imports: [TranslocoPipe, LowerCasePipe, TextField, SelectField, ResultList, Button],
   templateUrl: './unit-converter.page.html',
   styleUrl: './unit-converter.page.css',
 })
@@ -42,6 +52,10 @@ export default class UnitConverterPage {
   private readonly clipboard = inject(DOCUMENT).defaultView?.navigator.clipboard;
 
   protected readonly text = signal('');
+
+  protected readonly precisions = precisionOptions;
+
+  protected readonly imperialPrecision = computed(() => String(this.settings.imperialPrecision()));
 
   private readonly reading = computed(() => readLength(this.text(), this.settings.unitSystem()));
 
@@ -82,6 +96,13 @@ export default class UnitConverterPage {
     inject(DestroyRef).onDestroy(() => {
       clearTimeout(this.confirmationTimer);
     });
+  }
+
+  protected chooseImperialPrecision(precision: string): void {
+    const denominator = IMPERIAL_PRECISIONS.find((candidate) => String(candidate) === precision);
+    if (denominator !== undefined) {
+      this.settings.setImperialPrecision(denominator);
+    }
   }
 
   /** The results labelled with the given unit names (translated by the template). */

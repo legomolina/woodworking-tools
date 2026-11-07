@@ -4,6 +4,11 @@
     "label": "Longitud",
     "hint": "Por ejemplo 89, 3 1/2\" o 6' 4 1/4\". Sin unidad, los números usan tu sistema de medida preferido."
   },
+  "precision": {
+    "label": "Precisión imperial",
+    "hint": "Fracción más pequeña que se muestra en los resultados de pulgadas fraccionarias y de pies y pulgadas.",
+    "inch": "pulg."
+  },
   "errors": {
     "unreadable": "No se puede leer esa longitud. Prueba con algo como 89 mm, 3 1/2\" o 6' 4 1/4\".",
     "negative": "Una longitud no puede ser negativa."

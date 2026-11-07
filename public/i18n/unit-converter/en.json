@@ -4,6 +4,11 @@
     "label": "Length",
     "hint": "For example 89, 3 1/2\" or 6' 4 1/4\". Without a unit, numbers use your preferred Unit System."
   },
+  "precision": {
+    "label": "Imperial precision",
+    "hint": "Smallest fraction shown in the fractional-inch and feet-and-inches results.",
+    "inch": "in"
+  },
   "errors": {
     "unreadable": "That length can't be read. Try something like 89 mm, 3 1/2\" or 6' 4 1/4\".",
     "negative": "A length can't be negative."

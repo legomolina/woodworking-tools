@@ -145,6 +145,96 @@ describe('UnitConverterPage', () => {
     });
   });
 
+  describe('the Imperial precision control', () => {
+    function precisionSelect(fixture: ComponentFixture<UnitConverterPage>): HTMLSelectElement {
+      const root = fixture.nativeElement as HTMLElement;
+      const label = [...root.querySelectorAll('label')].find(
+        (candidate) => candidate.textContent.trim() === 'Imperial precision',
+      );
+      return root.querySelector<HTMLSelectElement>(`#${label?.getAttribute('for') ?? 'missing'}`)!;
+    }
+
+    async function choose(
+      fixture: ComponentFixture<UnitConverterPage>,
+      denominator: string,
+    ): Promise<void> {
+      const select = precisionSelect(fixture);
+      select.value = denominator;
+      select.dispatchEvent(new Event('change'));
+      await fixture.whenStable();
+    }
+
+    it('reflects the global setting', async () => {
+      const fixture = render();
+      TestBed.inject(SettingsStore).setImperialPrecision(32);
+      await fixture.whenStable();
+
+      expect(precisionSelect(fixture).value).toBe('32');
+    });
+
+    it('follows a change made elsewhere', async () => {
+      const fixture = render();
+      await fixture.whenStable();
+      TestBed.inject(SettingsStore).setImperialPrecision(8);
+      await fixture.whenStable();
+
+      expect(precisionSelect(fixture).value).toBe('8');
+    });
+
+    it('offers every precision as a fraction of an inch', async () => {
+      const fixture = render();
+      await fixture.whenStable();
+
+      expect(
+        [...precisionSelect(fixture).options].map((option) => option.textContent.trim()),
+      ).toEqual(['1/8 in', '1/16 in', '1/32 in', '1/64 in']);
+    });
+
+    it('changes the global setting and updates the fractional results from 1/16 to 1/64', async () => {
+      const fixture = render();
+      const settings = TestBed.inject(SettingsStore);
+      settings.setUnitSystem('imperial');
+      await type(fixture, '90 mm');
+      expect(rows(fixture)[0]).toEqual(['Fractional inches', '≈ 3 9/16"']);
+
+      await choose(fixture, '64');
+
+      expect(settings.imperialPrecision()).toBe(64);
+      expect(rows(fixture)[0]).toEqual(['Fractional inches', '≈ 3 35/64"']);
+    });
+
+    it('updates the feet-and-inches result too', async () => {
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('imperial');
+      await type(fixture, '2000 mm');
+      expect(rows(fixture)[1]).toEqual(['Feet and inches', '≈ 6\' 6 3/4"']);
+
+      await choose(fixture, '64');
+
+      expect(rows(fixture)[1]).toEqual(['Feet and inches', '≈ 6\' 6 47/64"']);
+    });
+
+    it('is labelled in Spanish', async () => {
+      const fixture = render();
+      TestBed.inject(TranslocoService).setActiveLang('es');
+      await fixture.whenStable();
+
+      const root = fixture.nativeElement as HTMLElement;
+      const select = root.querySelector('select')!;
+      expect(select.labels[0].textContent.trim()).toBe('Precisión imperial');
+      expect(select.getAttribute('aria-describedby')).not.toBeNull();
+      expect(pageText(fixture)).toContain(
+        'Fracción más pequeña que se muestra en los resultados de pulgadas fraccionarias y de pies y pulgadas.',
+      );
+      expect([...select.options].map((option) => option.textContent.trim())).toEqual([
+        '1/8 pulg.',
+        '1/16 pulg.',
+        '1/32 pulg.',
+        '1/64 pulg.',
+      ]);
+    });
+  });
+
   describe('under Metric', () => {
     it('reads a bare number as millimetres and lists Metric units first', async () => {
       const fixture = render();
