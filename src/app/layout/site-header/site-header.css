@@ -59,21 +59,6 @@ ul {
   list-style: none;
 }
 
-svg {
-  flex: none;
-
-  inline-size: 1.25rem;
-  block-size: 1.25rem;
-
-  fill: none;
-  stroke: currentcolor;
-  stroke-width: 2;
-}
-
-circle {
-  fill: var(--surface-raised);
-}
-
 button {
   cursor: pointer;
 

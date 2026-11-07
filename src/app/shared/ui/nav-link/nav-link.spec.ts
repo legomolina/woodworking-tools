@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideRouter, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { expectNoAxeViolations } from '../../../../testing/expect-no-axe-violations';
+import { Icon } from '../icon/icon';
 import { NavLink } from './nav-link';
 
 @Component({ selector: 'wt-blank', template: '' })
@@ -10,11 +11,11 @@ class Blank {}
 
 @Component({
   selector: 'wt-host',
-  imports: [NavLink, RouterLink, RouterLinkActive],
+  imports: [Icon, NavLink, RouterLink, RouterLinkActive],
   template: `
     <nav aria-label="Tools">
       <a wt-nav-link routerLink="/cut-optimizer" routerLinkActive ariaCurrentWhenActive="page">
-        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14" /></svg>
+        <wt-icon name="menu" />
         Cut Optimizer
       </a>
       <a wt-nav-link routerLink="/unit-converter" routerLinkActive ariaCurrentWhenActive="page">
@@ -57,7 +58,7 @@ describe('NavLink', () => {
 
     const [first] = root.querySelectorAll('a');
     expect(first.textContent.trim()).toBe('Cut Optimizer');
-    expect(first.querySelectorAll('svg')).toHaveLength(1);
+    expect(first.querySelectorAll('wt-icon svg')).toHaveLength(1);
   });
 
   // NavLink only styles its host: the current page is marked by `routerLinkActive`

@@ -180,3 +180,7 @@ Add new entries at the top, in the same shape: a date, then **What happened**, *
   - **What happened:** The pre-commit hook never blocked a commit.
   - **Root cause:** `if [$? -ne 0]` was a shell syntax error, so the failure branch never ran.
   - **Guardrail:** Hook rewritten (`if ! pnpm lint`) and tested in a clean shell.
+- **2026-11-08**
+  - **What happened:** Icons were hand-drawn inline SVGs repeated in several templates (#75).
+  - **Root cause:** No shared icon component or icon set.
+  - **Guardrail:** `wt-icon` (Lucide via `@lucide/angular`, `docs/adr/0004-lucide-icons.md`); its spec is enforced by `pnpm specs:check`. No new lint rule.
