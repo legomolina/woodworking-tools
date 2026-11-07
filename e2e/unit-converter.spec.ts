@@ -119,3 +119,21 @@ test('the typed length is still there after visiting the home page and coming ba
 
   await expect(page.getByLabel('Length')).toHaveValue('');
 });
+
+test('each Copy button sits at the end of its result row', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/unit-converter');
+  await page.getByLabel('Length').fill('3 1/2"');
+  await expect(page.getByText('88.9 mm')).toBeVisible();
+
+  const copy = page.getByRole('button', { name: 'Copy millimetres' });
+  const rowBox = await copy.locator('xpath=ancestor::div[1]').boundingBox();
+  const buttonBox = await copy.boundingBox();
+
+  expect(rowBox).not.toBeNull();
+  expect(buttonBox).not.toBeNull();
+  // The row has 16px of padding-inline: the button's end edge sits just inside it.
+  const rowEnd = (rowBox?.x ?? 0) + (rowBox?.width ?? 0);
+  const buttonEnd = (buttonBox?.x ?? 0) + (buttonBox?.width ?? 0);
+  expect(rowEnd - buttonEnd).toBeLessThanOrEqual(16);
+});

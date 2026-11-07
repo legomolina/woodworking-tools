@@ -396,6 +396,17 @@ describe('UnitConverterPage', () => {
       ]);
     });
 
+    it('shows every copy control in the small size', async () => {
+      const fixture = render();
+      await type(fixture, '89');
+
+      const sizes = [...(fixture.nativeElement as HTMLElement).querySelectorAll('button')].map(
+        (button) => button.getAttribute('size'),
+      );
+      expect(sizes).toHaveLength(6);
+      expect(new Set(sizes)).toEqual(new Set(['small']));
+    });
+
     it('writes an exact result to the clipboard as shown', async () => {
       const writeText = stubClipboard();
       const fixture = render();
