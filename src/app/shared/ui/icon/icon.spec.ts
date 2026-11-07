@@ -22,16 +22,20 @@ function render(): { fixture: ComponentFixture<Host>; root: HTMLElement } {
 }
 
 describe('Icon', () => {
-  it('draws one SVG for the chosen name and changes it with the name', async () => {
+  it('draws exactly one SVG per name, each one different from the others', async () => {
     const { fixture, root } = render();
-    await fixture.whenStable();
-    const before = root.querySelector('svg')?.innerHTML;
+    const names: IconName[] = ['arrow-right', 'menu', 'sliders-horizontal', 'x'];
+    const drawings: (string | undefined)[] = [];
 
-    fixture.componentInstance.name.set('x');
-    await fixture.whenStable();
+    for (const name of names) {
+      fixture.componentInstance.name.set(name);
+      await fixture.whenStable();
+      expect(root.querySelectorAll('svg')).toHaveLength(1);
+      drawings.push(root.querySelector('svg')?.innerHTML);
+    }
 
-    expect(root.querySelectorAll('svg')).toHaveLength(1);
-    expect(root.querySelector('svg')?.innerHTML).not.toBe(before);
+    expect(new Set(drawings).size).toBe(names.length);
+    expect(drawings.every((drawing) => drawing !== undefined && drawing !== '')).toBe(true);
   });
 
   it('is hidden from assistive technology next to its text label', async () => {
@@ -48,6 +52,13 @@ describe('Icon', () => {
     await fixture.whenStable();
 
     expect(root.querySelector('wt-icon')?.getAttribute('size')).toBe('sm');
+  });
+
+  it('is medium by default', async () => {
+    const { fixture, root } = render();
+    await fixture.whenStable();
+
+    expect(root.querySelector('wt-icon')?.getAttribute('size')).toBe('md');
   });
 
   it('has no axe violations', async () => {
