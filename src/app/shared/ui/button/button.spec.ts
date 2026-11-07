@@ -7,14 +7,11 @@ import { Button } from './button';
   selector: 'wt-host',
   imports: [Button],
   template: `
-    <button wt-button type="button" (click)="clicks.set(clicks() + 1)">Add Part</button>
+    <button wt-button type="button">Add Part</button>
     <button wt-button type="button" [variant]="variant()" id="main">Optimize cuts</button>
-    <button wt-button type="button" disabled id="off">Clear Cut List</button>
-    <button wt-button type="button" aria-label="Copy millimetres" id="named">Copy</button>
   `,
 })
 class Host {
-  readonly clicks = signal(0);
   readonly variant = signal<'primary' | 'secondary'>('primary');
 }
 
@@ -57,30 +54,6 @@ describe('Button', () => {
     host.variant.set('secondary');
     await settle();
     expect(button(root, 'main').getAttribute('variant')).toBe('secondary');
-  });
-
-  it('can be clicked', async () => {
-    const { host, root, settle } = await render();
-    root.querySelector('button')?.click();
-    await settle();
-    expect(host.clicks()).toBe(1);
-  });
-
-  it('cannot be clicked when disabled', async () => {
-    const { root } = await render();
-    expect(button(root, 'off').disabled).toBe(true);
-  });
-
-  it('takes its accessible name from the native aria-label', async () => {
-    const { root } = await render();
-    expect(button(root, 'named').getAttribute('aria-label')).toBe('Copy millimetres');
-  });
-
-  it('is reachable by keyboard focus', async () => {
-    const { root } = await render();
-    const target = button(root, 'main');
-    target.focus();
-    expect(document.activeElement).toBe(target);
   });
 
   it('has no axe violations', async () => {

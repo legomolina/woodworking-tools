@@ -12,7 +12,7 @@ import { ResultList } from '../../shared/ui/result-list/result-list';
 import { TextField } from '../../shared/ui/text-field/text-field';
 
 /** How long the copy confirmation stays on screen. */
-const CONFIRMATION_MS = 3000;
+const CONFIRMATION_MS = 5000;
 
 const APPROXIMATE_MARK = '≈ ';
 
@@ -68,7 +68,16 @@ export default class UnitConverterPage {
   });
 
   /** What the confirmation under the results says; `undefined` when there is none. */
-  protected readonly copyOutcome = signal<{ unit: string; copied: boolean } | undefined>(undefined);
+  private readonly copyOutcome = signal<
+    { unit: string; copied: boolean; forText: string } | undefined
+  >(undefined);
+
+  /** The outcome as a list, so each copy renders a fresh message that a live region announces again. */
+  protected readonly copyOutcomes = computed(() => {
+    const outcome = this.copyOutcome();
+    // A message about the previous length is stale once the text changes.
+    return outcome?.forText === this.text() ? [outcome] : [];
+  });
 
   private confirmationTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -89,19 +98,23 @@ export default class UnitConverterPage {
 
   /** Copies a result's text, without the `≈` marker, and confirms (or reports failure). */
   protected async copy(result: Result): Promise<void> {
-    const text = result.value.startsWith(APPROXIMATE_MARK)
-      ? result.value.slice(APPROXIMATE_MARK.length)
-      : result.value;
-    let copied = true;
-    try {
-      await this.clipboard!.writeText(text);
-    } catch {
-      copied = false;
-    }
-    this.copyOutcome.set({ unit: result.label, copied });
+    const text = result.approximate ? result.value.slice(APPROXIMATE_MARK.length) : result.value;
+    const forText = this.text();
+    const copied = await this.write(text);
+    this.copyOutcome.set({ unit: result.label, copied, forText });
     clearTimeout(this.confirmationTimer);
     this.confirmationTimer = setTimeout(() => {
       this.copyOutcome.set(undefined);
     }, CONFIRMATION_MS);
+  }
+
+  /** Writes to the clipboard; `false` when there is none or it refuses. */
+  private async write(text: string): Promise<boolean> {
+    try {
+      await this.clipboard?.writeText(text);
+      return this.clipboard !== undefined;
+    } catch {
+      return false;
+    }
   }
 }

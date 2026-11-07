@@ -263,7 +263,7 @@ describe('UnitConverterPage', () => {
 
   describe('copying a result', () => {
     function stubClipboard(writeText = vi.fn().mockResolvedValue(undefined)): typeof writeText {
-      Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+      vi.stubGlobal('navigator', { clipboard: { writeText } });
       return writeText;
     }
 
@@ -285,6 +285,7 @@ describe('UnitConverterPage', () => {
 
     afterEach(() => {
       vi.useRealTimers();
+      vi.unstubAllGlobals();
     });
 
     it('gives every result a copy control named after its unit', async () => {
@@ -323,6 +324,7 @@ describe('UnitConverterPage', () => {
       TestBed.inject(SettingsStore).setUnitSystem('metric');
       await type(fixture, '3 1/2"');
 
+      expect(rows(fixture)[2]).toEqual(['Metres', '≈ 0.089 m']);
       copyButton(fixture, 'Copy metres').click();
       await fixture.whenStable();
 
@@ -350,13 +352,55 @@ describe('UnitConverterPage', () => {
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
 
       copyButton(fixture, 'Copy centimetres').click();
-      await vi.advanceTimersByTimeAsync(2900);
+      await vi.advanceTimersByTimeAsync(4900);
       expect(status(fixture)).toBe('Copied centimetres');
       await vi.advanceTimersByTimeAsync(200);
       vi.useRealTimers();
       await fixture.whenStable();
 
       expect(status(fixture)).toBe('');
+    });
+
+    it('keeps a second confirmation for its full time after a repeated copy', async () => {
+      stubClipboard();
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('metric');
+      await type(fixture, '89');
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+
+      copyButton(fixture, 'Copy centimetres').click();
+      await vi.advanceTimersByTimeAsync(3000);
+      copyButton(fixture, 'Copy metres').click();
+      await vi.advanceTimersByTimeAsync(3000);
+      vi.useRealTimers();
+      await fixture.whenStable();
+
+      expect(status(fixture)).toBe('Copied metres');
+    });
+
+    it('drops the confirmation when the length changes', async () => {
+      stubClipboard();
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('metric');
+      await type(fixture, '89');
+      copyButton(fixture, 'Copy centimetres').click();
+      await fixture.whenStable();
+
+      await type(fixture, '90');
+
+      expect(status(fixture)).toBe('');
+    });
+
+    it('says so when there is no clipboard', async () => {
+      vi.stubGlobal('navigator', {});
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('metric');
+      await type(fixture, '89');
+
+      copyButton(fixture, 'Copy centimetres').click();
+      await fixture.whenStable();
+
+      expect(status(fixture)).toBe("Couldn't copy centimetres");
     });
 
     it('says so when the clipboard refuses', async () => {

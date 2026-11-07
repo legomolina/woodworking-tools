@@ -41,7 +41,7 @@
 </ng-template>
 
 <p role="status">
-  @if (copyOutcome(); as outcome) {
+  @for (outcome of copyOutcomes(); track outcome) {
     {{
       (outcome.copied ? 'unitConverter.copy.done' : 'unitConverter.copy.failed')
         | transloco: { unit: outcome.unit | lowercase }
