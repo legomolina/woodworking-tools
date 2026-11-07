@@ -20,5 +20,11 @@
     "fractionalInches": "Pulgadas fraccionarias",
     "decimalInches": "Pulgadas decimales",
     "feetAndInches": "Pies y pulgadas"
+  },
+  "copy": {
+    "label": "Copiar",
+    "action": "Copiar {{unit}}",
+    "done": "Copiado: {{unit}}",
+    "failed": "No se pudo copiar: {{unit}}"
   }
 }

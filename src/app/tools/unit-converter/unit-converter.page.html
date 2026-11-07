@@ -38,4 +38,24 @@
     'decimal-inches': 'unitConverter.units.decimalInches' | transloco,
     'feet-and-inches': 'unitConverter.units.feetAndInches' | transloco,
   };
-<wt-result-list [results]="results(labels)" />
+<wt-result-list [results]="results(labels)" [action]="copyButton" />
+
+<ng-template #copyButton let-result>
+  <button
+    wt-button
+    type="button"
+    [attr.aria-label]="'unitConverter.copy.action' | transloco: { unit: result.label | lowercase }"
+    (click)="copy(result)"
+  >
+    {{ 'unitConverter.copy.label' | transloco }}
+  </button>
+</ng-template>
+
+<p role="status">
+  @for (outcome of copyOutcomes(); track outcome) {
+    {{
+      (outcome.copied ? 'unitConverter.copy.done' : 'unitConverter.copy.failed')
+        | transloco: { unit: outcome.unit | lowercase }
+    }}
+  }
+</p>
