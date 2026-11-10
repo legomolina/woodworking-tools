@@ -1,0 +1,54 @@
+# Nightly full mutation run (Stryker) on `main`. mutation.yml only runs on PRs
+# that touch the domain logic; this catches a score that drops for any other
+# reason (a changed dependency, a changed Stryker or Vitest version).
+# Deterministic, so a script and not an agent: when the run fails it opens an
+# issue, or comments on the one that is already open.
+name: Mutation testing (nightly)
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mutation:
+    name: Nightly mutation testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - id: stryker
+        run: pnpm mutation
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutation-report
+          path: reports/mutation/
+          retention-days: 14
+      - name: Report a failed run in an issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TITLE: 'Nightly mutation testing failed'
+        run: |
+          body="The nightly mutation run on \`main\` failed: ${RUN_URL}. The HTML report with every surviving mutant is in the run's \`mutation-report\` artifact. Kill each surviving mutant with a test, or recognise it as equivalent."
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$TITLE\" in:title" --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "$body"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$body"
+          fi

@@ -6,6 +6,14 @@ Add an entry whenever you add, change or remove a guardrail, or when one catches
 
 Add new entries at the top, in the same shape: a date, then **What happened**, **Root cause** and **Guardrail**. Keep it a list, not a table: Prettier re-aligns a whole table whenever a row widens it, so parallel branches conflict on every line.
 
+- **2026-11-10**
+  - **What happened:** `mutation.yml` only runs on PRs that touch the domain logic, so nothing checked the score on `main` afterwards. A change that lowers it for another reason (a Stryker or Vitest upgrade) would go unnoticed.
+  - **Root cause:** A path-filtered workflow never runs on `main`, and cannot be a required check.
+  - **Guardrail:** `.github/workflows/mutation-nightly.yml` runs `pnpm mutation` on `main` every night (and on demand). When it fails it opens the issue "Nightly mutation testing failed", or comments on the one already open, with a link to the run; the HTML report is uploaded as an artifact. It is a script, not an agent: the check is deterministic. The score on `main` was 97.51% on 2026-11-10.
+- **2026-11-04**
+  - **What happened:** No incident: set when the Claude GitHub Action was added (#55), which runs with write access.
+  - **Root cause:** GitHub's default only asks for approval from first-time contributors.
+  - **Guardrail:** Repo setting "Approval for running fork pull request workflows" set to all external contributors (`gh api`, `all_external_contributors`). It is a setting, not a file, so it is recorded only here.
 - **2026-11-05**
   - **What happened:** Some parallel sessions had a title in the IDE and others did not, so the owner could not tell the worktree sessions apart.
   - **Root cause:** Nothing asked agents to set a title; the IDE's session-title tool is deferred and only works in sessions opened from the JetBrains Air plugin.
