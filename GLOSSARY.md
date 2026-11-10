@@ -24,7 +24,7 @@ _Spanish_: Optimizador de cortes
 **Bevel Fence Calculator**:
 The tool that tells where to set the Fence for a Bevel Cut so that a Part ends up with the wanted length on its Long Face or its Short Face.
 _Avoid_: Miter calculator, angle calculator, fence calculator
-_Spanish_: Calculadora de tope para bisel
+_Spanish_: Calculadora de guía paralela para bisel
 
 ### Measurement
 
@@ -123,21 +123,21 @@ _Avoid_: Height, depth, width
 _Spanish_: Grosor
 
 **Long Face**:
-The face of a bevelled Part that sticks out past the other: the one on the side the blade leans away from at the top.
+The longer of the two faces of a bevelled Part: the one away from the table.
 _Avoid_: Top face, long side, outer face
 _Spanish_: Cara larga
 
 **Short Face**:
-The face of a bevelled Part that sits against the table, shorter than the Long Face by `Thickness × tan(Bevel Angle)`.
+The shorter of the two faces of a bevelled Part: the one resting on the table. It is `Thickness × tan(Bevel Angle)` shorter than the Long Face.
 _Avoid_: Bottom face, short side, inner face
 _Spanish_: Cara corta
 
 **Fence**:
 The guide the Part is pushed against, on the side of the blade the Part stays on.
 _Avoid_: Stop, stop block, rip fence
-_Spanish_: Tope
+_Spanish_: Guía paralela
 
 **Fence Position**:
-The distance from the blade, where it meets the table, to the Fence, read on the saw's ruler. The ruler's zero is the blade at a Bevel Angle of 0°, on the face towards the Part, so Kerf does not change the Fence Position.
+The distance from the blade, where it meets the table, to the Fence, read on the saw's ruler. The ruler's zero is the blade at a Bevel Angle of 0°, on the face towards the Part, and the blade is taken to meet the table at that same zero at every Bevel Angle. So Kerf does not change the Fence Position.
 _Avoid_: Fence distance, fence setting
-_Spanish_: Posición del tope
+_Spanish_: Posición de la guía paralela
