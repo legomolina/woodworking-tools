@@ -21,6 +21,11 @@ The tool that plans how to cut the required pieces out of the available stock wh
 _Avoid_: Cut list optimizer, nesting tool
 _Spanish_: Optimizador de cortes
 
+**Bevel Fence Calculator**:
+The tool that tells where to set the Fence for a Bevel Cut so that a Part ends up with the wanted length on its Long Face or its Short Face.
+_Avoid_: Miter calculator, angle calculator, fence calculator
+_Spanish_: Calculadora de tope para bisel
+
 ### Measurement
 
 **Unit System**:
@@ -99,3 +104,40 @@ _Spanish_: Retal
 Material that cannot be reused: leftovers shorter than the Minimum Offcut Length, Trim, and Kerf.
 _Avoid_: Scrap, loss
 _Spanish_: Desperdicio
+
+### Bevel Fence Calculator
+
+**Bevel Cut**:
+A Cut made with the blade tilted away from vertical, seen from the front of the saw, so that the end of a Part is not square to its faces.
+_Avoid_: Miter, angled cut, slanted cut
+_Spanish_: Corte a bisel
+
+**Bevel Angle**:
+The tilt of the blade from vertical, as read on the saw's bevel scale: 0° is an upright blade (a square Cut).
+_Avoid_: Cut angle, saw angle, angle from the table
+_Spanish_: Ángulo de bisel
+
+**Thickness**:
+The height of a Part, measured across the face the blade tilts through.
+_Avoid_: Height, depth, width
+_Spanish_: Grosor
+
+**Long Face**:
+The face of a bevelled Part that sticks out past the other: the one on the side the blade leans away from at the top.
+_Avoid_: Top face, long side, outer face
+_Spanish_: Cara larga
+
+**Short Face**:
+The face of a bevelled Part that sits against the table, shorter than the Long Face by `Thickness × tan(Bevel Angle)`.
+_Avoid_: Bottom face, short side, inner face
+_Spanish_: Cara corta
+
+**Fence**:
+The guide the Part is pushed against, on the side of the blade the Part stays on.
+_Avoid_: Stop, stop block, rip fence
+_Spanish_: Tope
+
+**Fence Position**:
+The distance from the blade, where it meets the table, to the Fence, read on the saw's ruler. The ruler's zero is the blade at a Bevel Angle of 0°, on the face towards the Part, so Kerf does not change the Fence Position.
+_Avoid_: Fence distance, fence setting
+_Spanish_: Posición del tope
