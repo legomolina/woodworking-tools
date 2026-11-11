@@ -83,7 +83,8 @@ svg {
   fill: var(--ink-muted);
 }
 
-.ruler-zero {
+.ruler-zero,
+.blade-label {
   text-anchor: end;
 }
 
