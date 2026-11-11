@@ -42,6 +42,10 @@
     "unitConverter": {
       "name": "Unit Converter",
       "description": "Type a length and see it in every unit at once: metric, fractional inches and feet and inches."
+    },
+    "bevelFenceCalculator": {
+      "name": "Bevel Fence Calculator",
+      "description": "Find where to set the Fence so a Bevel Cut leaves a Part the wanted length on its Long Face or Short Face."
     }
   }
 }

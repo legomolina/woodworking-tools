@@ -23,4 +23,11 @@ export const TOOLS: readonly ToolEntry[] = [
     descriptionKey: 'tools.unitConverter.description',
     loadRoutes: async () => import('../../tools/unit-converter/unit-converter.routes'),
   },
+  {
+    path: 'bevel-fence-calculator',
+    nameKey: 'tools.bevelFenceCalculator.name',
+    descriptionKey: 'tools.bevelFenceCalculator.description',
+    loadRoutes: async () =>
+      import('../../tools/bevel-fence-calculator/bevel-fence-calculator.routes'),
+  },
 ];
