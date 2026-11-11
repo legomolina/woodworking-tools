@@ -1,0 +1,9 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+p {
+  color: var(--ink-muted);
+}

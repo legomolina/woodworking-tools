@@ -42,6 +42,10 @@
     "unitConverter": {
       "name": "Conversor de unidades",
       "description": "Escribe una longitud y mírala en todas las unidades a la vez: métricas, pulgadas fraccionarias y pies y pulgadas."
+    },
+    "bevelFenceCalculator": {
+      "name": "Calculadora de guía paralela para bisel",
+      "description": "Averigua dónde colocar la guía paralela para que un corte a bisel deje la pieza con la longitud deseada en su cara larga o su cara corta."
     }
   }
 }

@@ -86,6 +86,8 @@ test.describe('on a narrow screen', () => {
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'Unit Converter' })).toBeFocused();
     await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: 'Bevel Fence Calculator' })).toBeFocused();
+    await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'Settings' })).toBeFocused();
 
     await page.keyboard.press('Tab');
