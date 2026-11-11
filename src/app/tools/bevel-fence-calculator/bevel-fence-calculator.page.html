@@ -33,7 +33,8 @@
     [error]="angleText"
     unit="°"
     measurement
-    [(value)]="bevelAngle"
+    [value]="store.bevelAngle()"
+    (valueChange)="store.setBevelAngle($event)"
   />
 
   <wt-text-field
@@ -42,7 +43,8 @@
     [hint]="'bevelFenceCalculator.thickness.hint' | transloco"
     [error]="thicknessText"
     measurement
-    [(value)]="thickness"
+    [value]="store.thickness()"
+    (valueChange)="store.setThickness($event)"
   />
 </div>
 
@@ -56,20 +58,22 @@
   [label]="'bevelFenceCalculator.givenFace.label' | transloco"
   [hint]="'bevelFenceCalculator.givenFace.hint' | transloco"
   [options]="faceOptions(faceLabels)"
-  [(value)]="givenFace"
+  [value]="store.givenFace()"
+  (valueChange)="store.setGivenFace($event)"
 />
 
 <wt-text-field
   name="length"
   [label]="
-    givenFace() === 'long'
+    store.givenFace() === 'long'
       ? ('bevelFenceCalculator.length.label.long' | transloco)
       : ('bevelFenceCalculator.length.label.short' | transloco)
   "
   [hint]="'bevelFenceCalculator.length.hint' | transloco"
   [error]="lengthText"
   measurement
-  [(value)]="length"
+  [value]="store.length()"
+  (valueChange)="store.setLength($event)"
 />
 
 @let unitLabels =

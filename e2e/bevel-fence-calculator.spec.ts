@@ -37,3 +37,20 @@ test('a value that cannot be used shows a message on its own field', async ({ pa
     'At 45° the Long Face must be longer than 19 mm.',
   );
 });
+
+test('the values are still there after leaving the Tool and coming back', async ({ page }) => {
+  await page.goto('/bevel-fence-calculator');
+  await page.getByLabel('Bevel Angle').fill('45');
+  await page.getByLabel('Thickness', { exact: true }).fill('19 mm');
+  await page.getByRole('radio', { name: 'Short Face' }).check();
+  await page.getByLabel('Short Face length').fill('281 mm');
+
+  await page.getByRole('link', { name: 'Woodworking Tools' }).first().click();
+  await page.getByRole('link', { name: 'Bevel Fence Calculator' }).first().click();
+
+  await expect(page.getByLabel('Bevel Angle')).toHaveValue('45');
+  await expect(page.getByLabel('Thickness', { exact: true })).toHaveValue('19 mm');
+  await expect(page.getByRole('radio', { name: 'Short Face' })).toBeChecked();
+  await expect(page.getByLabel('Short Face length')).toHaveValue('281 mm');
+  await expect(page.getByRole('heading', { level: 2, name: 'Long Face' })).toBeVisible();
+});

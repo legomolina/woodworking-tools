@@ -327,4 +327,24 @@ describe('BevelFenceCalculatorPage', () => {
 
     await expectNoAxeViolations(fixture.nativeElement as HTMLElement);
   });
+
+  it('shows the typed values, the chosen face and the results again when the page is shown anew', async () => {
+    const first = render();
+    await chooseShortFace(first);
+    await fill(first, { angle: '45', thickness: '19', length: '281' });
+    first.destroy();
+
+    const second = TestBed.createComponent(BevelFenceCalculatorPage);
+    await second.whenStable();
+
+    expect([
+      input(second, 'bevel-angle').value,
+      input(second, 'thickness').value,
+      input(second, 'length').value,
+      (second.nativeElement as HTMLElement).querySelector<HTMLInputElement>(
+        'input[type="radio"][value="short"]',
+      )!.checked,
+    ]).toEqual(['45', '19', '281', true]);
+    expect(Object.keys(sections(second))).toContain('Long Face');
+  });
 });
