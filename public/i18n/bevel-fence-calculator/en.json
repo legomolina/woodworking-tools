@@ -1,1 +1,39 @@
-{ "intro": "Find where to set the Fence for a Bevel Cut." }
+{
+  "intro": "Find where to set the Fence for a Bevel Cut.",
+  "angle": {
+    "label": "Bevel Angle",
+    "hint": "In degrees from 0 to 45, as your saw's bevel scale shows it. For example 22.5."
+  },
+  "thickness": {
+    "label": "Thickness",
+    "hint": "For example 19, 3/4\" or 19 mm. Without a unit, numbers use your preferred Unit System."
+  },
+  "givenFace": {
+    "label": "The length is on the"
+  },
+  "length": {
+    "label": "Length",
+    "hint": "The length you want on that face, in the same formats as the Thickness."
+  },
+  "faces": {
+    "long": "Long Face",
+    "short": "Short Face"
+  },
+  "fencePosition": "Fence Position",
+  "note": "The blade is taken to meet the table at the ruler's zero at every Bevel Angle. If your saw pivots elsewhere, cut a test Part first.",
+  "errors": {
+    "angleUnreadable": "That angle can't be read. Type degrees, like 22.5.",
+    "angleOutOfRange": "The Bevel Angle must be between 0° and 45°.",
+    "lengthUnreadable": "That length can't be read. Try something like 89 mm, 3 1/2\" or 6' 4 1/4\".",
+    "notPositive": "A length must be greater than zero.",
+    "longFaceTooShort": "The Long Face must be longer than {{ minimum }} for this Thickness and Bevel Angle."
+  },
+  "units": {
+    "mm": "Millimetres",
+    "cm": "Centimetres",
+    "m": "Metres",
+    "fractionalInches": "Fractional inches",
+    "decimalInches": "Decimal inches",
+    "feetAndInches": "Feet and inches"
+  }
+}

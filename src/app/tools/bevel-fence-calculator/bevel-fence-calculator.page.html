@@ -2,3 +2,92 @@
   <h1>{{ 'tools.bevelFenceCalculator.name' | transloco }}</h1>
   <p>{{ 'bevelFenceCalculator.intro' | transloco }}</p>
 </hgroup>
+
+@let angleText =
+  errors().bevelAngle === 'unreadable'
+    ? ('bevelFenceCalculator.errors.angleUnreadable' | transloco)
+    : errors().bevelAngle === 'out-of-range'
+      ? ('bevelFenceCalculator.errors.angleOutOfRange' | transloco)
+      : undefined;
+@let thicknessText =
+  errors().thickness === 'unreadable'
+    ? ('bevelFenceCalculator.errors.lengthUnreadable' | transloco)
+    : errors().thickness === 'not-positive'
+      ? ('bevelFenceCalculator.errors.notPositive' | transloco)
+      : undefined;
+@let lengthText =
+  errors().length === 'unreadable'
+    ? ('bevelFenceCalculator.errors.lengthUnreadable' | transloco)
+    : errors().length === 'not-positive'
+      ? ('bevelFenceCalculator.errors.notPositive' | transloco)
+      : errors().length === 'long-face-too-short'
+        ? ('bevelFenceCalculator.errors.longFaceTooShort'
+          | transloco: { minimum: minimumLongFace() })
+        : undefined;
+
+<wt-text-field
+  name="bevel-angle"
+  [label]="'bevelFenceCalculator.angle.label' | transloco"
+  [hint]="'bevelFenceCalculator.angle.hint' | transloco"
+  [error]="angleText"
+  measurement
+  [(value)]="bevelAngle"
+/>
+
+<wt-text-field
+  name="thickness"
+  [label]="'bevelFenceCalculator.thickness.label' | transloco"
+  [hint]="'bevelFenceCalculator.thickness.hint' | transloco"
+  [error]="thicknessText"
+  measurement
+  [(value)]="thickness"
+/>
+
+@let faceLabels =
+  {
+    long: 'bevelFenceCalculator.faces.long' | transloco,
+    short: 'bevelFenceCalculator.faces.short' | transloco,
+  };
+<wt-segmented-control
+  name="given-face"
+  [label]="'bevelFenceCalculator.givenFace.label' | transloco"
+  [options]="faceOptions(faceLabels)"
+  [(value)]="givenFace"
+/>
+
+<wt-text-field
+  name="length"
+  [label]="'bevelFenceCalculator.length.label' | transloco"
+  [hint]="'bevelFenceCalculator.length.hint' | transloco"
+  [error]="lengthText"
+  measurement
+  [(value)]="length"
+/>
+
+@let unitLabels =
+  {
+    'mm': 'bevelFenceCalculator.units.mm' | transloco,
+    'cm': 'bevelFenceCalculator.units.cm' | transloco,
+    'm': 'bevelFenceCalculator.units.m' | transloco,
+    'fractional-inches': 'bevelFenceCalculator.units.fractionalInches' | transloco,
+    'decimal-inches': 'bevelFenceCalculator.units.decimalInches' | transloco,
+    'feet-and-inches': 'bevelFenceCalculator.units.feetAndInches' | transloco,
+  };
+
+<section aria-labelledby="fence-position-heading">
+  @if (otherFace()) {
+    <h2 id="fence-position-heading">{{ 'bevelFenceCalculator.fencePosition' | transloco }}</h2>
+  }
+  <wt-result-list [results]="fencePositionResults(unitLabels)" />
+</section>
+
+<section aria-labelledby="other-face-heading">
+  @if (otherFace() === 'long') {
+    <h2 id="other-face-heading">{{ 'bevelFenceCalculator.faces.long' | transloco }}</h2>
+  } @else if (otherFace() === 'short') {
+    <h2 id="other-face-heading">{{ 'bevelFenceCalculator.faces.short' | transloco }}</h2>
+  }
+  <wt-result-list [results]="otherFaceResults(unitLabels)" />
+</section>
+
+<p>{{ 'bevelFenceCalculator.note' | transloco }}</p>
