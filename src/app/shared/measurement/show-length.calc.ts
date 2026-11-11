@@ -45,7 +45,7 @@ const SIGNIFICANT_DIGITS = 12;
 
 const DECIMAL_BASE = 10;
 
-const APPROXIMATE_MARK = '≈ ';
+export const APPROXIMATE_MARK = '≈ ';
 
 /** A non-negative value rounded to a whole number of steps, and whether that changed it. */
 interface Rounded {

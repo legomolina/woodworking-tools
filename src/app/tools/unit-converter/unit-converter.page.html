@@ -24,9 +24,9 @@
   measurement
   [label]="'unitConverter.precision.label' | transloco"
   [hint]="'unitConverter.precision.hint' | transloco"
-  [options]="precisions('unitConverter.precision.inch' | transloco)"
-  [value]="imperialPrecision()"
-  (valueChange)="chooseImperialPrecision($event)"
+  [options]="precisionOptions('unitConverter.precision.inch' | transloco)"
+  [value]="precision.value()"
+  (valueChange)="precision.choose($event)"
 />
 
 @let labels =
