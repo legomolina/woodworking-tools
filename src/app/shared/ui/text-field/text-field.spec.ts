@@ -14,6 +14,7 @@ import { TextField } from './text-field';
       [hint]="hint()"
       [error]="error()"
       [measurement]="measurement()"
+      [unit]="unit()"
       [(value)]="length"
     />
   `,
@@ -23,15 +24,17 @@ class Host {
   readonly hint = signal<string | undefined>(undefined);
   readonly error = signal<string | undefined>(undefined);
   readonly measurement = signal(false);
+  readonly unit = signal<string | undefined>(undefined);
 }
 
 async function render(
-  setup: { hint?: string; error?: string; measurement?: boolean } = {},
+  setup: { hint?: string; error?: string; measurement?: boolean; unit?: string } = {},
 ): Promise<{ fixture: ComponentFixture<Host>; root: HTMLElement; input: HTMLInputElement }> {
   const fixture = TestBed.createComponent(Host);
   fixture.componentInstance.hint.set(setup.hint);
   fixture.componentInstance.error.set(setup.error);
   fixture.componentInstance.measurement.set(setup.measurement ?? false);
+  fixture.componentInstance.unit.set(setup.unit);
   await fixture.whenStable();
   const root = fixture.nativeElement as HTMLElement;
   const input = root.querySelector('input');
@@ -132,6 +135,20 @@ describe('TextField', () => {
     expect(root.querySelector('[role="alert"]')).toBeNull();
     expect(describedBy(root, input)).toBe('Try 3 1/2.');
     expect(root.querySelector('wt-text-field')?.hasAttribute('invalid')).toBe(false);
+  });
+
+  it('shows its unit after the value and is described by it before its hint', async () => {
+    const { root, input } = await render({ unit: '°', hint: 'From 0 to 45.' });
+
+    expect(root.querySelector('span')?.textContent.trim()).toBe('°');
+    expect(input.getAttribute('aria-describedby')).toBe('length-unit length-hint');
+    expect(describedBy(root, input)).toBe('° From 0 to 45.');
+  });
+
+  it('shows no unit when it has none', async () => {
+    const { root } = await render();
+
+    expect(root.querySelector('span')).toBeNull();
   });
 
   it('reflects measurement mode on the host when asked', async () => {

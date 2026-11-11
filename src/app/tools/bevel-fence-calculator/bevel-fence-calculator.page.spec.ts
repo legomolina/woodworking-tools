@@ -83,6 +83,10 @@ function alerts(fixture: ComponentFixture<BevelFenceCalculatorPage>): string[] {
   );
 }
 
+function pageText(fixture: ComponentFixture<BevelFenceCalculatorPage>): string {
+  return (fixture.nativeElement as HTMLElement).textContent;
+}
+
 describe('BevelFenceCalculatorPage', () => {
   it("shows the Tool's name as its only h1 in English", async () => {
     const fixture = render();
@@ -104,7 +108,7 @@ describe('BevelFenceCalculatorPage', () => {
     await fixture.whenStable();
 
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      'Find where to set the Fence for a Bevel Cut.',
+      'Find where to set the Fence for a Bevel Cut, so the Part ends up the length you want',
     );
   });
 
@@ -114,7 +118,7 @@ describe('BevelFenceCalculatorPage', () => {
     await fixture.whenStable();
 
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      'Averigua dónde colocar la guía paralela para un corte a bisel.',
+      'Averigua dónde colocar la guía paralela para un corte a bisel, de modo que la pieza quede',
     );
   });
 
@@ -125,7 +129,7 @@ describe('BevelFenceCalculatorPage', () => {
     await expectNoAxeViolations(fixture.nativeElement as HTMLElement);
   });
 
-  it('shows the Fence Position and the Short Face in every unit from a Long Face', async () => {
+  it('shows the Fence Position in every unit and the Short Face in millimetres from a Long Face', async () => {
     const fixture = render();
     await fill(fixture, {});
 
@@ -138,14 +142,7 @@ describe('BevelFenceCalculatorPage', () => {
         ['Feet and inches', '≈ 11 1/16"'],
         ['Decimal inches', '≈ 11.063"'],
       ],
-      'Short Face': [
-        ['Millimetres', '281 mm'],
-        ['Centimetres', '28.1 cm'],
-        ['Metres', '0.281 m'],
-        ['Fractional inches', '≈ 11 1/16"'],
-        ['Feet and inches', '≈ 11 1/16"'],
-        ['Decimal inches', '≈ 11.063"'],
-      ],
+      'Short Face': [['Millimetres', '281 mm']],
     });
   });
 
@@ -202,9 +199,84 @@ describe('BevelFenceCalculatorPage', () => {
     await fill(fixture, { length: '19' });
 
     expect(alerts(fixture)).toEqual([
-      'The Long Face must be longer than 19 mm for this Thickness and Bevel Angle.',
+      'At 45° the Long Face must be longer than 19 mm. Try a longer length or a smaller Bevel Angle.',
     ]);
     expect(input(fixture, 'length').getAttribute('aria-describedby')).toContain('length-error');
+  });
+
+  it('chooses the Long Face by default', async () => {
+    const fixture = render();
+    await fixture.whenStable();
+
+    const radio = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>(
+      'input[type="radio"][value="long"]',
+    )!;
+    expect(radio.checked).toBe(true);
+  });
+
+  it('announces results politely', async () => {
+    const fixture = render();
+    await fill(fixture, {});
+
+    const lists = (fixture.nativeElement as HTMLElement).querySelectorAll('section dl');
+    expect([...lists].map((list) => list.getAttribute('aria-live'))).toEqual(['polite', 'polite']);
+  });
+
+  it('names the length field after the face chosen', async () => {
+    const fixture = render();
+    await fixture.whenStable();
+    const label = (): string | undefined =>
+      (fixture.nativeElement as HTMLElement)
+        .querySelector('label[for="length"]')
+        ?.textContent.trim();
+
+    expect(label()).toBe('Long Face length');
+
+    await chooseShortFace(fixture);
+
+    expect(label()).toBe('Short Face length');
+  });
+
+  it('explains how the other face relates to the Fence Position', async () => {
+    const fixture = render();
+    await fill(fixture, {});
+
+    expect(pageText(fixture)).toContain('The Short Face equals the Fence Position.');
+
+    await chooseShortFace(fixture);
+
+    expect(pageText(fixture)).toContain(
+      'The Long Face is the Short Face plus Thickness × tan of the Bevel Angle.',
+    );
+  });
+
+  it('describes the Fence Position and reads the unit of the Bevel Angle with its field', async () => {
+    const fixture = render();
+    await fill(fixture, {});
+
+    expect(pageText(fixture)).toContain(
+      "Distance from the blade to the Fence, as read on your saw's ruler.",
+    );
+    expect(input(fixture, 'bevel-angle').getAttribute('aria-describedby')).toContain(
+      'bevel-angle-unit',
+    );
+  });
+
+  it('shows the note while there is no result', async () => {
+    const fixture = render();
+    await fixture.whenStable();
+
+    expect(pageText(fixture)).toContain('Check your saw.');
+  });
+
+  it('states the Bevel Angle in the minimum Long Face message in Spanish format', async () => {
+    const fixture = render();
+    TestBed.inject(TranslocoService).setActiveLang('es');
+    await fill(fixture, { angle: '22,5', thickness: '40', length: '10' });
+
+    expect(alerts(fixture)).toEqual([
+      'Con 22,5° la cara larga debe medir más de 16,6 mm. Prueba con una longitud mayor o un ángulo de bisel menor.',
+    ]);
   });
 
   it("shows the note about the ruler's zero", async () => {

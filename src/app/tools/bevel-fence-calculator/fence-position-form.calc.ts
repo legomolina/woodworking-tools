@@ -28,6 +28,8 @@ export interface FencePositionFormResult {
   };
   /** Set with the `long-face-too-short` error. */
   readonly minimumLongFaceMillimetres?: number;
+  /** Set with the `long-face-too-short` error: the Bevel Angle it applies to. */
+  readonly bevelAngleDegrees?: number;
 }
 
 type LengthReading =
@@ -81,6 +83,7 @@ export function readFencePositionForm(
     return {
       errors: { length: calculated.error },
       minimumLongFaceMillimetres: calculated.minimumLongFaceMillimetres,
+      bevelAngleDegrees: angle.degrees,
     };
   }
   const otherFace = texts.givenFace === 'long' ? 'short' : 'long';

@@ -103,6 +103,7 @@ describe('readFencePositionForm', () => {
     expect(form.result).toBeUndefined();
     expect(form.errors.length).toBe('long-face-too-short');
     expect(form.minimumLongFaceMillimetres).toBeCloseTo(19, 9);
+    expect(form.bevelAngleDegrees).toBe(45);
   });
 
   it('accepts any Short Face, however short the Long Face would be', () => {

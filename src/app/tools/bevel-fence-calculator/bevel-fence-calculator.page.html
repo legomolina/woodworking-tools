@@ -22,26 +22,29 @@
       ? ('bevelFenceCalculator.errors.notPositive' | transloco)
       : errors().length === 'long-face-too-short'
         ? ('bevelFenceCalculator.errors.longFaceTooShort'
-          | transloco: { minimum: minimumLongFace() })
+          | transloco: { angle: shownAngle(), minimum: minimumLongFace() })
         : undefined;
 
-<wt-text-field
-  name="bevel-angle"
-  [label]="'bevelFenceCalculator.angle.label' | transloco"
-  [hint]="'bevelFenceCalculator.angle.hint' | transloco"
-  [error]="angleText"
-  measurement
-  [(value)]="bevelAngle"
-/>
+<div class="inputs">
+  <wt-text-field
+    name="bevel-angle"
+    [label]="'bevelFenceCalculator.angle.label' | transloco"
+    [hint]="'bevelFenceCalculator.angle.hint' | transloco"
+    [error]="angleText"
+    unit="°"
+    measurement
+    [(value)]="bevelAngle"
+  />
 
-<wt-text-field
-  name="thickness"
-  [label]="'bevelFenceCalculator.thickness.label' | transloco"
-  [hint]="'bevelFenceCalculator.thickness.hint' | transloco"
-  [error]="thicknessText"
-  measurement
-  [(value)]="thickness"
-/>
+  <wt-text-field
+    name="thickness"
+    [label]="'bevelFenceCalculator.thickness.label' | transloco"
+    [hint]="'bevelFenceCalculator.thickness.hint' | transloco"
+    [error]="thicknessText"
+    measurement
+    [(value)]="thickness"
+  />
+</div>
 
 @let faceLabels =
   {
@@ -51,13 +54,18 @@
 <wt-segmented-control
   name="given-face"
   [label]="'bevelFenceCalculator.givenFace.label' | transloco"
+  [hint]="'bevelFenceCalculator.givenFace.hint' | transloco"
   [options]="faceOptions(faceLabels)"
   [(value)]="givenFace"
 />
 
 <wt-text-field
   name="length"
-  [label]="'bevelFenceCalculator.length.label' | transloco"
+  [label]="
+    givenFace() === 'long'
+      ? ('bevelFenceCalculator.length.label.long' | transloco)
+      : ('bevelFenceCalculator.length.label.short' | transloco)
+  "
   [hint]="'bevelFenceCalculator.length.hint' | transloco"
   [error]="lengthText"
   measurement
@@ -76,7 +84,12 @@
 
 <section aria-labelledby="fence-position-heading">
   @if (otherFace()) {
-    <h2 id="fence-position-heading">{{ 'bevelFenceCalculator.fencePosition' | transloco }}</h2>
+    <hgroup>
+      <h2 id="fence-position-heading">
+        {{ 'bevelFenceCalculator.fencePosition.title' | transloco }}
+      </h2>
+      <p>{{ 'bevelFenceCalculator.fencePosition.description' | transloco }}</p>
+    </hgroup>
   }
   <wt-result-list [results]="fencePositionResults(unitLabels)" />
 </section>
@@ -88,6 +101,14 @@
     <h2 id="other-face-heading">{{ 'bevelFenceCalculator.faces.short' | transloco }}</h2>
   }
   <wt-result-list [results]="otherFaceResults(unitLabels)" />
+  @if (otherFace() === 'long') {
+    <p>{{ 'bevelFenceCalculator.otherFace.long' | transloco }}</p>
+  } @else if (otherFace() === 'short') {
+    <p>{{ 'bevelFenceCalculator.otherFace.short' | transloco }}</p>
+  }
 </section>
 
-<p>{{ 'bevelFenceCalculator.note' | transloco }}</p>
+<p class="note">
+  <strong>{{ 'bevelFenceCalculator.note.title' | transloco }}</strong>
+  {{ 'bevelFenceCalculator.note.text' | transloco }}
+</p>

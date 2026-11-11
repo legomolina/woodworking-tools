@@ -9,17 +9,17 @@ test('typing the values shows the Fence Position and the other face', async ({ p
 
   await expect(page.getByRole('alert')).toHaveCount(0);
 
-  await page.getByLabel('Length', { exact: true }).fill('300 mm');
+  await page.getByLabel('Long Face length').fill('300 mm');
 
   await expect(page.getByRole('heading', { level: 2, name: 'Fence Position' })).toBeVisible();
   await expect(page.getByRole('heading', { level: 2, name: 'Short Face' })).toBeVisible();
-  await expect(page.getByText('281 mm')).toHaveCount(2);
+  await expect(page.getByText('281 mm', { exact: true })).toHaveCount(2);
 
   await page.getByRole('radio', { name: 'Short Face' }).check();
-  await page.getByLabel('Length', { exact: true }).fill('281 mm');
+  await page.getByLabel('Short Face length').fill('281 mm');
 
   await expect(page.getByRole('heading', { level: 2, name: 'Long Face' })).toBeVisible();
-  await expect(page.getByText('300 mm')).toBeVisible();
+  await expect(page.getByText('300 mm', { exact: true })).toBeVisible();
 });
 
 test('a value that cannot be used shows a message on its own field', async ({ page }) => {
@@ -31,7 +31,9 @@ test('a value that cannot be used shows a message on its own field', async ({ pa
 
   await page.getByLabel('Bevel Angle').fill('45');
   await page.getByLabel('Thickness', { exact: true }).fill('19 mm');
-  await page.getByLabel('Length', { exact: true }).fill('19 mm');
+  await page.getByLabel('Long Face length').fill('19 mm');
 
-  await expect(page.getByRole('alert')).toContainText('The Long Face must be longer than 19 mm');
+  await expect(page.getByRole('alert')).toContainText(
+    'At 45° the Long Face must be longer than 19 mm.',
+  );
 });

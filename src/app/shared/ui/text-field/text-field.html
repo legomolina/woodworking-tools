@@ -1,14 +1,19 @@
 <label [for]="name()">{{ label() }}</label>
-<input
-  #field
-  type="text"
-  [id]="name()"
-  [attr.aria-invalid]="error() ? 'true' : null"
-  [attr.aria-describedby]="describedBy()"
-  autocomplete="off"
-  [value]="value()"
-  (input)="value.set(field.value)"
-/>
+<div>
+  <input
+    #field
+    type="text"
+    [id]="name()"
+    [attr.aria-invalid]="error() ? 'true' : null"
+    [attr.aria-describedby]="describedBy()"
+    autocomplete="off"
+    [value]="value()"
+    (input)="value.set(field.value)"
+  />
+  @if (unit(); as unit) {
+    <span [id]="unitId()">{{ unit }}</span>
+  }
+</div>
 @if (hint(); as hint) {
   <p [id]="hintId()">{{ hint }}</p>
 }

@@ -102,11 +102,21 @@ export default class BevelFenceCalculatorPage {
     return this.rowsOf()(roundedUp).find((row) => row.unit === 'mm')?.text ?? '';
   });
 
+  /** The Bevel Angle the minimum Long Face applies to, in the active language's number format. */
+  protected readonly shownAngle = computed(() => {
+    const degrees = this.form().bevelAngleDegrees;
+    return degrees === undefined ? '' : degrees.toLocaleString(this.settings.language());
+  });
+
   protected fencePositionResults(labels: Readonly<Record<DisplayUnit, string>>): readonly Result[] {
     return toResults(this.fencePositionRows(), labels);
   }
 
   protected otherFaceResults(labels: Readonly<Record<DisplayUnit, string>>): readonly Result[] {
-    return toResults(this.otherFaceRows(), labels);
+    // The other face is a single row, in millimetres.
+    return toResults(
+      this.otherFaceRows().filter((row) => row.unit === 'mm'),
+      labels,
+    );
   }
 }
