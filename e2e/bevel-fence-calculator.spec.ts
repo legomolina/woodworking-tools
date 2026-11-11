@@ -55,6 +55,7 @@ test('the front-view diagram follows the Bevel Angle and the face you give', asy
 
   await page.getByLabel('Bevel Angle', { exact: true }).fill('60');
 
+  await expect(page.getByRole('alert')).toHaveText('The Bevel Angle must be between 0° and 45°.');
   await expect(diagram).toHaveAccessibleName(/tilted 45 degrees/);
 
   await page.getByLabel('Bevel Angle', { exact: true }).fill('0');

@@ -116,20 +116,26 @@ export default class BevelFenceCalculatorPage {
    * missing value leaves the drawing as it was. `undefined` until there is a first valid state.
    */
   protected readonly diagramState = linkedSignal<
-    { result: FencePositionFormResult['result']; show: (millimetres: number) => string },
+    {
+      result: FencePositionFormResult['result'];
+      show: (millimetres: number) => string;
+      language: string;
+    },
     BevelDiagramState | undefined
   >({
     // Reads the unit settings here, so changing them redraws the labels.
     source: () => ({
       result: this.form().result,
       show: (millimetres: number): string => this.rowsOf()(millimetres)[0].text,
+      language: this.settings.language(),
     }),
-    computation: ({ result, show }, previous) => {
+    computation: ({ result, show, language }, previous) => {
       if (result === undefined) {
         return previous?.value;
       }
       return {
         angleDegrees: result.bevelAngleDegrees,
+        angle: result.bevelAngleDegrees.toLocaleString(language),
         givenFace: result.givenFace,
         thickness: show(result.thicknessMillimetres),
         longFace: show(result.longFaceMillimetres),
@@ -137,11 +143,6 @@ export default class BevelFenceCalculatorPage {
       };
     },
   });
-
-  /** The Bevel Angle in the diagram's text alternative, in the active language's number format. */
-  protected readonly diagramAngle = computed(
-    () => this.diagramState()?.angleDegrees.toLocaleString(this.settings.language()) ?? '',
-  );
 
   protected fencePositionResults(labels: Readonly<Record<DisplayUnit, string>>): readonly Result[] {
     return toResults(this.fencePositionRows(), labels);

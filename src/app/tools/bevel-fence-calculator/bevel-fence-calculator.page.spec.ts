@@ -407,6 +407,27 @@ describe('BevelFenceCalculatorPage', () => {
       await fill(fixture, { thickness: '3/4"', length: '12"' });
 
       expect(diagramDescription(fixture)).toContain('3/4" thick');
+      expect(diagramDescription(fixture)).toContain('Long Face, x, is 12"');
+    });
+
+    it('redraws its labels when the Unit System changes', async () => {
+      const fixture = render();
+      await fill(fixture, { thickness: '19 mm', length: '300 mm' });
+      expect(diagramDescription(fixture)).toContain('19 mm thick');
+
+      TestBed.inject(SettingsStore).setUnitSystem('imperial');
+      await fixture.whenStable();
+
+      expect(diagramDescription(fixture)).toContain('3/4" thick');
+    });
+
+    it('writes a decimal Bevel Angle in the active language', async () => {
+      const fixture = render();
+      TestBed.inject(TranslocoService).setActiveLang('es');
+      await fill(fixture, { angle: '22.5' });
+
+      expect(diagramDescription(fixture)).toContain('inclinada 22,5 grados');
+      expect(diagram(fixture).textContent).toContain('22,5°');
     });
 
     it('is described in Spanish', async () => {

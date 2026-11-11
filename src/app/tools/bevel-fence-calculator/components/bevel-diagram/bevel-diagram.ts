@@ -5,6 +5,8 @@ import type { BevelFace } from '../../bevel-fence.calc';
 /** What the diagram draws: the Bevel Angle, the face that was given and the lengths to label. */
 export interface BevelDiagramState {
   readonly angleDegrees: number;
+  /** The Bevel Angle in the active language's number format, without the degree sign. */
+  readonly angle: string;
   readonly givenFace: BevelFace;
   /** The Thickness, already formatted for display. */
   readonly thickness: string;
@@ -238,7 +240,7 @@ export class BevelDiagram {
       height: tableY + LAYOUT.floor,
       tableY,
       tableHeight: LAYOUT.tableHeight,
-      angleText: state === undefined ? NEUTRAL_TEXT : `${String(degrees)}°`,
+      angleText: state === undefined ? NEUTRAL_TEXT : `${state.angle}°`,
       hasAngle: degrees > 0,
       longChosen,
       thicknessText: state?.thickness ?? NEUTRAL_TEXT,

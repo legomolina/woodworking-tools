@@ -16,6 +16,7 @@ const LABELS: BevelDiagramLabels = {
 
 const LONG_GIVEN: BevelDiagramState = {
   angleDegrees: 45,
+  angle: '45',
   givenFace: 'long',
   thickness: '19 mm',
   longFace: '300 mm',
@@ -128,27 +129,42 @@ describe('BevelDiagram', () => {
     expect(root.querySelector('.arc')).not.toBeNull();
   });
 
-  it('keeps the Part the same size at every angle', async () => {
+  it('draws the Part with fixed proportions, its Long Face overhanging by Thickness × tan of the angle', async () => {
     const { host, root, settle } = await render();
-    const part = (): string[] => root.querySelector('polygon')!.getAttribute('points')!.split(' ');
+    const part = (): string => root.querySelector('polygon')!.getAttribute('points')!;
 
-    // Right-hand side of the Part (bottom and top at the Fence) never moves.
-    const right = part().slice(2, 6);
-    host.state.set({ ...LONG_GIVEN, angleDegrees: 10 });
+    // Thickness 140, Short Face 260, blade at x = 180: the Long Face edge moves 140 left at 45°.
+    expect(part()).toBe('180 230 440 230 440 90 40 90');
+
+    host.state.set({ ...LONG_GIVEN, angleDegrees: 0, angle: '0' });
     await settle();
 
-    expect(part().slice(2, 6)).toEqual(right);
+    expect(part()).toBe('180 230 440 230 440 90 180 90');
+  });
+
+  it('shows the angle as given, in its own number format', async () => {
+    const { host, root, settle } = await render();
+    host.state.set({ ...LONG_GIVEN, angleDegrees: 22.5, angle: '22,5' });
+    await settle();
+
+    expect(texts(root)).toContain('22,5°');
   });
 
   it('highlights the dimension of the Long Face when it was given, and moves when that changes', async () => {
     const { host, root, settle } = await render();
 
     expect(givenDimensions(root)).toEqual(['x · Long Face']);
+    const edge = (): string[] =>
+      ['x1', 'x2', 'y1'].map((name) => root.querySelector('line.given-edge')!.getAttribute(name)!);
+    // The heavy edge runs along the top of the Part for the Long Face.
+    expect(edge()).toEqual(['40', '440', '90']);
 
     host.state.set({ ...LONG_GIVEN, givenFace: 'short' });
     await settle();
 
     expect(givenDimensions(root)).toEqual(['y · Short Face']);
+    // ...and along the table for the Short Face.
+    expect(edge()).toEqual(['180', '440', '230']);
   });
 
   it('draws a neutral blade with no values while there is no state', async () => {
@@ -162,9 +178,12 @@ describe('BevelDiagram', () => {
     expect(blade(root).x1).toBeGreaterThan(blade(root).x2);
   });
 
-  it('has no accessibility violations', async () => {
-    const { root } = await render();
+  it('has no accessibility violations, drawn or neutral', async () => {
+    const { host, root, settle } = await render();
+    await expectNoAxeViolations(root);
 
+    host.state.set(undefined);
+    await settle();
     await expectNoAxeViolations(root);
   });
 });
