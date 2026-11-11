@@ -13,7 +13,10 @@ test('the Unit Converter is bookmarkable at its own address', async ({ page }) =
 test('the home page lists the Unit Converter and opens it', async ({ page }) => {
   await page.goto('/');
 
-  await page.getByRole('link', { name: /Unit Converter/ }).click();
+  await page
+    .getByRole('main')
+    .getByRole('link', { name: /Unit Converter/ })
+    .click();
 
   await expect(page).toHaveURL('/unit-converter');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Unit Converter');
