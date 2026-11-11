@@ -34,6 +34,12 @@ describe('readFencePositionForm', () => {
     expect(form.result?.otherFaceMillimetres).toBeCloseTo(300, 9);
   });
 
+  it('uses the tangent of the Bevel Angle: 22.5° on 20 mm gives a Long Face 8.2843 mm longer', () => {
+    const form = read({ bevelAngle: '22.5', thickness: '20', length: '100', givenFace: 'short' });
+
+    expect(form.result?.otherFaceMillimetres).toBeCloseTo(108.2843, 4);
+  });
+
   it('reads bare numbers in the preferred Unit System', () => {
     const { result } = read({ thickness: '1', length: '10', bevelAngle: '0' }, 'imperial');
 

@@ -33,5 +33,5 @@ test('a value that cannot be used shows a message on its own field', async ({ pa
   await page.getByLabel('Thickness', { exact: true }).fill('19 mm');
   await page.getByLabel('Length', { exact: true }).fill('19 mm');
 
-  await expect(page.getByRole('alert')).toContainText('The Long Face must be longer than ≈ 3/4"');
+  await expect(page.getByRole('alert')).toContainText('The Long Face must be longer than 19 mm');
 });

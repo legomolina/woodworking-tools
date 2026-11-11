@@ -12,6 +12,11 @@ import { TextField } from '../../shared/ui/text-field/text-field';
 import type { BevelFace } from './bevel-fence.calc';
 import { readFencePositionForm } from './fence-position-form.calc';
 
+const TENTHS_PER_MILLIMETRE = 10;
+
+/** Absorbs floating-point noise before rounding up. */
+const TOLERANCE = 1e-9;
+
 function faceOptions(
   labels: Readonly<Record<BevelFace, string>>,
 ): readonly SegmentedOption<BevelFace>[] {
@@ -88,7 +93,13 @@ export default class BevelFenceCalculatorPage {
   /** The minimum Long Face in the preferred unit, for the message; empty when not needed. */
   protected readonly minimumLongFace = computed(() => {
     const minimum = this.form().minimumLongFaceMillimetres;
-    return minimum === undefined ? '' : (this.rowsOf()(minimum)[0]?.text ?? '');
+    if (minimum === undefined) {
+      return '';
+    }
+    // Rounded up, so the minimum shown is never below the true one.
+    const roundedUp =
+      Math.ceil(minimum * TENTHS_PER_MILLIMETRE - TOLERANCE) / TENTHS_PER_MILLIMETRE;
+    return this.rowsOf()(roundedUp).find((row) => row.unit === 'mm')?.text ?? '';
   });
 
   protected fencePositionResults(labels: Readonly<Record<DisplayUnit, string>>): readonly Result[] {
