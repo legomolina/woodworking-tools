@@ -12,6 +12,8 @@ export type DisplayUnit =
   'mm' | 'cm' | 'm' | 'fractional-inches' | 'decimal-inches' | 'feet-and-inches';
 
 /** The denominators Imperial lengths can be rounded to (1/8", 1/16", 1/32" or 1/64"). */
+// These numbers are the named constant's own definition, not magic numbers scattered in logic.
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 export const IMPERIAL_PRECISIONS = [8, 16, 32, 64] as const;
 
 export type ImperialPrecision = (typeof IMPERIAL_PRECISIONS)[number];
