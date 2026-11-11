@@ -40,10 +40,13 @@ describe('lengthRows', () => {
     ]);
   });
 
-  it('rounds Imperial lengths to the given precision', () => {
-    const rows = lengthRows(10, { unitSystem: 'imperial', precision: 8, language: 'en' });
+  it.each([
+    { precision: 8 as const, expected: '≈ 1/2"' },
+    { precision: 16 as const, expected: '≈ 9/16"' },
+  ])('rounds Imperial lengths to 1/$precision"', ({ precision, expected }) => {
+    const rows = lengthRows(14, { unitSystem: 'imperial', precision, language: 'en' });
 
-    expect(rows[0]).toEqual({ unit: 'fractional-inches', text: '≈ 3/8"', approximate: true });
+    expect(rows[0]).toEqual({ unit: 'fractional-inches', text: expected, approximate: true });
   });
 
   it('formats numbers in the given language', () => {
