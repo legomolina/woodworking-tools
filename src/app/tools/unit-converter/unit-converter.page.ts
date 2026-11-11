@@ -1,44 +1,21 @@
-import { DOCUMENT, LowerCasePipe } from '@angular/common';
-import { Component, computed, DestroyRef, inject, linkedSignal } from '@angular/core';
+import { LowerCasePipe } from '@angular/common';
+import { Component, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsStore } from '../../core/settings/settings-store';
 import { readLength } from '../../shared/measurement/read-length.calc';
+import { resultCopy } from '../../shared/clipboard/result-copy';
+import {
+  ImperialPrecisionChoice,
+  imperialPrecisionOptions,
+} from '../../shared/measurement/imperial-precision-choice';
+import { lengthRows } from '../../shared/measurement/length-rows.calc';
 import type { DisplayUnit } from '../../shared/measurement/show-length.calc';
-import { IMPERIAL_PRECISIONS, showLength } from '../../shared/measurement/show-length.calc';
-import type { UnitSystem } from '../../shared/measurement/unit-system';
 import type { Result } from '../../shared/ui/result-list/result-list';
 import { Button } from '../../shared/ui/button/button';
 import { ResultList } from '../../shared/ui/result-list/result-list';
-import type { SelectOption } from '../../shared/ui/select/select';
 import { SelectField } from '../../shared/ui/select-field/select-field';
 import { TextField } from '../../shared/ui/text-field/text-field';
 import { TypedLengthStore } from './typed-length-store';
-
-/** How long the copy confirmation stays on screen. */
-const CONFIRMATION_MS = 5000;
-
-const APPROXIMATE_MARK = '≈ ';
-
-const METRIC_UNITS: readonly DisplayUnit[] = ['mm', 'cm', 'm'];
-const IMPERIAL_UNITS: readonly DisplayUnit[] = [
-  'fractional-inches',
-  'feet-and-inches',
-  'decimal-inches',
-];
-
-/** The units in display order: the preferred Unit System's first. */
-const UNITS_BY_PREFERENCE: Readonly<Record<UnitSystem, readonly DisplayUnit[]>> = {
-  metric: [...METRIC_UNITS, ...IMPERIAL_UNITS],
-  imperial: [...IMPERIAL_UNITS, ...METRIC_UNITS],
-};
-
-/** Each Imperial precision as the smallest fraction it shows, such as `1/16 in`. */
-function precisionOptions(inch: string): readonly SelectOption[] {
-  return IMPERIAL_PRECISIONS.map((denominator) => ({
-    value: String(denominator),
-    label: `1/${denominator} ${inch}`,
-  }));
-}
 
 /** The Unit Converter's page: one length field and the length in every unit. */
 @Component({
@@ -50,15 +27,13 @@ function precisionOptions(inch: string): readonly SelectOption[] {
 export default class UnitConverterPage {
   private readonly settings = inject(SettingsStore);
 
-  private readonly clipboard = inject(DOCUMENT).defaultView?.navigator.clipboard;
+  protected readonly precision = inject(ImperialPrecisionChoice);
 
   private readonly typedLength = inject(TypedLengthStore);
 
+  protected readonly precisionOptions = imperialPrecisionOptions;
+
   protected readonly text = this.typedLength.text;
-
-  protected readonly precisions = precisionOptions;
-
-  protected readonly imperialPrecision = computed(() => String(this.settings.imperialPrecision()));
 
   private readonly reading = computed(() => readLength(this.text(), this.settings.unitSystem()));
 
@@ -74,39 +49,16 @@ export default class UnitConverterPage {
     if (!reading.ok) {
       return [];
     }
-    const options = {
+    return lengthRows(reading.millimetres, {
+      unitSystem: this.settings.unitSystem(),
       precision: this.settings.imperialPrecision(),
       language: this.settings.language(),
-    };
-    return UNITS_BY_PREFERENCE[this.settings.unitSystem()].map((unit) => ({
-      unit,
-      ...showLength(reading.millimetres, unit, options),
-    }));
+    });
   });
 
-  /**
-   * The confirmation for the last copy only. It is a list of at most one, so each copy renders a
-   * fresh message that a live region announces again, and it empties when the text changes.
-   */
-  protected readonly copyOutcomes = linkedSignal<
-    string,
-    readonly { unit: string; copied: boolean }[]
-  >({ source: this.text, computation: () => [] });
+  private readonly copier = resultCopy(this.text);
 
-  private confirmationTimer: ReturnType<typeof setTimeout> | undefined;
-
-  constructor() {
-    inject(DestroyRef).onDestroy(() => {
-      clearTimeout(this.confirmationTimer);
-    });
-  }
-
-  protected chooseImperialPrecision(precision: string): void {
-    const denominator = IMPERIAL_PRECISIONS.find((candidate) => String(candidate) === precision);
-    if (denominator !== undefined) {
-      this.settings.setImperialPrecision(denominator);
-    }
-  }
+  protected readonly copyOutcomes = this.copier.outcomes;
 
   protected setText(text: string): void {
     this.typedLength.setText(text);
@@ -123,26 +75,6 @@ export default class UnitConverterPage {
 
   /** Copies a result's text, without the `≈` marker, and confirms (or reports failure). */
   protected async copy(result: Result): Promise<void> {
-    const text = result.approximate ? result.value.slice(APPROXIMATE_MARK.length) : result.value;
-    const forText = this.text();
-    const copied = await this.write(text);
-    if (this.text() !== forText) {
-      return;
-    }
-    this.copyOutcomes.set([{ unit: result.label, copied }]);
-    clearTimeout(this.confirmationTimer);
-    this.confirmationTimer = setTimeout(() => {
-      this.copyOutcomes.set([]);
-    }, CONFIRMATION_MS);
-  }
-
-  /** Writes to the clipboard; `false` when there is none or it refuses. */
-  private async write(text: string): Promise<boolean> {
-    try {
-      await this.clipboard?.writeText(text);
-      return this.clipboard !== undefined;
-    } catch {
-      return false;
-    }
+    await this.copier.copy(result);
   }
 }
