@@ -131,8 +131,23 @@ describe('calculateFencePosition', () => {
         thicknessMillimetres: 19,
         givenFace: 'long',
         lengthMillimetres: 10,
-      }).ok,
-    ).toBe(false);
+      }),
+    ).toEqual({
+      ok: false,
+      error: 'long-face-too-short',
+      minimumLongFaceMillimetres: close(19, 9),
+    });
+  });
+
+  it('rejects a Long Face of 0 at 0°, where the minimum is 0', () => {
+    expect(
+      calculateFencePosition({
+        bevelAngleDegrees: 0,
+        thicknessMillimetres: 19,
+        givenFace: 'long',
+        lengthMillimetres: 0,
+      }),
+    ).toEqual({ ok: false, error: 'long-face-too-short', minimumLongFaceMillimetres: 0 });
   });
 
   it('accepts a Long Face just above the difference', () => {
