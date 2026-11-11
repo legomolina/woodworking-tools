@@ -1,1 +1,53 @@
-{ "intro": "Averigua dónde colocar la guía paralela para un corte a bisel." }
+{
+  "intro": "Averigua dónde colocar la guía paralela para un corte a bisel, de modo que la pieza quede con la longitud que quieres en su cara larga o en su cara corta.",
+  "angle": {
+    "label": "Ángulo de bisel",
+    "hint": "De 0° (hoja vertical) a 45°, como lo marca la escala de bisel de tu sierra."
+  },
+  "thickness": {
+    "label": "Grosor",
+    "hint": "Por ejemplo 19, 3/4\" o 19 mm. Sin unidad, los números usan tu sistema de medida preferido."
+  },
+  "givenFace": {
+    "label": "Longitud que indicas",
+    "hint": "La cara larga es la que queda lejos de la mesa; la cara corta se apoya en ella."
+  },
+  "length": {
+    "label": {
+      "long": "Longitud de la cara larga",
+      "short": "Longitud de la cara corta"
+    },
+    "hint": "Por ejemplo 300, 11 13/16\" o 300 mm. Sin unidad, los números usan tu sistema de medida preferido."
+  },
+  "faces": {
+    "long": "Cara larga",
+    "short": "Cara corta"
+  },
+  "fencePosition": {
+    "title": "Posición de la guía paralela",
+    "description": "Distancia de la hoja a la guía paralela, como se lee en la regla de tu sierra."
+  },
+  "note": {
+    "title": "Comprueba tu sierra.",
+    "text": "Se toma que la hoja toca la mesa en el cero de la regla con cualquier ángulo de bisel. Si la hoja de tu sierra pivota en otro punto, corta antes una pieza de prueba."
+  },
+  "errors": {
+    "angleUnreadable": "No se puede leer ese ángulo. Escribe grados, como 22,5.",
+    "angleOutOfRange": "El ángulo de bisel debe estar entre 0° y 45°.",
+    "lengthUnreadable": "No se puede leer esa longitud. Prueba con algo como 89 mm, 3 1/2\" o 6' 4 1/4\".",
+    "notPositive": "Una longitud debe ser mayor que cero.",
+    "longFaceTooShort": "Con {{ angle }}° la cara larga debe medir más de {{ minimum }}. Prueba con una longitud mayor o un ángulo de bisel menor."
+  },
+  "units": {
+    "mm": "Milímetros",
+    "cm": "Centímetros",
+    "m": "Metros",
+    "fractionalInches": "Pulgadas fraccionarias",
+    "decimalInches": "Pulgadas decimales",
+    "feetAndInches": "Pies y pulgadas"
+  },
+  "otherFace": {
+    "long": "La cara larga es la cara corta más el grosor × tan del ángulo de bisel.",
+    "short": "La cara corta es igual que la posición de la guía paralela."
+  }
+}

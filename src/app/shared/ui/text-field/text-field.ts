@@ -33,6 +33,8 @@ export class TextField implements FormValueControl<string> {
    */
   readonly error = input<string>();
 
+  /** A unit shown after the value inside the field, such as `°`; read with the field. */
+  readonly unit = input<string>();
   /** Whether the value is a measurement, shown in the mono face. */
   readonly measurement = input(false, { transform: booleanAttribute });
 
@@ -41,12 +43,17 @@ export class TextField implements FormValueControl<string> {
 
   protected readonly hintId = computed(() => `${this.name()}-hint`);
 
+  protected readonly unitId = computed(() => `${this.name()}-unit`);
   protected readonly errorId = computed(() => `${this.name()}-error`);
 
-  /** The ids of the hint and the error, in that order; `null` when neither shows. */
+  /** The ids of the unit, the hint and the error, in that order; `null` when neither shows. */
   protected readonly describedBy = computed(
     () =>
-      [this.hint() ? this.hintId() : '', this.error() ? this.errorId() : '']
+      [
+        this.unit() ? this.unitId() : '',
+        this.hint() ? this.hintId() : '',
+        this.error() ? this.errorId() : '',
+      ]
         .filter((id) => id !== '')
         .join(' ') || null,
   );
