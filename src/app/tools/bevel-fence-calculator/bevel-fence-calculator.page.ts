@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsStore } from '../../core/settings/settings-store';
 import { lengthRows } from '../../shared/measurement/length-rows.calc';
@@ -10,6 +10,9 @@ import type { SegmentedOption } from '../../shared/ui/segmented-control/segmente
 import { SegmentedControl } from '../../shared/ui/segmented-control/segmented-control';
 import { TextField } from '../../shared/ui/text-field/text-field';
 import type { BevelFace } from './bevel-fence.calc';
+import { BevelDiagram } from './components/bevel-diagram/bevel-diagram';
+import type { BevelDiagramState } from './components/bevel-diagram/bevel-diagram';
+import type { FencePositionFormResult } from './fence-position-form.calc';
 import { readFencePositionForm } from './fence-position-form.calc';
 
 const TENTHS_PER_MILLIMETRE = 10;
@@ -40,7 +43,7 @@ function toResults(
 /** The Bevel Fence Calculator's page: typed values in, the Fence Position and the other face out. */
 @Component({
   selector: 'wt-bevel-fence-calculator-page',
-  imports: [TranslocoPipe, TextField, SegmentedControl, ResultList],
+  imports: [TranslocoPipe, TextField, SegmentedControl, ResultList, BevelDiagram],
   templateUrl: './bevel-fence-calculator.page.html',
   styleUrl: './bevel-fence-calculator.page.css',
 })
@@ -107,6 +110,38 @@ export default class BevelFenceCalculatorPage {
     const degrees = this.form().bevelAngleDegrees;
     return degrees === undefined ? '' : degrees.toLocaleString(this.settings.language());
   });
+
+  /**
+   * What the diagram draws: the last state in which every value was usable, so an unusable or
+   * missing value leaves the drawing as it was. `undefined` until there is a first valid state.
+   */
+  protected readonly diagramState = linkedSignal<
+    { result: FencePositionFormResult['result']; show: (millimetres: number) => string },
+    BevelDiagramState | undefined
+  >({
+    // Reads the unit settings here, so changing them redraws the labels.
+    source: () => ({
+      result: this.form().result,
+      show: (millimetres: number): string => this.rowsOf()(millimetres)[0].text,
+    }),
+    computation: ({ result, show }, previous) => {
+      if (result === undefined) {
+        return previous?.value;
+      }
+      return {
+        angleDegrees: result.bevelAngleDegrees,
+        givenFace: result.givenFace,
+        thickness: show(result.thicknessMillimetres),
+        longFace: show(result.longFaceMillimetres),
+        shortFace: show(result.shortFaceMillimetres),
+      };
+    },
+  });
+
+  /** The Bevel Angle in the diagram's text alternative, in the active language's number format. */
+  protected readonly diagramAngle = computed(
+    () => this.diagramState()?.angleDegrees.toLocaleString(this.settings.language()) ?? '',
+  );
 
   protected fencePositionResults(labels: Readonly<Record<DisplayUnit, string>>): readonly Result[] {
     return toResults(this.fencePositionRows(), labels);

@@ -49,5 +49,20 @@
   "otherFace": {
     "long": "La cara larga es la cara corta más el grosor × tan del ángulo de bisel.",
     "short": "La cara corta es igual que la posición de la guía paralela."
+  },
+  "diagram": {
+    "caption": "La cara resaltada es la longitud que indicas. La posición de la guía paralela es y, que se lee en la regla de tu sierra desde su cero en la hoja.",
+    "labels": {
+      "part": "Pieza",
+      "blade": "Hoja",
+      "fence": "Guía",
+      "thickness": "Grosor",
+      "rulerZero": "Regla 0"
+    },
+    "description": {
+      "neutral": "Vista frontal de la sierra: la hoja, la pieza apoyada en la mesa contra la guía paralela y las cotas de la cara larga, x, y de la cara corta, y. Escribe el ángulo de bisel, el grosor y una longitud para verlas.",
+      "long": "Vista frontal de la sierra. La hoja está inclinada {{ angle }} grados respecto a la vertical. La pieza, de {{ thickness }} de grosor, se apoya en la mesa contra la guía paralela. Su cara larga, x, mide {{ longFace }} y su cara corta, y, mide {{ shortFace }}. La cara larga está resaltada. La posición de la guía paralela es y, medida desde el cero de la regla en la hoja.",
+      "short": "Vista frontal de la sierra. La hoja está inclinada {{ angle }} grados respecto a la vertical. La pieza, de {{ thickness }} de grosor, se apoya en la mesa contra la guía paralela. Su cara larga, x, mide {{ longFace }} y su cara corta, y, mide {{ shortFace }}. La cara corta está resaltada. La posición de la guía paralela es y, medida desde el cero de la regla en la hoja."
+    }
   }
 }

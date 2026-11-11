@@ -1,0 +1,139 @@
+:host {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 40rem;
+}
+
+svg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  font: var(--text-caption);
+}
+
+.table {
+  fill: var(--walnut);
+}
+
+.extension {
+  fill: none;
+  stroke: var(--ink-muted);
+  stroke-dasharray: 4 4;
+  stroke-width: 1;
+}
+
+.part {
+  fill: var(--maple);
+  stroke: var(--ink);
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.part-label {
+  font: var(--text-label);
+  text-anchor: middle;
+  fill: var(--ink);
+}
+
+.given-edge {
+  stroke: var(--tape-ink);
+  stroke-width: 6;
+}
+
+.vertical {
+  fill: none;
+  stroke: var(--ink);
+  stroke-dasharray: 5 4;
+  stroke-width: 1.5;
+}
+
+.arc {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.angle-label,
+.value,
+.dimension-value {
+  font: var(--text-value);
+}
+
+.angle-label {
+  text-anchor: end;
+  fill: var(--ink);
+}
+
+.blade {
+  stroke: var(--ink);
+  stroke-width: 6;
+}
+
+.teeth {
+  fill: var(--ink);
+}
+
+.fence {
+  fill: var(--ink-muted);
+}
+
+.name,
+.ruler-zero {
+  font: var(--text-caption);
+  fill: var(--ink-muted);
+}
+
+.ruler-zero {
+  text-anchor: end;
+}
+
+.thickness-line {
+  fill: none;
+  stroke: var(--ink-muted);
+  stroke-width: 1.5;
+}
+
+.value {
+  fill: var(--ink);
+}
+
+.dimension-line {
+  fill: none;
+  stroke: var(--ink-muted);
+  stroke-width: 1.5;
+}
+
+.pill {
+  fill: var(--surface-raised);
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
+.dimension-name,
+.dimension-value {
+  text-anchor: middle;
+  fill: var(--ink);
+}
+
+.dimension-name {
+  font: var(--text-caption);
+}
+
+g[data-given] path {
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+
+g[data-given] rect {
+  fill: var(--tape);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+g[data-given] text {
+  fill: var(--on-tape);
+}
+
+g[data-given] text:first-of-type {
+  font-weight: 600;
+}

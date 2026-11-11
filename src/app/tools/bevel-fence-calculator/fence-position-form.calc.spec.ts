@@ -34,6 +34,25 @@ describe('readFencePositionForm', () => {
     expect(form.result?.otherFaceMillimetres).toBeCloseTo(300, 9);
   });
 
+  it('hands on the angle, Thickness and both faces for drawing, whichever face was given', () => {
+    const fromLong = read({ bevelAngle: '22,5', thickness: '20', length: '100' }).result;
+    const fromShort = read({
+      bevelAngle: '22,5',
+      thickness: '20',
+      length: '100',
+      givenFace: 'short',
+    }).result;
+
+    expect(fromLong?.bevelAngleDegrees).toBe(22.5);
+    expect(fromLong?.thicknessMillimetres).toBe(20);
+    expect(fromLong?.longFaceMillimetres).toBe(100);
+    expect(fromLong?.shortFaceMillimetres).toBeCloseTo(91.7157, 4);
+    expect(fromShort?.longFaceMillimetres).toBeCloseTo(108.2843, 4);
+    expect(fromShort?.shortFaceMillimetres).toBe(100);
+    expect(fromShort?.givenFace).toBe('short');
+    expect(fromLong?.givenFace).toBe('long');
+  });
+
   it('uses the tangent of the Bevel Angle: 22.5° on 20 mm gives a Long Face 8.2843 mm longer', () => {
     const form = read({ bevelAngle: '22.5', thickness: '20', length: '100', givenFace: 'short' });
 

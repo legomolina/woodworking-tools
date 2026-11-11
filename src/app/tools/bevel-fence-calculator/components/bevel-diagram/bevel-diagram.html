@@ -1,0 +1,107 @@
+@let g = geometry();
+<svg
+  [attr.viewBox]="'0 0 ' + g.width + ' ' + g.height"
+  role="img"
+  [attr.aria-label]="description()"
+  focusable="false"
+>
+  <rect
+    x="0"
+    [attr.y]="g.tableY"
+    [attr.width]="g.width"
+    [attr.height]="g.tableHeight"
+    class="table"
+  />
+
+  <path [attr.d]="g.extensionLines" class="extension" />
+
+  <polygon [attr.points]="g.part" class="part" />
+  <text [attr.x]="g.partLabel.x" [attr.y]="g.partLabel.y" class="part-label">
+    {{ labels().part }}
+  </text>
+  <line
+    [attr.x1]="g.highlight.x1"
+    [attr.x2]="g.highlight.x2"
+    [attr.y1]="g.highlight.y"
+    [attr.y2]="g.highlight.y"
+    class="given-edge"
+  />
+
+  <path [attr.d]="g.vertical" class="vertical" />
+  @if (g.hasAngle) {
+    <path [attr.d]="g.arc" class="arc" />
+  }
+  <text [attr.x]="g.angleLabel.x" [attr.y]="g.angleLabel.y" class="angle-label">
+    {{ g.angleText }}
+  </text>
+
+  <line
+    [attr.x1]="g.blade.x1"
+    [attr.y1]="g.tableY"
+    [attr.x2]="g.blade.x2"
+    [attr.y2]="g.blade.y2"
+    class="blade"
+  />
+  <path [attr.d]="g.blade.teeth" class="teeth" />
+  <text [attr.x]="g.bladeLabel.x" [attr.y]="g.bladeLabel.y" class="name">
+    {{ labels().blade }}
+  </text>
+
+  <rect
+    [attr.x]="g.fence.x"
+    [attr.y]="g.fence.top"
+    [attr.width]="g.fence.width"
+    [attr.height]="g.fence.height"
+    class="fence"
+  />
+  <text [attr.x]="g.fenceLabel.x" [attr.y]="g.fenceLabel.y" class="name">
+    {{ labels().fence }}
+  </text>
+
+  <path [attr.d]="g.thicknessDimension" class="thickness-line" />
+  <text [attr.x]="g.thicknessLabel.x" [attr.y]="g.thicknessLabel.name" class="name">
+    {{ labels().thickness }}
+  </text>
+  <text [attr.x]="g.thicknessLabel.x" [attr.y]="g.thicknessLabel.value" class="value">
+    {{ g.thicknessText }}
+  </text>
+
+  <g class="dimension" [attr.data-given]="g.longChosen ? '' : null">
+    <path [attr.d]="g.long.line" class="dimension-line" />
+    <rect
+      [attr.x]="g.long.pillX"
+      [attr.y]="g.long.pillY"
+      [attr.width]="g.long.pillWidth"
+      [attr.height]="g.long.pillHeight"
+      [attr.rx]="g.long.pillRadius"
+      class="pill"
+    />
+    <text [attr.x]="g.long.centre" [attr.y]="g.long.nameY" class="dimension-name">
+      x · {{ labels().longFace }}
+    </text>
+    <text [attr.x]="g.long.centre" [attr.y]="g.long.valueY" class="dimension-value">
+      {{ g.long.value }}
+    </text>
+  </g>
+
+  <g class="dimension" [attr.data-given]="g.longChosen ? null : ''">
+    <path [attr.d]="g.short.line" class="dimension-line" />
+    <rect
+      [attr.x]="g.short.pillX"
+      [attr.y]="g.short.pillY"
+      [attr.width]="g.short.pillWidth"
+      [attr.height]="g.short.pillHeight"
+      [attr.rx]="g.short.pillRadius"
+      class="pill"
+    />
+    <text [attr.x]="g.short.centre" [attr.y]="g.short.nameY" class="dimension-name">
+      y · {{ labels().shortFace }}
+    </text>
+    <text [attr.x]="g.short.centre" [attr.y]="g.short.valueY" class="dimension-value">
+      {{ g.short.value }}
+    </text>
+  </g>
+  <text [attr.x]="g.rulerZero.x" [attr.y]="g.rulerZero.y" class="ruler-zero">
+    {{ labels().rulerZero }}
+  </text>
+</svg>
