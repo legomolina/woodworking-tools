@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsStore } from '../../core/settings/settings-store';
 import { lengthRows } from '../../shared/measurement/length-rows.calc';
@@ -10,6 +10,7 @@ import type { SegmentedOption } from '../../shared/ui/segmented-control/segmente
 import { SegmentedControl } from '../../shared/ui/segmented-control/segmented-control';
 import { TextField } from '../../shared/ui/text-field/text-field';
 import type { BevelFace } from './bevel-fence.calc';
+import { BevelFenceCalculatorStore } from './bevel-fence-calculator.store';
 import { readFencePositionForm } from './fence-position-form.calc';
 
 const TENTHS_PER_MILLIMETRE = 10;
@@ -47,20 +48,17 @@ function toResults(
 export default class BevelFenceCalculatorPage {
   private readonly settings = inject(SettingsStore);
 
-  protected readonly bevelAngle = signal('');
-  protected readonly thickness = signal('');
-  protected readonly length = signal('');
-  protected readonly givenFace = signal<BevelFace>('long');
+  protected readonly store = inject(BevelFenceCalculatorStore);
 
   protected readonly faceOptions = faceOptions;
 
   private readonly form = computed(() =>
     readFencePositionForm(
       {
-        bevelAngle: this.bevelAngle(),
-        thickness: this.thickness(),
-        length: this.length(),
-        givenFace: this.givenFace(),
+        bevelAngle: this.store.bevelAngle(),
+        thickness: this.store.thickness(),
+        length: this.store.length(),
+        givenFace: this.store.givenFace(),
       },
       this.settings.unitSystem(),
     ),
