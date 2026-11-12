@@ -64,5 +64,16 @@
       "long": "Front view of the saw. The blade is tilted {{ angle }} degrees from vertical. The Part, {{ thickness }} thick, rests on the table against the Fence. Its Long Face, x, is {{ longFace }} and its Short Face, y, is {{ shortFace }}. The Long Face is highlighted. The Fence Position is y, measured from the ruler’s zero at the blade.",
       "short": "Front view of the saw. The blade is tilted {{ angle }} degrees from vertical. The Part, {{ thickness }} thick, rests on the table against the Fence. Its Long Face, x, is {{ longFace }} and its Short Face, y, is {{ shortFace }}. The Short Face is highlighted. The Fence Position is y, measured from the ruler’s zero at the blade."
     }
+  },
+  "precision": {
+    "label": "Imperial precision",
+    "hint": "Smallest fraction shown in the fractional-inch and feet-and-inches results.",
+    "inch": "in"
+  },
+  "copy": {
+    "label": "Copy",
+    "action": "Copy the Fence Position in {{unit}}",
+    "done": "Copied the Fence Position in {{unit}}",
+    "failed": "Couldn't copy the Fence Position in {{unit}}"
   }
 }

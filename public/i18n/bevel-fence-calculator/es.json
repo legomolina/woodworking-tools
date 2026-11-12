@@ -64,5 +64,16 @@
       "long": "Vista frontal de la sierra. La hoja está inclinada {{ angle }} grados respecto a la vertical. La pieza, de {{ thickness }} de grosor, se apoya en la mesa contra la guía paralela. Su cara larga, x, mide {{ longFace }} y su cara corta, y, mide {{ shortFace }}. La cara larga está resaltada. La posición de la guía paralela es y, medida desde el cero de la regla en la hoja.",
       "short": "Vista frontal de la sierra. La hoja está inclinada {{ angle }} grados respecto a la vertical. La pieza, de {{ thickness }} de grosor, se apoya en la mesa contra la guía paralela. Su cara larga, x, mide {{ longFace }} y su cara corta, y, mide {{ shortFace }}. La cara corta está resaltada. La posición de la guía paralela es y, medida desde el cero de la regla en la hoja."
     }
+  },
+  "precision": {
+    "label": "Precisión imperial",
+    "hint": "Fracción más pequeña que se muestra en los resultados de pulgadas fraccionarias y de pies y pulgadas.",
+    "inch": "pulg."
+  },
+  "copy": {
+    "label": "Copiar",
+    "action": "Copiar la posición de la guía paralela en {{unit}}",
+    "done": "Copiado: posición de la guía paralela en {{unit}}",
+    "failed": "No se pudo copiar: posición de la guía paralela en {{unit}}"
   }
 }

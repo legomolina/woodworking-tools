@@ -347,6 +347,224 @@ describe('BevelFenceCalculatorPage', () => {
     await expectNoAxeViolations(fixture.nativeElement as HTMLElement);
   });
 
+  it('shows the typed values, the chosen face and the results again when the page is shown anew', async () => {
+    const first = render();
+    await chooseShortFace(first);
+    await fill(first, { angle: '45', thickness: '19', length: '281' });
+    first.destroy();
+
+    const second = TestBed.createComponent(BevelFenceCalculatorPage);
+    await second.whenStable();
+
+    expect([
+      input(second, 'bevel-angle').value,
+      input(second, 'thickness').value,
+      input(second, 'length').value,
+      (second.nativeElement as HTMLElement).querySelector<HTMLInputElement>(
+        'input[type="radio"][value="short"]',
+      )!.checked,
+    ]).toEqual(['45', '19', '281', true]);
+    expect(Object.keys(sections(second))).toContain('Long Face');
+  });
+
+  describe('copying the Fence Position', () => {
+    function stubClipboard(writeText = vi.fn().mockResolvedValue(undefined)): typeof writeText {
+      vi.stubGlobal('navigator', { clipboard: { writeText } });
+      return writeText;
+    }
+
+    function copyButtons(fixture: ComponentFixture<BevelFenceCalculatorPage>): HTMLElement[] {
+      return [
+        ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+          'section:first-of-type button',
+        ),
+      ];
+    }
+
+    function copyButton(
+      fixture: ComponentFixture<BevelFenceCalculatorPage>,
+      name: string,
+    ): HTMLElement {
+      const match = copyButtons(fixture).find(
+        (button) => button.getAttribute('aria-label') === name,
+      );
+      if (!match) {
+        throw new Error(`No button named ${name}.`);
+      }
+      return match;
+    }
+
+    function status(fixture: ComponentFixture<BevelFenceCalculatorPage>): string {
+      return (fixture.nativeElement as HTMLElement)
+        .querySelector('[role="status"]')!
+        .textContent.trim();
+    }
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('names the Fence Position on a Copy button for each of its rows only', async () => {
+      const fixture = render();
+      await fill(fixture, {});
+
+      expect(copyButtons(fixture).map((button) => button.getAttribute('aria-label'))).toEqual([
+        'Copy the Fence Position in millimetres',
+        'Copy the Fence Position in centimetres',
+        'Copy the Fence Position in metres',
+        'Copy the Fence Position in fractional inches',
+        'Copy the Fence Position in feet and inches',
+        'Copy the Fence Position in decimal inches',
+      ]);
+    });
+
+    it('has no Copy button while there is no result', async () => {
+      const fixture = render();
+      await fixture.whenStable();
+
+      expect(copyButtons(fixture)).toEqual([]);
+    });
+
+    it('writes an exact result as shown and confirms it', async () => {
+      const writeText = stubClipboard();
+      const fixture = render();
+      await fill(fixture, {});
+      expect(status(fixture)).toBe('');
+
+      copyButton(fixture, 'Copy the Fence Position in millimetres').click();
+      await fixture.whenStable();
+
+      expect(writeText).toHaveBeenCalledExactlyOnceWith('281 mm');
+      expect(status(fixture)).toBe('Copied the Fence Position in millimetres');
+    });
+
+    it('writes an approximate result without the ≈ marker', async () => {
+      const writeText = stubClipboard();
+      const fixture = render();
+      await fill(fixture, {});
+      expect(sections(fixture)['Fence Position'][3]).toEqual(['Fractional inches', '≈ 11 1/16"']);
+
+      copyButton(fixture, 'Copy the Fence Position in fractional inches').click();
+      await fixture.whenStable();
+
+      expect(writeText).toHaveBeenCalledExactlyOnceWith('11 1/16"');
+    });
+
+    it('says so when there is no clipboard', async () => {
+      vi.stubGlobal('navigator', {});
+      const fixture = render();
+      await fill(fixture, {});
+
+      copyButton(fixture, 'Copy the Fence Position in millimetres').click();
+      await fixture.whenStable();
+
+      expect(status(fixture)).toBe("Couldn't copy the Fence Position in millimetres");
+    });
+
+    it('says so when the clipboard refuses', async () => {
+      stubClipboard(vi.fn().mockRejectedValue(new Error('denied')));
+      const fixture = render();
+      await fill(fixture, {});
+
+      copyButton(fixture, 'Copy the Fence Position in millimetres').click();
+      await fixture.whenStable();
+
+      expect(status(fixture)).toBe("Couldn't copy the Fence Position in millimetres");
+    });
+
+    it('drops the confirmation when a value changes', async () => {
+      stubClipboard();
+      const fixture = render();
+      await fill(fixture, {});
+      copyButton(fixture, 'Copy the Fence Position in millimetres').click();
+      await fixture.whenStable();
+
+      await type(fixture, 'length', '310');
+
+      expect(status(fixture)).toBe('');
+    });
+
+    it('is named and confirmed in Spanish', async () => {
+      stubClipboard();
+      const fixture = render();
+      TestBed.inject(TranslocoService).setActiveLang('es');
+      await fill(fixture, {});
+
+      copyButton(fixture, 'Copiar la posición de la guía paralela en milímetros').click();
+      await fixture.whenStable();
+
+      expect(status(fixture)).toBe('Copiado: posición de la guía paralela en milímetros');
+    });
+
+    it('has no accessibility violations once confirmed', async () => {
+      stubClipboard();
+      const fixture = render();
+      await fill(fixture, {});
+      copyButton(fixture, 'Copy the Fence Position in millimetres').click();
+      await fixture.whenStable();
+
+      await expectNoAxeViolations(fixture.nativeElement as HTMLElement);
+    });
+  });
+
+  describe('the Imperial precision control', () => {
+    function precisionSelect(
+      fixture: ComponentFixture<BevelFenceCalculatorPage>,
+    ): HTMLSelectElement {
+      const root = fixture.nativeElement as HTMLElement;
+      const label = [...root.querySelectorAll('label')].find(
+        (candidate) => candidate.textContent.trim() === 'Imperial precision',
+      );
+      return root.querySelector<HTMLSelectElement>(`#${label?.getAttribute('for') ?? 'missing'}`)!;
+    }
+
+    it('offers every precision as a fraction of an inch', async () => {
+      const fixture = render();
+      await fixture.whenStable();
+
+      expect(
+        [...precisionSelect(fixture).options].map((option) => option.textContent.trim()),
+      ).toEqual(['1/8 in', '1/16 in', '1/32 in', '1/64 in']);
+    });
+
+    it('follows the global setting', async () => {
+      const fixture = render();
+      await fixture.whenStable();
+      TestBed.inject(SettingsStore).setImperialPrecision(8);
+      await fixture.whenStable();
+
+      expect(precisionSelect(fixture).value).toBe('8');
+    });
+
+    it('changes the global setting and updates the fractional results', async () => {
+      const fixture = render();
+      const settings = TestBed.inject(SettingsStore);
+      await fill(fixture, { length: '301' });
+      expect(sections(fixture)['Fence Position'][3]).toEqual(['Fractional inches', '≈ 11 1/8"']);
+
+      const select = precisionSelect(fixture);
+      select.value = '64';
+      select.dispatchEvent(new Event('change'));
+      await fixture.whenStable();
+
+      expect(settings.imperialPrecision()).toBe(64);
+      expect(sections(fixture)['Fence Position'][3]).toEqual(['Fractional inches', '≈ 11 7/64"']);
+    });
+
+    it('is labelled in Spanish', async () => {
+      const fixture = render();
+      TestBed.inject(TranslocoService).setActiveLang('es');
+      await fixture.whenStable();
+
+      expect((fixture.nativeElement as HTMLElement).textContent).toContain('Precisión imperial');
+      expect(
+        [...(fixture.nativeElement as HTMLElement).querySelectorAll('option')].map((option) =>
+          option.textContent.trim(),
+        ),
+      ).toEqual(['1/8 pulg.', '1/16 pulg.', '1/32 pulg.', '1/64 pulg.']);
+    });
+  });
+
   describe('front-view diagram', () => {
     it('is neutral until every value is usable', async () => {
       const fixture = render();

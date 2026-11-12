@@ -63,3 +63,62 @@ test('the front-view diagram follows the Bevel Angle and the face you give', asy
 
   await expect(diagram).toHaveAccessibleName(/tilted 0 degrees.*Short Face is highlighted/);
 });
+
+test('the values are still there after leaving the Tool and coming back', async ({ page }) => {
+  await page.goto('/bevel-fence-calculator');
+  await page.getByLabel('Bevel Angle', { exact: true }).fill('45');
+  await page.getByLabel('Thickness', { exact: true }).fill('19 mm');
+  await page.getByRole('radio', { name: 'Short Face' }).check();
+  await page.getByLabel('Short Face length').fill('281 mm');
+
+  await page.getByRole('link', { name: 'Woodworking Tools' }).first().click();
+  await page.getByRole('link', { name: 'Bevel Fence Calculator' }).first().click();
+
+  await expect(page.getByLabel('Bevel Angle', { exact: true })).toHaveValue('45');
+  await expect(page.getByLabel('Thickness', { exact: true })).toHaveValue('19 mm');
+  await expect(page.getByRole('radio', { name: 'Short Face' })).toBeChecked();
+  await expect(page.getByLabel('Short Face length')).toHaveValue('281 mm');
+  await expect(page.getByRole('heading', { level: 2, name: 'Long Face' })).toBeVisible();
+});
+
+test('copying the Fence Position confirms it politely', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/bevel-fence-calculator');
+  await page.getByLabel('Bevel Angle', { exact: true }).fill('45');
+  await page.getByLabel('Thickness', { exact: true }).fill('19 mm');
+  await page.getByLabel('Long Face length').fill('300 mm');
+
+  await page.getByRole('button', { name: 'Copy the Fence Position in millimetres' }).click();
+
+  await expect(page.getByRole('status')).toHaveText('Copied the Fence Position in millimetres');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('281 mm');
+});
+
+test.describe('the Imperial precision', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test('offers each precision as a translated fraction of an inch', async ({ page }) => {
+    await page.goto('/bevel-fence-calculator');
+
+    await expect(page.getByLabel('Imperial precision').locator('option')).toHaveText([
+      '1/8 in',
+      '1/16 in',
+      '1/32 in',
+      '1/64 in',
+    ]);
+  });
+
+  test('changing it on the page updates the results and the settings page', async ({ page }) => {
+    await page.goto('/bevel-fence-calculator');
+    await page.getByLabel('Bevel Angle', { exact: true }).fill('45');
+    await page.getByLabel('Thickness', { exact: true }).fill('19 mm');
+    await page.getByLabel('Long Face length').fill('301 mm');
+    await expect(page.getByText('≈ 11 1/8"').first()).toBeVisible();
+
+    await page.getByLabel('Imperial precision').selectOption('64');
+
+    await expect(page.getByText('≈ 11 7/64"').first()).toBeVisible();
+    await page.getByRole('link', { name: 'Settings' }).first().click();
+    await expect(page.getByLabel('Imperial precision')).toHaveValue('64');
+  });
+});

@@ -1,15 +1,24 @@
-import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import { LowerCasePipe } from '@angular/common';
+import { Component, computed, inject, linkedSignal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsStore } from '../../core/settings/settings-store';
+import { resultCopy } from '../../shared/clipboard/result-copy';
+import {
+  ImperialPrecisionChoice,
+  imperialPrecisionOptions,
+} from '../../shared/measurement/imperial-precision-choice';
 import { lengthRows } from '../../shared/measurement/length-rows.calc';
 import type { LengthRow } from '../../shared/measurement/length-rows.calc';
 import type { DisplayUnit } from '../../shared/measurement/show-length.calc';
 import type { Result } from '../../shared/ui/result-list/result-list';
+import { Button } from '../../shared/ui/button/button';
 import { ResultList } from '../../shared/ui/result-list/result-list';
 import type { SegmentedOption } from '../../shared/ui/segmented-control/segmented-control';
 import { SegmentedControl } from '../../shared/ui/segmented-control/segmented-control';
+import { SelectField } from '../../shared/ui/select-field/select-field';
 import { TextField } from '../../shared/ui/text-field/text-field';
 import type { BevelFace } from './bevel-fence.calc';
+import { BevelFenceCalculatorStore } from './bevel-fence-calculator.store';
 import { BevelDiagram } from './components/bevel-diagram/bevel-diagram';
 import type { BevelDiagramState } from './components/bevel-diagram/bevel-diagram';
 import type { FencePositionFormResult } from './fence-position-form.calc';
@@ -43,27 +52,35 @@ function toResults(
 /** The Bevel Fence Calculator's page: typed values in, the Fence Position and the other face out. */
 @Component({
   selector: 'wt-bevel-fence-calculator-page',
-  imports: [TranslocoPipe, TextField, SegmentedControl, ResultList, BevelDiagram],
+  imports: [
+    TranslocoPipe,
+    LowerCasePipe,
+    TextField,
+    SelectField,
+    SegmentedControl,
+    ResultList,
+    Button,
+    BevelDiagram,
+  ],
   templateUrl: './bevel-fence-calculator.page.html',
   styleUrl: './bevel-fence-calculator.page.css',
 })
 export default class BevelFenceCalculatorPage {
   private readonly settings = inject(SettingsStore);
+  protected readonly precision = inject(ImperialPrecisionChoice);
 
-  protected readonly bevelAngle = signal('');
-  protected readonly thickness = signal('');
-  protected readonly length = signal('');
-  protected readonly givenFace = signal<BevelFace>('long');
+  protected readonly store = inject(BevelFenceCalculatorStore);
 
+  protected readonly precisionOptions = imperialPrecisionOptions;
   protected readonly faceOptions = faceOptions;
 
   private readonly form = computed(() =>
     readFencePositionForm(
       {
-        bevelAngle: this.bevelAngle(),
-        thickness: this.thickness(),
-        length: this.length(),
-        givenFace: this.givenFace(),
+        bevelAngle: this.store.bevelAngle(),
+        thickness: this.store.thickness(),
+        length: this.store.length(),
+        givenFace: this.store.givenFace(),
       },
       this.settings.unitSystem(),
     ),
@@ -92,6 +109,10 @@ export default class BevelFenceCalculatorPage {
     const { result } = this.form();
     return result === undefined ? [] : this.rowsOf()(result.otherFaceMillimetres);
   });
+
+  private readonly copier = resultCopy(this.fencePositionRows);
+
+  protected readonly copyOutcomes = this.copier.outcomes;
 
   /** The minimum Long Face in the preferred unit, for the message; empty when not needed. */
   protected readonly minimumLongFace = computed(() => {
@@ -154,5 +175,10 @@ export default class BevelFenceCalculatorPage {
       this.otherFaceRows().filter((row) => row.unit === 'mm'),
       labels,
     );
+  }
+
+  /** Copies a Fence Position result, without the `≈` marker, and confirms (or reports failure). */
+  protected async copy(result: Result): Promise<void> {
+    await this.copier.copy(result);
   }
 }

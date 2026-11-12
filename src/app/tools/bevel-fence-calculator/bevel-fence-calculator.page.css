@@ -52,6 +52,10 @@ section p {
   font: var(--text-caption);
 }
 
+[role='status'] {
+  min-block-size: 1lh;
+}
+
 h2 {
   font: var(--text-heading);
 }
