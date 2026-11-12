@@ -49,5 +49,16 @@
   "otherFace": {
     "long": "The Long Face is the Short Face plus Thickness × tan of the Bevel Angle.",
     "short": "The Short Face equals the Fence Position."
+  },
+  "precision": {
+    "label": "Imperial precision",
+    "hint": "Smallest fraction shown in the fractional-inch and feet-and-inches results.",
+    "inch": "in"
+  },
+  "copy": {
+    "label": "Copy",
+    "action": "Copy the Fence Position in {{unit}}",
+    "done": "Copied the Fence Position in {{unit}}",
+    "failed": "Couldn't copy the Fence Position in {{unit}}"
   }
 }

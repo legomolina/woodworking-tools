@@ -49,5 +49,16 @@
   "otherFace": {
     "long": "La cara larga es la cara corta más el grosor × tan del ángulo de bisel.",
     "short": "La cara corta es igual que la posición de la guía paralela."
+  },
+  "precision": {
+    "label": "Precisión imperial",
+    "hint": "Fracción más pequeña que se muestra en los resultados de pulgadas fraccionarias y de pies y pulgadas.",
+    "inch": "pulg."
+  },
+  "copy": {
+    "label": "Copiar",
+    "action": "Copiar la posición de la guía paralela en {{unit}}",
+    "done": "Copiado: posición de la guía paralela en {{unit}}",
+    "failed": "No se pudo copiar: posición de la guía paralela en {{unit}}"
   }
 }

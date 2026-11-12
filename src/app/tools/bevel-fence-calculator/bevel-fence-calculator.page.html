@@ -76,6 +76,16 @@
   (valueChange)="store.setLength($event)"
 />
 
+<wt-select-field
+  name="imperial-precision"
+  measurement
+  [label]="'bevelFenceCalculator.precision.label' | transloco"
+  [hint]="'bevelFenceCalculator.precision.hint' | transloco"
+  [options]="precisionOptions('bevelFenceCalculator.precision.inch' | transloco)"
+  [value]="precision.value()"
+  (valueChange)="precision.choose($event)"
+/>
+
 @let unitLabels =
   {
     'mm': 'bevelFenceCalculator.units.mm' | transloco,
@@ -95,7 +105,15 @@
       <p>{{ 'bevelFenceCalculator.fencePosition.description' | transloco }}</p>
     </hgroup>
   }
-  <wt-result-list [results]="fencePositionResults(unitLabels)" />
+  <wt-result-list [results]="fencePositionResults(unitLabels)" [action]="copyButton" />
+  <p role="status">
+    @for (outcome of copyOutcomes(); track outcome) {
+      {{
+        (outcome.copied ? 'bevelFenceCalculator.copy.done' : 'bevelFenceCalculator.copy.failed')
+          | transloco: { unit: outcome.unit | lowercase }
+      }}
+    }
+  </p>
 </section>
 
 <section aria-labelledby="other-face-heading">
@@ -111,6 +129,20 @@
     <p>{{ 'bevelFenceCalculator.otherFace.short' | transloco }}</p>
   }
 </section>
+
+<ng-template #copyButton let-result>
+  <button
+    wt-button
+    size="small"
+    type="button"
+    [attr.aria-label]="
+      'bevelFenceCalculator.copy.action' | transloco: { unit: result.label | lowercase }
+    "
+    (click)="copy(result)"
+  >
+    {{ 'bevelFenceCalculator.copy.label' | transloco }}
+  </button>
+</ng-template>
 
 <p class="note">
   <strong>{{ 'bevelFenceCalculator.note.title' | transloco }}</strong>
