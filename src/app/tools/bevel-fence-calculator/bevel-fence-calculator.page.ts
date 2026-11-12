@@ -1,5 +1,5 @@
 import { LowerCasePipe } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, linkedSignal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsStore } from '../../core/settings/settings-store';
 import { resultCopy } from '../../shared/clipboard/result-copy';
@@ -19,6 +19,9 @@ import { SelectField } from '../../shared/ui/select-field/select-field';
 import { TextField } from '../../shared/ui/text-field/text-field';
 import type { BevelFace } from './bevel-fence.calc';
 import { BevelFenceCalculatorStore } from './bevel-fence-calculator.store';
+import { BevelDiagram } from './components/bevel-diagram/bevel-diagram';
+import type { BevelDiagramState } from './components/bevel-diagram/bevel-diagram';
+import type { FencePositionFormResult } from './fence-position-form.calc';
 import { readFencePositionForm } from './fence-position-form.calc';
 
 const TENTHS_PER_MILLIMETRE = 10;
@@ -57,6 +60,7 @@ function toResults(
     SegmentedControl,
     ResultList,
     Button,
+    BevelDiagram,
   ],
   templateUrl: './bevel-fence-calculator.page.html',
   styleUrl: './bevel-fence-calculator.page.css',
@@ -126,6 +130,39 @@ export default class BevelFenceCalculatorPage {
   protected readonly shownAngle = computed(() => {
     const degrees = this.form().bevelAngleDegrees;
     return degrees === undefined ? '' : degrees.toLocaleString(this.settings.language());
+  });
+
+  /**
+   * What the diagram draws: the last state in which every value was usable, so an unusable or
+   * missing value leaves the drawing as it was. `undefined` until there is a first valid state.
+   */
+  protected readonly diagramState = linkedSignal<
+    {
+      result: FencePositionFormResult['result'];
+      show: (millimetres: number) => string;
+      language: string;
+    },
+    BevelDiagramState | undefined
+  >({
+    // Reads the unit settings here, so changing them redraws the labels.
+    source: () => ({
+      result: this.form().result,
+      show: (millimetres: number): string => this.rowsOf()(millimetres)[0].text,
+      language: this.settings.language(),
+    }),
+    computation: ({ result, show, language }, previous) => {
+      if (result === undefined) {
+        return previous?.value;
+      }
+      return {
+        angleDegrees: result.bevelAngleDegrees,
+        angle: result.bevelAngleDegrees.toLocaleString(language),
+        givenFace: result.givenFace,
+        thickness: show(result.thicknessMillimetres),
+        longFace: show(result.longFaceMillimetres),
+        shortFace: show(result.shortFaceMillimetres),
+      };
+    },
   });
 
   protected fencePositionResults(labels: Readonly<Record<DisplayUnit, string>>): readonly Result[] {

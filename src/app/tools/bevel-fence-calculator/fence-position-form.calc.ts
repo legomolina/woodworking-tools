@@ -22,6 +22,12 @@ export interface FencePositionFormResult {
   /** Set only when every value is present and usable. */
   readonly result?: {
     readonly fencePositionMillimetres: number;
+    readonly bevelAngleDegrees: number;
+    readonly thicknessMillimetres: number;
+    readonly longFaceMillimetres: number;
+    readonly shortFaceMillimetres: number;
+    /** The face whose length was typed. */
+    readonly givenFace: BevelFace;
     /** The face that was not given. */
     readonly otherFace: BevelFace;
     readonly otherFaceMillimetres: number;
@@ -91,6 +97,11 @@ export function readFencePositionForm(
     errors,
     result: {
       fencePositionMillimetres: calculated.fencePositionMillimetres,
+      bevelAngleDegrees: angle.degrees,
+      thicknessMillimetres: thickness.millimetres,
+      longFaceMillimetres: calculated.longFaceMillimetres,
+      shortFaceMillimetres: calculated.shortFaceMillimetres,
+      givenFace: texts.givenFace,
       otherFace,
       otherFaceMillimetres:
         otherFace === 'short' ? calculated.shortFaceMillimetres : calculated.longFaceMillimetres,

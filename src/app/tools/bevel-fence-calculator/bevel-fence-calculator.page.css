@@ -24,6 +24,24 @@ wt-text-field {
   max-inline-size: none;
 }
 
+figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  margin: 0;
+  padding: var(--space-6);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+
+  background-color: var(--surface-raised);
+}
+
+figcaption {
+  font: var(--text-caption);
+  color: var(--ink-muted);
+}
+
 section {
   display: flex;
   flex-direction: column;

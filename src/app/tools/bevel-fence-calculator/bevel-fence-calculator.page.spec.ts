@@ -87,6 +87,25 @@ function pageText(fixture: ComponentFixture<BevelFenceCalculatorPage>): string {
   return (fixture.nativeElement as HTMLElement).textContent;
 }
 
+function diagram(fixture: ComponentFixture<BevelFenceCalculatorPage>): SVGElement {
+  return (fixture.nativeElement as HTMLElement).querySelector('svg[role="img"]')!;
+}
+
+function diagramDescription(fixture: ComponentFixture<BevelFenceCalculatorPage>): string {
+  return diagram(fixture).getAttribute('aria-label') ?? '';
+}
+
+function diagramBladeLean(fixture: ComponentFixture<BevelFenceCalculatorPage>): number {
+  const blade = diagram(fixture).querySelector('line.blade')!;
+  return Number(blade.getAttribute('x1')) - Number(blade.getAttribute('x2'));
+}
+
+function highlighted(fixture: ComponentFixture<BevelFenceCalculatorPage>): string[] {
+  return [...diagram(fixture).querySelectorAll('g[data-given] .dimension-name')].map((name) =>
+    name.textContent.trim(),
+  );
+}
+
 describe('BevelFenceCalculatorPage', () => {
   it("shows the Tool's name as its only h1 in English", async () => {
     const fixture = render();
@@ -543,6 +562,109 @@ describe('BevelFenceCalculatorPage', () => {
           option.textContent.trim(),
         ),
       ).toEqual(['1/8 pulg.', '1/16 pulg.', '1/32 pulg.', '1/64 pulg.']);
+    });
+  });
+
+  describe('front-view diagram', () => {
+    it('is neutral until every value is usable', async () => {
+      const fixture = render();
+      await type(fixture, 'bevel-angle', '45');
+      await type(fixture, 'thickness', '19');
+
+      expect(diagramDescription(fixture)).toContain('Type the Bevel Angle');
+      expect(diagramDescription(fixture)).not.toContain('281');
+    });
+
+    it('describes the calculated values in a single sentence that follows them', async () => {
+      const fixture = render();
+      await fill(fixture, {});
+
+      expect(diagramDescription(fixture)).toBe(
+        'Front view of the saw. The blade is tilted 45 degrees from vertical. The Part, 19 mm thick, rests on the table against the Fence. Its Long Face, x, is 300 mm and its Short Face, y, is 281 mm. The Long Face is highlighted. The Fence Position is y, measured from the ruler’s zero at the blade.',
+      );
+    });
+
+    it('tilts the blade by the Bevel Angle: upright at 0°, fully leaning at 45°', async () => {
+      const fixture = render();
+      await fill(fixture, { angle: '45' });
+      const leaning = diagramBladeLean(fixture);
+
+      await type(fixture, 'bevel-angle', '0');
+
+      expect(leaning).toBeGreaterThan(100);
+      expect(diagramBladeLean(fixture)).toBe(0);
+    });
+
+    it('highlights the face that was given and moves when the choice changes', async () => {
+      const fixture = render();
+      await fill(fixture, {});
+      expect(highlighted(fixture)).toEqual(['x · Long Face']);
+
+      await chooseShortFace(fixture);
+
+      expect(highlighted(fixture)).toEqual(['y · Short Face']);
+      expect(diagramDescription(fixture)).toContain('The Short Face is highlighted.');
+    });
+
+    it('keeps the last valid drawing while a value cannot be used', async () => {
+      const fixture = render();
+      await fill(fixture, {});
+      const valid = diagramDescription(fixture);
+
+      await type(fixture, 'bevel-angle', '50');
+      expect(diagramDescription(fixture)).toBe(valid);
+
+      await type(fixture, 'bevel-angle', '45');
+      await type(fixture, 'length', '19');
+      expect(diagramDescription(fixture)).toBe(valid);
+    });
+
+    it('shows the values in the preferred Unit System', async () => {
+      const fixture = render();
+      TestBed.inject(SettingsStore).setUnitSystem('imperial');
+      await fill(fixture, { thickness: '3/4"', length: '12"' });
+
+      expect(diagramDescription(fixture)).toContain('3/4" thick');
+      expect(diagramDescription(fixture)).toContain('Long Face, x, is 12"');
+    });
+
+    it('redraws its labels when the Unit System changes', async () => {
+      const fixture = render();
+      await fill(fixture, { thickness: '19 mm', length: '300 mm' });
+      expect(diagramDescription(fixture)).toContain('19 mm thick');
+
+      TestBed.inject(SettingsStore).setUnitSystem('imperial');
+      await fixture.whenStable();
+
+      expect(diagramDescription(fixture)).toContain('3/4" thick');
+    });
+
+    it('writes a decimal Bevel Angle in the active language', async () => {
+      const fixture = render();
+      TestBed.inject(TranslocoService).setActiveLang('es');
+      await fill(fixture, { angle: '22.5' });
+
+      expect(diagramDescription(fixture)).toContain('inclinada 22,5 grados');
+      expect(diagram(fixture).textContent).toContain('22,5°');
+    });
+
+    it('is described in Spanish', async () => {
+      const fixture = render();
+      TestBed.inject(TranslocoService).setActiveLang('es');
+      await fill(fixture, {});
+
+      expect(diagramDescription(fixture)).toBe(
+        'Vista frontal de la sierra. La hoja está inclinada 45 grados respecto a la vertical. La pieza, de 19 mm de grosor, se apoya en la mesa contra la guía paralela. Su cara larga, x, mide 300 mm y su cara corta, y, mide 281 mm. La cara larga está resaltada. La posición de la guía paralela es y, medida desde el cero de la regla en la hoja.',
+      );
+    });
+
+    it('has no accessibility violations, neutral or drawn', async () => {
+      const fixture = render();
+      await fixture.whenStable();
+      await expectNoAxeViolations(fixture.nativeElement as HTMLElement);
+
+      await fill(fixture, {});
+      await expectNoAxeViolations(fixture.nativeElement as HTMLElement);
     });
   });
 });

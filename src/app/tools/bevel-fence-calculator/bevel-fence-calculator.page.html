@@ -86,6 +86,44 @@
   (valueChange)="precision.choose($event)"
 />
 
+@let diagram = diagramState();
+<figure>
+  <wt-bevel-diagram
+    [state]="diagram"
+    [labels]="{
+      part: 'bevelFenceCalculator.diagram.labels.part' | transloco,
+      blade: 'bevelFenceCalculator.diagram.labels.blade' | transloco,
+      fence: 'bevelFenceCalculator.diagram.labels.fence' | transloco,
+      thickness: 'bevelFenceCalculator.diagram.labels.thickness' | transloco,
+      rulerZero: 'bevelFenceCalculator.diagram.labels.rulerZero' | transloco,
+      longFace: 'bevelFenceCalculator.faces.long' | transloco,
+      shortFace: 'bevelFenceCalculator.faces.short' | transloco,
+    }"
+    [description]="
+      diagram === undefined
+        ? ('bevelFenceCalculator.diagram.description.neutral' | transloco)
+        : diagram.givenFace === 'long'
+          ? ('bevelFenceCalculator.diagram.description.long'
+            | transloco
+              : {
+                  angle: diagram.angle,
+                  thickness: diagram.thickness,
+                  longFace: diagram.longFace,
+                  shortFace: diagram.shortFace,
+                })
+          : ('bevelFenceCalculator.diagram.description.short'
+            | transloco
+              : {
+                  angle: diagram.angle,
+                  thickness: diagram.thickness,
+                  longFace: diagram.longFace,
+                  shortFace: diagram.shortFace,
+                })
+    "
+  />
+  <figcaption>{{ 'bevelFenceCalculator.diagram.caption' | transloco }}</figcaption>
+</figure>
+
 @let unitLabels =
   {
     'mm': 'bevelFenceCalculator.units.mm' | transloco,

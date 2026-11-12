@@ -50,6 +50,21 @@
     "long": "The Long Face is the Short Face plus Thickness × tan of the Bevel Angle.",
     "short": "The Short Face equals the Fence Position."
   },
+  "diagram": {
+    "caption": "The highlighted face is the length you gave. The Fence Position is y, read on your saw's ruler from its zero at the blade.",
+    "labels": {
+      "part": "Part",
+      "blade": "Blade",
+      "fence": "Fence",
+      "thickness": "Thickness",
+      "rulerZero": "Ruler 0"
+    },
+    "description": {
+      "neutral": "Front view of the saw: the blade, the Part resting on the table against the Fence, and the Long Face, x, and Short Face, y, dimensions. Type the Bevel Angle, the Thickness and a length to see them.",
+      "long": "Front view of the saw. The blade is tilted {{ angle }} degrees from vertical. The Part, {{ thickness }} thick, rests on the table against the Fence. Its Long Face, x, is {{ longFace }} and its Short Face, y, is {{ shortFace }}. The Long Face is highlighted. The Fence Position is y, measured from the ruler’s zero at the blade.",
+      "short": "Front view of the saw. The blade is tilted {{ angle }} degrees from vertical. The Part, {{ thickness }} thick, rests on the table against the Fence. Its Long Face, x, is {{ longFace }} and its Short Face, y, is {{ shortFace }}. The Short Face is highlighted. The Fence Position is y, measured from the ruler’s zero at the blade."
+    }
+  },
   "precision": {
     "label": "Imperial precision",
     "hint": "Smallest fraction shown in the fractional-inch and feet-and-inches results.",
